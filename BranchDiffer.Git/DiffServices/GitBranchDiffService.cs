@@ -8,12 +8,12 @@ namespace BranchDiffer.Git.DiffServices
 {
     public interface IGitBranchDiffService
     {
-        IEnumerable<string> GetDiffFileNames(string repo, string currentBranch, string baseBranch);
+        IList<string> GetDiffFileNames(string repo, string currentBranch, string baseBranch);
     }
 
     public class GitBranchDiffService : IGitBranchDiffService
     {
-        public IEnumerable<string> GetDiffFileNames(string repo, string currentBranch, string baseBranch)
+        public IList<string> GetDiffFileNames(string repo, string currentBranch, string baseBranch)
         {
             var gitRepo = new Repository(repo);
             var selectedWorkingBranch = gitRepo.Branches[currentBranch];
@@ -29,13 +29,15 @@ namespace BranchDiffer.Git.DiffServices
             var branchDiffResult = gitRepo.Diff.Compare<TreeChanges>(selectedBaseBranch.Tip.Tree, selectedWorkingBranch.Tip.Tree, compareOptions);
             var modifiedTreeChanges = branchDiffResult.Modified;
 
-            using (var iterator = modifiedTreeChanges.GetEnumerator())
+            // could get WAY TOO big on large diffs (if merge only diff?)
+            List<string> resultList = new List<string>();
+
+            foreach (var item in modifiedTreeChanges)
             {
-                while (iterator.MoveNext())
-                {
-                    yield return iterator.Current.Path;
-                }
+                resultList.Add(item.Path);
             }
+
+            return resultList;
         }
     }
 }
