@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31112.23
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitBranchDiffer", "GitBranchDiffer\GitBranchDiffer.csproj", "{F68A200A-0E17-4351-9766-7A10E94DAC71}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F68A200A-0E17-4351-9766-7A10E94DAC71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F68A200A-0E17-4351-9766-7A10E94DAC71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F68A200A-0E17-4351-9766-7A10E94DAC71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F68A200A-0E17-4351-9766-7A10E94DAC71}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2FEAB5E3-A128-4171-B8ED-72F82D6E285B}
+	EndGlobalSection
+EndGlobal
