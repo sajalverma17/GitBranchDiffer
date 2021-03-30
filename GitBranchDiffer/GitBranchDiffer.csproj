@@ -78,7 +78,7 @@
   <ItemGroup>
     <Content Include="Resources\BranchDiffWindowCommand.png" />
     <Content Include="Resources\BranchDiffWindowPackage.ico" />
-    <VSCTCompile Include="BranchDiffWindowPackage.vsct">
+    <VSCTCompile Include="GitBranchDifferPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
   </ItemGroup>
