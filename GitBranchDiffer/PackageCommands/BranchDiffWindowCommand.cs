@@ -90,10 +90,6 @@ namespace GitBranchDiffer.PackageCommands
         /// <param name="e">The event args.</param>
         private void Execute(object sender, EventArgs e)
         {
-            var vm = new BranchDiffViewModel();
-            vm.Init();
-            vm.Generate();
-
             package.JoinableTaskFactory.RunAsync(async delegate
             {
                 ToolWindowPane window = await package.ShowToolWindowAsync(typeof(BranchDiffWindow), 0, true, package.DisposalToken);
@@ -102,7 +98,11 @@ namespace GitBranchDiffer.PackageCommands
                 {
                     throw new NotSupportedException("Cannot create tool window");
                 }
-                
+
+                var vm = new BranchDiffViewModel();
+                vm.Init();
+                vm.Generate();
+
                 branchDiffWindow.BranchDiffWindowControl.TextBlockUnderText.Text = "Generated Diff list";
             });
         }
