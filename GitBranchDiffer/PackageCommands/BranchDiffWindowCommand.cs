@@ -1,4 +1,5 @@
 ﻿using GitBranchDiffer.View;
+using GitBranchDiffer.ViewModels;
 using Microsoft;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -89,6 +90,10 @@ namespace GitBranchDiffer.PackageCommands
         /// <param name="e">The event args.</param>
         private void Execute(object sender, EventArgs e)
         {
+            var vm = new BranchDiffViewModel();
+            vm.Init();
+            vm.Generate();
+
             package.JoinableTaskFactory.RunAsync(async delegate
             {
                 ToolWindowPane window = await package.ShowToolWindowAsync(typeof(BranchDiffWindow), 0, true, package.DisposalToken);
@@ -97,9 +102,8 @@ namespace GitBranchDiffer.PackageCommands
                 {
                     throw new NotSupportedException("Cannot create tool window");
                 }
-
-                Thread.Sleep(5000);
-                branchDiffWindow.BranchDiffWindowControl.TextBlockUnderText.Text = "Text updated on toolbar command click";
+                
+                branchDiffWindow.BranchDiffWindowControl.TextBlockUnderText.Text = "Generated Diff list";
             });
         }
 

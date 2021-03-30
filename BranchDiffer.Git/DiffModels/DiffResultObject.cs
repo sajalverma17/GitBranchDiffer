@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BranchDiffer.Git.DiffModels
 {
-    public class VSDiffModel
+    public class DiffResultObject
     {
         /// <summary>
         /// Windows file name of the diffed object.

@@ -8,7 +8,10 @@
              d:DataContext="{d:DesignInstance viewModel:BranchDiffViewModel}"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <StackPanel Orientation="Vertical">            
+        <StackPanel Orientation="Vertical">
+            <ListBox x:Name="FileChangedList" ItemsSource="{Binding ModifiedFileList}">
+                
+            </ListBox>
             <TextBlock x:Name="TextBlockUnderText" Margin="10" 
                        HorizontalAlignment="Center" Text="{Binding ButtonTextToTest}"
                        Background="RosyBrown"
