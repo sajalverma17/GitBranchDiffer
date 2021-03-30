@@ -99,8 +99,8 @@ namespace GitBranchDiffer.PackageCommands
                     throw new NotSupportedException("Cannot create tool window");
                 }
 
-                var vm = new BranchDiffViewModel();
-                vm.Init();
+                var vm = DIContainer.Instance.GetService(typeof(BranchDiffViewModel)) as BranchDiffViewModel;
+                Assumes.Present(vm);
                 vm.Generate();
 
                 branchDiffWindow.BranchDiffWindowControl.TextBlockUnderText.Text = "Generated Diff list";

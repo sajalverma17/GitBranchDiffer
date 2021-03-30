@@ -19,7 +19,6 @@ namespace BranchDiffer.Git.DiffServices
             var selectedWorkingBranch = gitRepo.Branches[currentBranch];
             var selectedBaseBranch = gitRepo.Branches[baseBranch];
 
-            // TODO : Include rename detections, diff lines
             var compareOptions = new CompareOptions
             {
                 Algorithm = DiffAlgorithm.Minimal,

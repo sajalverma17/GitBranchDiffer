@@ -1,4 +1,4 @@
-﻿using BranchDiffer.Git.DiffServices;
+﻿using BranchDiffer.Git.DiffServices; 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,17 +13,16 @@ namespace GitBranchDiffer.ViewModels
         private IGitBranchDiffService gitBranchDiffService;
         public string ButtonTextToTest => "Test String";
 
-        // TODO : Get everything from VisualStudio.Teams.Git 
+        // TODO : Get everything from VisualStudio.Teams.Git, do a VM.Init with this info
         public const string CurrentSelectedBranchName = "feature/test-feature";
         public const string BranchToCompareWith = "master";
         public const string Repo = @"C:\Tools\ProjectUnderTest";
 
         public IEnumerable<string> ModifiedFileList { get; set; }
 
-        // Initialize the Diff VM with branches to diff
-        public void Init()
+        public BranchDiffViewModel(IGitBranchDiffService gitBranchDiffService)
         {
-            this.gitBranchDiffService = new GitBranchDiffService();
+            this.gitBranchDiffService = gitBranchDiffService;
         }
 
         public void Generate()
