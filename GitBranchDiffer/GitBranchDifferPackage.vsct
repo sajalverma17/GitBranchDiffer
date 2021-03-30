@@ -31,6 +31,23 @@
     group; your package should define its own command set in order to avoid collisions
     with command ids defined by other packages. -->
 
+    <!-- Menu section. -->
+    <Menus>
+      <Menu guid="guidBranchDiffWindowPackageCmdSet" id="BranchDiffToolbarId" priority="0x0000" type="ToolWindowToolbar">
+        <Parent guid="guidBranchDiffWindowPackageCmdSet" id="BranchDiffToolbarId" />
+        <Strings>
+          <ButtonText>Tool Window Toolbar</ButtonText>
+          <CommandName>Tool Window Toolbar</CommandName>
+        </Strings>
+      </Menu>
+    </Menus>
+
+    <!-- Groups section. -->
+    <Groups>
+      <Group guid="guidBranchDiffWindowPackageCmdSet" id="BranchDiffToolbarGroupId" priority="0x0000">
+        <Parent guid="guidBranchDiffWindowPackageCmdSet" id="BranchDiffToolbarId" />
+      </Group>
+    </Groups>
     <!--Buttons section. -->
     <!--This section defines the elements the user can interact with, like a menu command or a button
         or combo box in a toolbar. -->
@@ -42,13 +59,14 @@
               <CommandFlag>DefaultInvisible</CommandFlag>
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node /> -->
-      <Button guid="guidBranchDiffWindowPackageCmdSet" id="BranchDiffWindowCommandId" priority="0x0100" type="Button">
-        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1"/>
+      <Button guid="guidBranchDiffWindowPackageCmdSet" id="cmdidBranchDiffOpen" priority="0x0101" type="Button">
+        <Parent guid="guidBranchDiffWindowPackageCmdSet" id="BranchDiffToolbarGroupId"/>
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
-          <ButtonText>BranchDiffWindow</ButtonText>
+          <ButtonText>Show Branch Diff</ButtonText>
+          <CommandName>cmdidBranchDiffOpen</CommandName>
         </Strings>
-      </Button>
+      </Button>      
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -67,8 +85,11 @@
     <GuidSymbol name="guidBranchDiffWindowPackage" value="{156fcec6-25ac-4279-91cc-bbe2e4ea8c14}" />
 
     <!-- This is the guid used to group the menu commands together -->
-    <GuidSymbol name="guidBranchDiffWindowPackageCmdSet" value="{91fdc0b8-f3f8-4820-9734-1721db207258}">
-      <IDSymbol name="BranchDiffWindowCommandId" value="0x0100" />
+    <GuidSymbol name="guidBranchDiffWindowPackageCmdSet" value="{91fdc0b8-f3f8-4820-9734-1721db207258}">      
+      <IDSymbol name="BranchDiffToolbarId" value="0x1000" />
+      <IDSymbol name="BranchDiffToolbarGroupId" value="0x1001"/>
+      <IDSymbol name="cmdidBranchDiff" value="0x0100" />
+      <IDSymbol name="cmdidBranchDiffOpen" value="0x132" />
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{25d85e45-0907-47dc-941b-510c628b5245}" >
