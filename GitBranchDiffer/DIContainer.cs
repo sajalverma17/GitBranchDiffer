@@ -29,6 +29,7 @@ namespace GitBranchDiffer
                 return instance;
             }
         }
+
         private static IServiceProvider BuildProvider()
         {
             var container = new ServiceCollection();
