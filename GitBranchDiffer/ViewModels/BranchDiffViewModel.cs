@@ -11,6 +11,7 @@ namespace GitBranchDiffer.ViewModels
     public class BranchDiffViewModel
     {
         private IGitBranchDiffService gitBranchDiffService;
+
         public string ButtonTextToTest => "Test String";
 
         // TODO : Get everything from VisualStudio.Teams.Git, do a VM.Init with this info
@@ -18,7 +19,11 @@ namespace GitBranchDiffer.ViewModels
         public const string BranchToCompareWith = "master";
         public const string Repo = @"C:\Tools\ProjectUnderTest";
 
-        public IEnumerable<string> ModifiedFileList { get; set; }
+        public ObservableCollection<string> ModifiedFileList
+        {
+            get;
+            set;
+        }
 
         public BranchDiffViewModel(IGitBranchDiffService gitBranchDiffService)
         {
@@ -28,7 +33,7 @@ namespace GitBranchDiffer.ViewModels
         public void Generate()
         {
             var changeList = this.gitBranchDiffService.GetDiffFileNames(Repo, BranchToCompareWith, CurrentSelectedBranchName);
-            this.ModifiedFileList = changeList;
+            this.ModifiedFileList = new ObservableCollection<string>(changeList);
         }
     }
 }
