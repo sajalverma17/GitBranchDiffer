@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GitBranchDiffer
 {
-    class GitBranchDifferPluginOptions : DialogPage
+    public class GitBranchDifferPluginOptions : DialogPage
     {
         // Default base is master
         private string gitBranchName = "master";

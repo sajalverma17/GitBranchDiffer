@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace GitBranchDiffer.ViewModels
 {
-    // View model to perform the diff...
     public class BranchDiffViewModel
     {
         private readonly IGitBranchDiffService gitBranchDiffService;
@@ -24,9 +23,9 @@ namespace GitBranchDiffer.ViewModels
             set;
         }
 
-        public BranchDiffViewModel(IGitBranchDiffService gitBranchDiffServicee)
+        public BranchDiffViewModel(IGitBranchDiffService gitBranchDiffService)
         {
-            this.gitBranchDiffService = gitBranchDiffServicee;
+            this.gitBranchDiffService = gitBranchDiffService;
         }
 
         public void Init(GitBranchDifferPackage package, string branchToDiffWith)
@@ -37,7 +36,7 @@ namespace GitBranchDiffer.ViewModels
 
         public bool Validate()
         {
-            /* TODO: Get Git Repo instance here and make more Git-specific validation
+            /* TODO: Get Git Repo instance here and make more Git-specific validations
              * For eg. Branch set in Plugin options should not be identical as the Git HEAD
              *         Below validation:
             if (this.branchToDiffWith is not found in the active repo)
