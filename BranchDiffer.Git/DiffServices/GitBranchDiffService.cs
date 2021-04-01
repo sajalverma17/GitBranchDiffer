@@ -8,16 +8,17 @@ namespace BranchDiffer.Git.DiffServices
 {
     public interface IGitBranchDiffService
     {
-        IList<string> GetDiffFileNames(string repo, string currentBranch, string baseBranch);
+        IList<string> GetDiffFileNames(string repo, string baseBranch);
     }
 
     public class GitBranchDiffService : IGitBranchDiffService
     {
-        public IList<string> GetDiffFileNames(string repo, string currentBranch, string baseBranch)
+        public IList<string> GetDiffFileNames(string repo, string baseBranchName)
         {
             var gitRepo = new Repository(repo);
-            var selectedWorkingBranch = gitRepo.Branches[currentBranch];
-            var selectedBaseBranch = gitRepo.Branches[baseBranch];
+            var workingBranchName = gitRepo.Head.FriendlyName;
+            var workingBranch = gitRepo.Branches[workingBranchName];
+            var baseBranch = gitRepo.Branches[baseBranchName];
 
             var compareOptions = new CompareOptions
             {
@@ -25,7 +26,7 @@ namespace BranchDiffer.Git.DiffServices
                 IncludeUnmodified = false,
             };
 
-            var branchDiffResult = gitRepo.Diff.Compare<TreeChanges>(selectedBaseBranch.Tip.Tree, selectedWorkingBranch.Tip.Tree, compareOptions);
+            var branchDiffResult = gitRepo.Diff.Compare<TreeChanges>(baseBranch.Tip.Tree, workingBranch.Tip.Tree, compareOptions);
             var modifiedTreeChanges = branchDiffResult.Modified;
 
             // could get WAY TOO big on large diffs (if merge only diff?)

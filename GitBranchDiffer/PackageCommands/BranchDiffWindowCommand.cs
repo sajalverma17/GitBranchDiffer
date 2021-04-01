@@ -3,6 +3,7 @@ using GitBranchDiffer.ViewModels;
 using Microsoft;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using EnvDTE;
 using System;
 using System.ComponentModel.Design;
 using System.Globalization;
@@ -99,11 +100,21 @@ namespace GitBranchDiffer.PackageCommands
                     throw new NotSupportedException("Cannot create tool window");
                 }
 
+                // Get the dependencies:
+                var branchDifferPackage = package as GitBranchDifferPackage;
                 var vm = DIContainer.Instance.GetService(typeof(BranchDiffViewModel)) as BranchDiffViewModel;
                 Assumes.Present(vm);
-                vm.Generate();
 
-                branchDiffWindow.BranchDiffWindowControl.TextBlockUnderText.Text = "Generated Diff list";
+                // Perform the diff:
+                vm.Init(branchDifferPackage, branchDifferPackage.BranchToDiff);
+                if (vm.Validate())
+                {
+                    vm.Generate();
+                }
+                else
+                {
+                    VsShellUtilities.LogMessage("Git Branch Differ", "Validation branches to diff", __ACTIVITYLOG_ENTRYTYPE.ALE_INFORMATION);
+                }
             });
         }
 

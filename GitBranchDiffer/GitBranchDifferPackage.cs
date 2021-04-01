@@ -43,6 +43,8 @@ namespace GitBranchDiffer
         Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
     [Guid(PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
+    [ProvideOptionPage(typeof(GitBranchDifferPluginOptions),
+    "Git Branch Differ", "Git Branch Differ Options", 0, 0, true)]
     public sealed class GitBranchDifferPackage : AsyncPackage
     {
         /// <summary>
@@ -62,6 +64,18 @@ namespace GitBranchDiffer
         }
 
         #region Package Members
+
+        /// <summary>
+        /// The branch againt which active HEAD will be diffed
+        /// </summary>
+        public string BranchToDiff
+        {
+            get
+            {
+                GitBranchDifferPluginOptions options = (GitBranchDifferPluginOptions)GetDialogPage(typeof(GitBranchDifferPluginOptions));
+                return options.BaseBranchName;
+            }
+        }
 
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
