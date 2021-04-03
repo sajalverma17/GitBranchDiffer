@@ -20,6 +20,7 @@ namespace GitBranchDiffer.PackageCommands
         
         public const string guidBranchDiffWindowPackageCmdSet = "91fdc0b8-f3f8-4820-9734-1721db207258";
         public const int CommandIdGenerateDiff = 0x132;
+        public const int CommandIdGenerateDiffAndFilter = 0x133;
         public const int BranchDiffToolbarId = 0x1000;
 
 
@@ -59,11 +60,17 @@ namespace GitBranchDiffer.PackageCommands
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
-            // Add generate diff handler
+            // Add generate diff command
             var generateDiffToolbarCommandId = new CommandID(new Guid(guidBranchDiffWindowPackageCmdSet), CommandIdGenerateDiff);
             var generateDiffCommandItem = new MenuCommand(new EventHandler(
                 Execute), generateDiffToolbarCommandId);
             commandService.AddCommand(generateDiffCommandItem);
+
+            // Add generate diff and filter solution command
+            var generateDiffAndFilterCommandId = new CommandID(new Guid(guidBranchDiffWindowPackageCmdSet), CommandIdGenerateDiffAndFilter);
+            var generateDiffAndFilterCommandItem = new MenuCommand(new EventHandler(
+                Execute), generateDiffAndFilterCommandId);
+            commandService.AddCommand(generateDiffAndFilterCommandItem);
         }
 
         /// <summary>
