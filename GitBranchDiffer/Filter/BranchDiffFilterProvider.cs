@@ -22,7 +22,7 @@ namespace GitBranchDiffer.Filter
 
         [ImportingConstructor]
         public BranchDiffFilterProvider(
-            IServiceProvider serviceProvider,
+            SVsServiceProvider serviceProvider,
             IVsHierarchyItemCollectionProvider hierarchyCollectionProvider)
         {
             this.serviceProvider = serviceProvider;
