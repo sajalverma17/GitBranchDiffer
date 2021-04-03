@@ -4,6 +4,7 @@ using Microsoft;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using Task = System.Threading.Tasks.Task;
 
@@ -61,16 +62,12 @@ namespace GitBranchDiffer.PackageCommands
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
             // Add generate diff command
+            /*
             var generateDiffToolbarCommandId = new CommandID(new Guid(guidBranchDiffWindowPackageCmdSet), CommandIdGenerateDiff);
             var generateDiffCommandItem = new MenuCommand(new EventHandler(
                 Execute), generateDiffToolbarCommandId);
             commandService.AddCommand(generateDiffCommandItem);
-
-            // Add generate diff and filter solution command
-            var generateDiffAndFilterCommandId = new CommandID(new Guid(guidBranchDiffWindowPackageCmdSet), CommandIdGenerateDiffAndFilter);
-            var generateDiffAndFilterCommandItem = new MenuCommand(new EventHandler(
-                Execute), generateDiffAndFilterCommandId);
-            commandService.AddCommand(generateDiffAndFilterCommandItem);
+            */
         }
 
         /// <summary>
@@ -108,15 +105,13 @@ namespace GitBranchDiffer.PackageCommands
                 var vm = DIContainer.Instance.GetService(typeof(BranchDiffViewModel)) as BranchDiffViewModel;
                 Assumes.Present(vm);
 
+                IList<string> changeList;
+
                 // Perform the diff:
-                vm.Init(branchDifferPackage, branchDifferPackage.BranchToDiff);
+                vm.Init(branchDifferPackage);
                 if (vm.Validate())
                 {
-                    vm.Generate();
-                }
-                else
-                {
-                    VsShellUtilities.LogMessage("Git Branch Differ", "Validation branches to diff", __ACTIVITYLOG_ENTRYTYPE.ALE_INFORMATION);
+                    changeList = vm.Generate();
                 }
             });
         }

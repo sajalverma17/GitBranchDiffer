@@ -31,7 +31,7 @@
     group; your package should define its own command set in order to avoid collisions
     with command ids defined by other packages. -->
 
-    <!-- Menu section. -->
+    <!-- Menu section. 
     <Menus>
       <Menu guid="guidBranchDiffWindowPackageCmdSet" id="BranchDiffToolbarId" priority="0x0000" type="ToolWindowToolbar">
         <Parent guid="guidBranchDiffWindowPackageCmdSet" id="BranchDiffToolbarId" />
@@ -40,14 +40,15 @@
           <CommandName>Tool Window Toolbar</CommandName>
         </Strings>
       </Menu>
-    </Menus>
+    </Menus>-->
 
-    <!-- Groups section. -->
+    <!-- Groups section.
     <Groups>
       <Group guid="guidBranchDiffWindowPackageCmdSet" id="BranchDiffToolbarGroupId" priority="0x0000">
         <Parent guid="guidBranchDiffWindowPackageCmdSet" id="BranchDiffToolbarId" />
       </Group>
-    </Groups>
+    </Groups> -->
+    
     <!--Buttons section. -->
     <!--This section defines the elements the user can interact with, like a menu command or a button
         or combo box in a toolbar. -->
@@ -59,14 +60,16 @@
               <CommandFlag>DefaultInvisible</CommandFlag>
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node /> -->
-      <Button guid="guidBranchDiffWindowPackageCmdSet" id="cmdidBranchDiffOpen" priority="0x0101" type="Button">
+      
+      <!--
+      <Button guid="guidBranchDiffWindowPackageCmdSet" id="cmdidBranchDiffOpen" priority="0x0500" type="Button">
         <Parent guid="guidBranchDiffWindowPackageCmdSet" id="BranchDiffToolbarGroupId"/>
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
           <ButtonText>Show Branch Diff</ButtonText>
           <CommandName>cmdidBranchDiffOpen</CommandName>
         </Strings>
-      </Button>
+      </Button>-->
 
       <!-- Diff and filter solution button in Solution Explorer -->
       <Button guid="guidBranchDiffWindowPackageCmdSet" id="cmdidBranchDiffAndFilter" priority="0x0400" type="Button">

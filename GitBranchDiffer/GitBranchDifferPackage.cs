@@ -1,4 +1,5 @@
-﻿using GitBranchDiffer.PackageCommands;
+﻿using GitBranchDiffer.Filter;
+using GitBranchDiffer.PackageCommands;
 using GitBranchDiffer.View;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -52,6 +53,10 @@ namespace GitBranchDiffer
             // any Visual Studio service because at this point the package object is created but
             // not sited yet inside Visual Studio environment. The place to do all the other
             // initialization is the Initialize method.
+
+            // Init the filter with package object as soon as VS creates it.
+            // Our filter needs this package to read the package options.
+            BranchDiffFilterProvider.Init(this);
         }
 
         #region Package Members
@@ -79,10 +84,13 @@ namespace GitBranchDiffer
         {
             // When initialized asynchronously, the current thread may be a background thread at this point.
             // Do any initialization that requires the UI thread after switching to the UI thread.
-            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-            await BranchDiffWindowCommand.InitializeAsync(this);
+            // await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+            // await BranchDiffWindowCommand.InitializeAsync(this);
+            
+            await base.InitializeAsync(cancellationToken, progress);
         }
 
+        /*
         public override IVsAsyncToolWindowFactory GetAsyncToolWindowFactory(Guid toolWindowType)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -103,6 +111,7 @@ namespace GitBranchDiffer
 
             return base.GetToolWindowTitle(toolWindowType, id);
         }
+        */
 
         #endregion
     }

@@ -27,7 +27,7 @@ namespace BranchDiffer.Git.DiffServices
             var modifiedTreeChanges = branchDiffResult.Modified;
 
             // could get WAY TOO big on large diffs (if merge only diff?)
-            List<string> resultList = new List<string>();
+            IList<string> resultList = new List<string>();
 
             foreach (var item in modifiedTreeChanges)
             {

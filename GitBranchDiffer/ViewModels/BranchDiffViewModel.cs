@@ -17,21 +17,15 @@ namespace GitBranchDiffer.ViewModels
 
         public const string Repo = @"C:\Tools\ProjectUnderTest";
 
-        public ObservableCollection<string> ModifiedFileList
-        {
-            get;
-            set;
-        }
-
         public BranchDiffViewModel(IGitBranchDiffService gitBranchDiffService)
         {
             this.gitBranchDiffService = gitBranchDiffService;
         }
 
-        public void Init(GitBranchDifferPackage package, string branchToDiffWith)
+        public void Init(GitBranchDifferPackage package)
         {
-            this.branchToDiffWith = branchToDiffWith;
             this.gitBranchDifferPackage = package;
+            this.branchToDiffWith = package.BranchToDiff;
         }
 
         public bool Validate()
@@ -63,10 +57,11 @@ namespace GitBranchDiffer.ViewModels
             return true;
         }
 
-        public void Generate()
+        // TODO : Make Async
+        public IList<string> Generate()
         {
             var changeList = this.gitBranchDiffService.GetDiffFileNames(Repo, branchToDiffWith);
-            this.ModifiedFileList = new ObservableCollection<string>(changeList);
+            return changeList;
         }
     }
 }
