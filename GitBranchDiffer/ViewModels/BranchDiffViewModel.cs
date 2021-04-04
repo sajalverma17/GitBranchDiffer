@@ -12,10 +12,7 @@ namespace GitBranchDiffer.ViewModels
     public class BranchDiffViewModel
     {
         private readonly IGitBranchDiffService gitBranchDiffService;
-        private string branchToDiffWith;
         private GitBranchDifferPackage gitBranchDifferPackage;
-
-        public const string Repo = @"C:\Tools\ProjectUnderTest";
 
         public BranchDiffViewModel(IGitBranchDiffService gitBranchDiffService)
         {
@@ -25,7 +22,6 @@ namespace GitBranchDiffer.ViewModels
         public void Init(GitBranchDifferPackage package)
         {
             this.gitBranchDifferPackage = package;
-            this.branchToDiffWith = package.BranchToDiff;
         }
 
         public bool Validate()
@@ -39,9 +35,21 @@ namespace GitBranchDiffer.ViewModels
                     this.gitBranchDifferPackage,
                     $"{this.branchToDiffWith} branch is not found in this Repo", 
                     "Git Branch Differ")
-            }*/ 
+            }*/
+            if (this.gitBranchDifferPackage is null)
+            {
+                VsShellUtilities.ShowMessageBox(
+                    this.gitBranchDifferPackage,
+                    "Unable to load Git Branch Differ extension package. It is possible the soltuion is not completely loaded, please wait and try again.",
+                    "Git Branch Differ",
+                    Microsoft.VisualStudio.Shell.Interop.OLEMSGICON.OLEMSGICON_CRITICAL,
+                    Microsoft.VisualStudio.Shell.Interop.OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                    Microsoft.VisualStudio.Shell.Interop.OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
 
-            if (this.branchToDiffWith is null || this.branchToDiffWith == string.Empty)
+                return false;
+            }
+
+            if (this.gitBranchDifferPackage.BranchToDiff is null || this.gitBranchDifferPackage.BranchToDiff == string.Empty)
             {
                 VsShellUtilities.ShowMessageBox(
                     this.gitBranchDifferPackage, 
@@ -60,7 +68,8 @@ namespace GitBranchDiffer.ViewModels
         // TODO : Make Async
         public IList<string> Generate()
         {
-            var changeList = this.gitBranchDiffService.GetDiffFileNames(Repo, branchToDiffWith);
+            var branchToDiffWith = this.gitBranchDifferPackage.BranchToDiff;
+            var changeList = this.gitBranchDiffService.GetDiffFileNames(@"C:\Tools\ProjectUnderTest", branchToDiffWith);
             return changeList;
         }
     }

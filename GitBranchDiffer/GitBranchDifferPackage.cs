@@ -1,12 +1,11 @@
 ﻿using GitBranchDiffer.Filter;
-using GitBranchDiffer.PackageCommands;
-using GitBranchDiffer.View;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
+using Microsoft.VisualStudio;
 
 namespace GitBranchDiffer
 {
@@ -30,13 +29,10 @@ namespace GitBranchDiffer
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideToolWindow(
-        typeof(BranchDiffWindow),
-        Style = Microsoft.VisualStudio.Shell.VsDockStyle.Tabbed,
-        Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
-    [Guid(PackageGuidString)]    
+    [Guid(PackageGuidString)]
     [ProvideOptionPage(typeof(GitBranchDifferPluginOptions),
-    "Git Branch Differ", "Git Branch Differ Options", 0, 0, true)]
+    "Git Branch Differ", "Git Branch Differ Options", 0, 0, true)]    
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class GitBranchDifferPackage : AsyncPackage
     {
         /// <summary>
@@ -61,6 +57,8 @@ namespace GitBranchDiffer
 
         #region Package Members
 
+
+        
         /// <summary>
         /// The branch againt which active HEAD will be diffed
         /// </summary>
@@ -73,6 +71,7 @@ namespace GitBranchDiffer
             }
         }
 
+        
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
         /// where you can put all the initialization code that rely on services provided by VisualStudio.
@@ -89,29 +88,7 @@ namespace GitBranchDiffer
             
             await base.InitializeAsync(cancellationToken, progress);
         }
-
-        /*
-        public override IVsAsyncToolWindowFactory GetAsyncToolWindowFactory(Guid toolWindowType)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (toolWindowType == typeof(BranchDiffWindow).GUID)
-            {
-                return this;
-            }
-
-            return base.GetAsyncToolWindowFactory(toolWindowType);
-        }
-
-        protected override string GetToolWindowTitle(Type toolWindowType, int id)
-        {
-            if (toolWindowType == typeof(BranchDiffWindow))
-            {
-                return "BranchDiffWindow loading";
-            }
-
-            return base.GetToolWindowTitle(toolWindowType, id);
-        }
-        */
+        
 
         #endregion
     }
