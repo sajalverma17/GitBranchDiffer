@@ -52,7 +52,7 @@ namespace GitBranchDiffer
 
             // Init the filter with package object as soon as VS creates it.
             // Our filter needs this package to read the package options.
-            BranchDiffFilterProvider.Init(this);
+            BranchDiffFilterProvider.Initialize(this);
         }
 
         #region Package Members

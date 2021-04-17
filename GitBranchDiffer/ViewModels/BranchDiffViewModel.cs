@@ -14,11 +14,17 @@ namespace GitBranchDiffer.ViewModels
     public class BranchDiffViewModel
     {
         private readonly IGitBranchDiffService gitBranchDiffService;
-        private GitBranchDifferPackage gitBranchDifferPackage;
+        private readonly IItemIdentityService itemIdentityService;
 
-        public BranchDiffViewModel(IGitBranchDiffService gitBranchDiffService)
+        private GitBranchDifferPackage gitBranchDifferPackage;
+        private HashSet<DiffResultItem> changeSet;
+
+        public BranchDiffViewModel(
+            IGitBranchDiffService gitBranchDiffService,
+            IItemIdentityService itemIdentityService)
         {
             this.gitBranchDiffService = gitBranchDiffService;
+            this.itemIdentityService = itemIdentityService;
         }
 
         public void Init(GitBranchDifferPackage package)
@@ -42,7 +48,7 @@ namespace GitBranchDiffer.ViewModels
             if (this.gitBranchDifferPackage is null)
             {
                 MessageBox.Show(
-                    "Unable to load Git Branch Differ extension package. It is possible the soltuion is not completely loaded, please wait and try again.",
+                    "Unable to load Git Branch Differ plug-in. It is possible Visual Studio is still initializing, please wait and try again.",
                     "Git Branch Differ");
 
                 return false;
@@ -65,11 +71,14 @@ namespace GitBranchDiffer.ViewModels
         }
 
         // TODO : Make Async, or directly call the serivice from BranchDiffFilterProvider
-        public HashSet<DiffResultItem> Generate()
+        public void GenerateChangeSet(string branchToDiff)
         {
-            var branchToDiffWith = this.gitBranchDifferPackage.BranchToDiff;
-            var changeList = this.gitBranchDiffService.GetDiffFileNames(@"C:\Tools\ProjectUnderTest", branchToDiffWith);
-            return changeList;
+            this.changeSet = this.gitBranchDiffService.GetDiffFileNames(@"C:\Tools\ProjectUnderTest", branchToDiff);
+        }
+
+        public bool HasItemInChangeSet(string vsItemAbsolutePath)
+        {
+            return this.itemIdentityService.HasItemInChangeSet(this.changeSet, vsItemAbsolutePath);
         }
     }
 }

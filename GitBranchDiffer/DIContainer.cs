@@ -33,8 +33,9 @@ namespace GitBranchDiffer
         private static IServiceProvider BuildProvider()
         {
             var container = new ServiceCollection();
-            container.AddScoped<IGitBranchDiffService, GitBranchDiffService>();
             container.AddScoped<BranchDiffViewModel>();
+            container.AddScoped<IGitBranchDiffService, GitBranchDiffService>();
+            container.AddScoped<IItemIdentityService, ItemIdentityService>();
             return container.BuildServiceProvider();
         }
     }

@@ -1,6 +1,7 @@
 ﻿using BranchDiffer.Git.DiffModels;
 using LibGit2Sharp;
 using System.Collections.Generic;
+using System.IO;
 
 namespace BranchDiffer.Git.DiffServices
 {
@@ -13,6 +14,7 @@ namespace BranchDiffer.Git.DiffServices
     {
         public HashSet<DiffResultItem> GetDiffFileNames(string repoPath, string baseBranchName)
         {
+            // TODO: Make a Repo service, inject the repo into this service
             var gitRepo = new Repository(repoPath);
             var workingBranchName = gitRepo.Head.FriendlyName;
             var workingBranch = gitRepo.Branches[workingBranchName];
@@ -32,9 +34,10 @@ namespace BranchDiffer.Git.DiffServices
 
             foreach (var item in modifiedTreeChanges)
             {
+                var itemPathWithCorrectSeperator = item.Path.Replace("/", Constants.DirectorySeperator);
                 var diffedObject = new DiffResultItem
                 {
-                    AbsoluteFilePath = $"{repoPath}\\{item.Path}",
+                    AbsoluteFilePath = repoPath.ToLowerInvariant() + Constants.DirectorySeperator + itemPathWithCorrectSeperator.ToLowerInvariant(),
                     DiffedObject = item,
                 };
 
