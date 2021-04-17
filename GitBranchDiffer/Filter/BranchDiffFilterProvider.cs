@@ -1,19 +1,11 @@
-﻿using BranchDiffer.Git;
-using BranchDiffer.Git.DiffModels;
-using EnvDTE;
-using EnvDTE80;
+﻿using BranchDiffer.Git.DiffModels;
 using GitBranchDiffer.ViewModels;
 using Microsoft;
 using Microsoft.Internal.VisualStudio.PlatformUI;
-using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Shell.Settings;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace GitBranchDiffer.Filter
@@ -50,7 +42,8 @@ namespace GitBranchDiffer.Filter
             private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;
             private readonly GitBranchDifferPackage package;
 
-            private BranchDiffViewModel BranchDiffViewModel;
+            private BranchDiffViewModel branchDiffService;
+            private HashSet<DiffResultItem> changeSet;
 
             public BranchDiffFilter(GitBranchDifferPackage package, SVsServiceProvider serviceProvider, IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider)
             {
@@ -61,13 +54,13 @@ namespace GitBranchDiffer.Filter
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
             {
-                this.BranchDiffViewModel = DIContainer.Instance.GetService(typeof(BranchDiffViewModel)) as BranchDiffViewModel;
-                Assumes.Present(this.BranchDiffViewModel);
+                this.branchDiffService = DIContainer.Instance.GetService(typeof(BranchDiffViewModel)) as BranchDiffViewModel;
+                Assumes.Present(this.branchDiffService);
 
-                this.BranchDiffViewModel.Init(this.package);
-                if (this.BranchDiffViewModel.Validate())
+                if (GitBranchDifferPackageValidator.Validate(this.package))
                 {
-                    this.BranchDiffViewModel.GenerateChangeSet(this.package.BranchToDiff);
+                    this.changeSet = this.branchDiffService.GenerateDiff(this.package.BranchToDiff);
+
                     IVsHierarchyItem root = HierarchyUtilities.FindCommonAncestor(rootItems);
 
                     IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
@@ -95,7 +88,7 @@ namespace GitBranchDiffer.Filter
                 // Only support showing diffed Physical Files (leaf nodes on soltuion explorer)
                 if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity))
                 {
-                    return this.BranchDiffViewModel.HasItemInChangeSet(hierarchyItem.CanonicalName);
+                    return this.branchDiffService.HasItemInChangeSet(this.changeSet, hierarchyItem.CanonicalName);
                 }
 
                 return false;

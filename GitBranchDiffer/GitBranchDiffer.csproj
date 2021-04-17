@@ -60,6 +60,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\BranchDiffViewModel.cs" />
     <Compile Include="GitBranchDifferPackage.cs" />
+    <Compile Include="GitBranchDifferPackageValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />

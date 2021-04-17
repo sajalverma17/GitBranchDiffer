@@ -14,7 +14,6 @@ namespace BranchDiffer.Git.DiffServices
     {
         public HashSet<DiffResultItem> GetDiffFileNames(string repoPath, string baseBranchName)
         {
-            // TODO: Make a Repo service, inject the repo into this service
             var gitRepo = new Repository(repoPath);
             var workingBranchName = gitRepo.Head.FriendlyName;
             var workingBranch = gitRepo.Branches[workingBranchName];
@@ -37,8 +36,10 @@ namespace BranchDiffer.Git.DiffServices
                 var itemPathWithCorrectSeperator = item.Path.Replace("/", Constants.DirectorySeperator);
                 var diffedObject = new DiffResultItem
                 {
-                    AbsoluteFilePath = repoPath.ToLowerInvariant() + Constants.DirectorySeperator + itemPathWithCorrectSeperator.ToLowerInvariant(),
-                    DiffedObject = item,
+                    AbsoluteFilePath = 
+                    repoPath.ToLowerInvariant() 
+                    + Constants.DirectorySeperator 
+                    + itemPathWithCorrectSeperator.ToLowerInvariant()
                 };
 
                 changedPathsSet.Add(diffedObject);

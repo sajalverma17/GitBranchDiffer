@@ -31,7 +31,7 @@ namespace BranchDiffer.Git.DiffModels
         }
 
         /// <summary>
-        /// Check if two result items are equal by comparing hash codes.
+        /// Checks if two result items are equal by comparing hash codes.
         /// </summary>
         /// <param name="obj"></param>
         public override bool Equals(object obj)

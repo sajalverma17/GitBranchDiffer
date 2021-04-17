@@ -9,7 +9,7 @@ namespace BranchDiffer.Git.DiffServices
 {
     public interface IItemIdentityService
     {
-        bool HasItemInChangeSet(HashSet<DiffResultItem> gitChangeSet, string absoluteItemPath);  
+        bool HasItemInChangeSet(HashSet<DiffResultItem> gitChangeSet, string absoluteItemPath);
     }
 
     public class ItemIdentityService : IItemIdentityService
