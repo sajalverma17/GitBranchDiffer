@@ -1,4 +1,7 @@
-﻿using EnvDTE80;
+﻿using BranchDiffer.Git;
+using BranchDiffer.Git.DiffModels;
+using EnvDTE;
+using EnvDTE80;
 using GitBranchDiffer.ViewModels;
 using Microsoft;
 using Microsoft.Internal.VisualStudio.PlatformUI;
@@ -46,7 +49,7 @@ namespace GitBranchDiffer.Filter
             private readonly SVsServiceProvider serviceProvider;
             private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;
             private readonly GitBranchDifferPackage package;
-            private IList<string> changeList;
+            private HashSet<DiffResultItem> changeSet;
 
             public BranchDiffFilter(GitBranchDifferPackage package, SVsServiceProvider serviceProvider, IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider)
             {
@@ -63,21 +66,22 @@ namespace GitBranchDiffer.Filter
                 vm.Init(this.package);
                 if (vm.Validate())
                 {
-                    changeList = vm.Generate();
-
                     IVsHierarchyItem root = HierarchyUtilities.FindCommonAncestor(rootItems);
-                    IReadOnlyObservableSet<IVsHierarchyItem> sourceItems;
+                    changeSet = vm.Generate();
 
-                    sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
-                                        root.HierarchyIdentity.NestedHierarchy,
-                                        CancellationToken);
+                    if (changeSet != null)
+                    {
+                        IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
+                                            root.HierarchyIdentity.NestedHierarchy,
+                                            CancellationToken);
 
-                    IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
-                        sourceItems,
-                        ShouldIncludeInFilter,
-                        CancellationToken);
+                        IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
+                            sourceItems,
+                            ShouldIncludeInFilter,
+                            CancellationToken);
 
-                    return includedItems;
+                        return includedItems;
+                    }
                 }
 
                 return null;
@@ -89,7 +93,14 @@ namespace GitBranchDiffer.Filter
                 {
                     return false;
                 }
-                return this.changeList.Contains(hierarchyItem.Text);
+
+                // Only support showing diffed Physical Files (leaf nodes on soltuion explorer)
+                if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity))
+                {
+                    return FileIdentityManager.HasFileInChangeSet(this.changeSet, hierarchyItem.CanonicalName);
+                }
+
+                return false;
             }
         }
     }

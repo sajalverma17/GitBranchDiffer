@@ -1,4 +1,5 @@
-﻿using BranchDiffer.Git.DiffServices;
+﻿using BranchDiffer.Git.DiffModels;
+using BranchDiffer.Git.DiffServices;
 using Microsoft.VisualStudio.Shell;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace GitBranchDiffer.ViewModels
 {
@@ -36,15 +38,12 @@ namespace GitBranchDiffer.ViewModels
                     $"{this.branchToDiffWith} branch is not found in this Repo", 
                     "Git Branch Differ")
             }*/
+
             if (this.gitBranchDifferPackage is null)
             {
-                VsShellUtilities.ShowMessageBox(
-                    this.gitBranchDifferPackage,
+                MessageBox.Show(
                     "Unable to load Git Branch Differ extension package. It is possible the soltuion is not completely loaded, please wait and try again.",
-                    "Git Branch Differ",
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGICON.OLEMSGICON_CRITICAL,
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    "Git Branch Differ");
 
                 return false;
             }
@@ -52,7 +51,7 @@ namespace GitBranchDiffer.ViewModels
             if (this.gitBranchDifferPackage.BranchToDiff is null || this.gitBranchDifferPackage.BranchToDiff == string.Empty)
             {
                 VsShellUtilities.ShowMessageBox(
-                    this.gitBranchDifferPackage, 
+                    this.gitBranchDifferPackage,
                     "Branch to diff against is not set. Go to Options -> Git Branch Differ -> Set \"Branch To Diff Against\"",
                     "Git Branch Differ",
                     Microsoft.VisualStudio.Shell.Interop.OLEMSGICON.OLEMSGICON_CRITICAL,
@@ -60,13 +59,13 @@ namespace GitBranchDiffer.ViewModels
                     Microsoft.VisualStudio.Shell.Interop.OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
 
                 return false;
-            }
+            } 
 
             return true;
         }
 
-        // TODO : Make Async
-        public IList<string> Generate()
+        // TODO : Make Async, or directly call the serivice from BranchDiffFilterProvider
+        public HashSet<DiffResultItem> Generate()
         {
             var branchToDiffWith = this.gitBranchDifferPackage.BranchToDiff;
             var changeList = this.gitBranchDiffService.GetDiffFileNames(@"C:\Tools\ProjectUnderTest", branchToDiffWith);

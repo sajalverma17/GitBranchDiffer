@@ -1,18 +1,19 @@
-﻿using LibGit2Sharp;
+﻿using BranchDiffer.Git.DiffModels;
+using LibGit2Sharp;
 using System.Collections.Generic;
 
 namespace BranchDiffer.Git.DiffServices
 {
     public interface IGitBranchDiffService
     {
-        IList<string> GetDiffFileNames(string repo, string baseBranch);
+        HashSet<DiffResultItem> GetDiffFileNames(string repo, string baseBranch);
     }
 
     public class GitBranchDiffService : IGitBranchDiffService
     {
-        public IList<string> GetDiffFileNames(string repo, string baseBranchName)
+        public HashSet<DiffResultItem> GetDiffFileNames(string repoPath, string baseBranchName)
         {
-            var gitRepo = new Repository(repo);
+            var gitRepo = new Repository(repoPath);
             var workingBranchName = gitRepo.Head.FriendlyName;
             var workingBranch = gitRepo.Branches[workingBranchName];
             var baseBranch = gitRepo.Branches[baseBranchName];
@@ -27,14 +28,20 @@ namespace BranchDiffer.Git.DiffServices
             var modifiedTreeChanges = branchDiffResult.Modified;
 
             // could get WAY TOO big on large diffs (if merge only diff?)
-            IList<string> resultList = new List<string>();
+            HashSet<DiffResultItem> changedPathsSet = new HashSet<DiffResultItem>();
 
             foreach (var item in modifiedTreeChanges)
             {
-                resultList.Add(item.Path);
+                var diffedObject = new DiffResultItem
+                {
+                    AbsoluteFilePath = $"{repoPath}\\{item.Path}",
+                    DiffedObject = item,
+                };
+
+                changedPathsSet.Add(diffedObject);
             }
 
-            return resultList;
+            return changedPathsSet;
         }
     }
 }
