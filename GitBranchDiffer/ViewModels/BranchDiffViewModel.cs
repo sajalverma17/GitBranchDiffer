@@ -20,9 +20,20 @@ namespace GitBranchDiffer.ViewModels
             this.itemIdentityService = itemIdentityService;
         }
 
-        public HashSet<DiffResultItem> GenerateDiff(string branchToDiff)
+        public HashSet<DiffResultItem> GenerateDiff(string solutionPath, string branchToDiff)
         {
-            return this.gitBranchDiffService.GetDiffFileNames(@"C:\Tools\ProjectUnderTest", branchToDiff);
+            // TODO : Add new service which gets a Git repo from solutionPath.
+            /* Do below validations in that service:
+             * For eg. (1) Branch set in Plugin options should not be identical as the Git HEAD
+             *         (2) Below validation:
+            if (this.branchToDiffWith is not found in the active repo)
+            {
+                VsShellUtilities.ShowMessageBox(
+                    this.gitBranchDifferPackage,
+                    $"{this.branchToDiffWith} branch is not found in this Repo", 
+                    "Git Branch Differ")
+            }*/
+            return this.gitBranchDiffService.GetDiffFileNames(solutionPath, branchToDiff);
         }
 
         public bool HasItemInChangeSet(HashSet<DiffResultItem> changeSet, string vsItemAbsolutePath)

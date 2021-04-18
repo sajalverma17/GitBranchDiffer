@@ -3,6 +3,7 @@ using GitBranchDiffer.ViewModels;
 using Microsoft;
 using Microsoft.Internal.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -16,6 +17,8 @@ namespace GitBranchDiffer.Filter
         private readonly SVsServiceProvider serviceProvider;
         private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;
         private static GitBranchDifferPackage Package;
+        private static string SolutionDirectory;
+        private static string SolutionFile;
 
         [ImportingConstructor]
         public BranchDiffFilterProvider(
@@ -26,14 +29,30 @@ namespace GitBranchDiffer.Filter
             this.vsHierarchyItemCollectionProvider = hierarchyCollectionProvider;
         }
 
-        public static void Initialize(GitBranchDifferPackage package)
+        /// <summary>
+        /// Initializes the Solution Explorer filter once per-Visual-Studio-startup.
+        /// </summary>
+        /// <param name="package">
+        /// The package becomes a static dependency of this filter,
+        /// and is required in order to get the plugin option <see cref="GitBranchDifferPackage.BranchToDiff"/> set by user.</param>
+        public static void InitializeOnce(GitBranchDifferPackage package)
         {
             Package = package;
         }
 
+        /// <summary>
+        /// Initalizes the Solution Explorer filter with Solution info once per-solution-load in Visula Studio
+        /// </summary>
+        /// <param name="solutionPath"></param>
+        public static void Initialize(string solutionDirectory, string solutionFile)
+        {
+            SolutionDirectory = solutionDirectory;
+            SolutionFile = solutionFile;
+        }
+
         protected override HierarchyTreeFilter CreateFilter()
         {
-            return new BranchDiffFilter(Package, this.serviceProvider, this.vsHierarchyItemCollectionProvider);            
+            return new BranchDiffFilter(Package, SolutionDirectory, SolutionFile, this.serviceProvider, this.vsHierarchyItemCollectionProvider);
         }
 
         private sealed class BranchDiffFilter : HierarchyTreeFilter
@@ -41,13 +60,17 @@ namespace GitBranchDiffer.Filter
             private readonly SVsServiceProvider serviceProvider;
             private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;
             private readonly GitBranchDifferPackage package;
+            private string solutionDirectory;
+            private string solutionFile;
 
             private BranchDiffViewModel branchDiffService;
             private HashSet<DiffResultItem> changeSet;
 
-            public BranchDiffFilter(GitBranchDifferPackage package, SVsServiceProvider serviceProvider, IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider)
+            public BranchDiffFilter(GitBranchDifferPackage package, string solutionPath, string solutionName, SVsServiceProvider serviceProvider, IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider)
             {
                 this.package = package;
+                this.solutionDirectory = solutionPath;
+                this.solutionFile = solutionName;
                 this.serviceProvider = serviceProvider;
                 this.vsHierarchyItemCollectionProvider = vsHierarchyItemCollectionProvider;
             }
@@ -57,22 +80,24 @@ namespace GitBranchDiffer.Filter
                 this.branchDiffService = DIContainer.Instance.GetService(typeof(BranchDiffViewModel)) as BranchDiffViewModel;
                 Assumes.Present(this.branchDiffService);
 
-                if (GitBranchDifferPackageValidator.Validate(this.package))
+                if (GitBranchDifferValidator.ValidatePackage(this.package))
                 {
-                    this.changeSet = this.branchDiffService.GenerateDiff(this.package.BranchToDiff);
-
                     IVsHierarchyItem root = HierarchyUtilities.FindCommonAncestor(rootItems);
+                    if (GitBranchDifferValidator.ValidateSolution(this.solutionDirectory, this.solutionFile, root, this.package))
+                    {
+                        this.changeSet = this.branchDiffService.GenerateDiff(this.solutionDirectory, this.package.BranchToDiff);
 
-                    IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
-                                        root.HierarchyIdentity.NestedHierarchy,
-                                        CancellationToken);
+                        IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
+                                            root.HierarchyIdentity.NestedHierarchy,
+                                            CancellationToken);
 
-                    IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
-                        sourceItems,
-                        ShouldIncludeInFilter,
-                        CancellationToken);
+                        IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
+                            sourceItems,
+                            ShouldIncludeInFilter,
+                            CancellationToken);
 
-                    return includedItems;
+                        return includedItems;
+                    }
                 }
 
                 return null;

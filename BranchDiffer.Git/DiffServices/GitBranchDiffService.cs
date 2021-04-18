@@ -15,8 +15,7 @@ namespace BranchDiffer.Git.DiffServices
         public HashSet<DiffResultItem> GetDiffFileNames(string repoPath, string baseBranchName)
         {
             var gitRepo = new Repository(repoPath);
-            var workingBranchName = gitRepo.Head.FriendlyName;
-            var workingBranch = gitRepo.Branches[workingBranchName];
+            var workingBranch = gitRepo.Branches[gitRepo.Head.FriendlyName];
             var baseBranch = gitRepo.Branches[baseBranchName];
 
             var compareOptions = new CompareOptions
@@ -25,10 +24,9 @@ namespace BranchDiffer.Git.DiffServices
                 IncludeUnmodified = false,
             };
 
+            // could get WAY TOO big on large diffs (if merge only diff?)
             var branchDiffResult = gitRepo.Diff.Compare<TreeChanges>(baseBranch.Tip.Tree, workingBranch.Tip.Tree, compareOptions);
             var modifiedTreeChanges = branchDiffResult.Modified;
-
-            // could get WAY TOO big on large diffs (if merge only diff?)
             HashSet<DiffResultItem> changedPathsSet = new HashSet<DiffResultItem>();
 
             foreach (var item in modifiedTreeChanges)
