@@ -34,7 +34,7 @@ namespace GitBranchDiffer.Filter
         /// </summary>
         /// <param name="package">
         /// The package becomes a static dependency of this filter,
-        /// and is required in order to get the plugin option <see cref="GitBranchDifferPackage.BranchToDiff"/> set by user.</param>
+        /// and is required in order to get the plugin option <see cref="GitBranchDifferPackage.BranchToDiffAgainst"/> set by user.</param>
         public static void InitializeOnce(GitBranchDifferPackage package)
         {
             Package = package;
@@ -63,7 +63,7 @@ namespace GitBranchDiffer.Filter
             private string solutionDirectory;
             private string solutionFile;
 
-            private BranchDiffViewModel branchDiffService;
+            private GitBranchDifferService branchDiffService;
             private HashSet<DiffResultItem> changeSet;
 
             public BranchDiffFilter(GitBranchDifferPackage package, string solutionPath, string solutionName, SVsServiceProvider serviceProvider, IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider)
@@ -77,7 +77,7 @@ namespace GitBranchDiffer.Filter
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
             {
-                this.branchDiffService = DIContainer.Instance.GetService(typeof(BranchDiffViewModel)) as BranchDiffViewModel;
+                this.branchDiffService = DIContainer.Instance.GetService(typeof(GitBranchDifferService)) as GitBranchDifferService;
                 Assumes.Present(this.branchDiffService);
 
                 if (GitBranchDifferValidator.ValidatePackage(this.package))
@@ -85,18 +85,26 @@ namespace GitBranchDiffer.Filter
                     IVsHierarchyItem root = HierarchyUtilities.FindCommonAncestor(rootItems);
                     if (GitBranchDifferValidator.ValidateSolution(this.solutionDirectory, this.solutionFile, root, this.package))
                     {
-                        this.changeSet = this.branchDiffService.GenerateDiff(this.solutionDirectory, this.package.BranchToDiff);
+                        var setupOk = this.branchDiffService.SetupRepository(this.solutionDirectory, this.package.BranchToDiffAgainst, out var repo, out var error);
+                        if (setupOk)
+                        {
+                            this.changeSet = this.branchDiffService.GenerateDiff(repo, this.package.BranchToDiffAgainst);
 
-                        IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
-                                            root.HierarchyIdentity.NestedHierarchy,
-                                            CancellationToken);
+                            IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
+                                                root.HierarchyIdentity.NestedHierarchy,
+                                                CancellationToken);
 
-                        IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
-                            sourceItems,
-                            ShouldIncludeInFilter,
-                            CancellationToken);
+                            IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
+                                sourceItems,
+                                ShouldIncludeInFilter,
+                                CancellationToken);
 
-                        return includedItems;
+                            return includedItems;
+                        }
+                        else
+                        {
+                            GitBranchDifferValidator.ShowError(this.package, error)
+                        }
                     }
                 }
 

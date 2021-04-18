@@ -58,7 +58,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ViewModels\BranchDiffViewModel.cs" />
     <Compile Include="GitBranchDifferPackage.cs" />
     <Compile Include="GitBranchDifferValidator.cs" />
   </ItemGroup>

@@ -63,21 +63,15 @@ namespace GitBranchDiffer
             }
             else
             {
-                VsShellUtilities.ShowMessageBox(
-                    this, 
-                    "Failed intializing GitBranchDiffer. Unable to fetch Visual Studio services.",
-                    "Git Branch Differ",
-                    OLEMSGICON.OLEMSGICON_CRITICAL,
-                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                GitBranchDifferValidator.ShowError(this, "Failed intializing GitBranchDiffer. Unable to fetch Visual Studio services.");                
             }
         }
 
         #region Package Members        
         /// <summary>
-        /// The branch againt which active HEAD will be diffed
+        /// The branch against which active branch will be diffed
         /// </summary>
-        public string BranchToDiff
+        public string BranchToDiffAgainst
         {
             get
             {

@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace BranchDiffer.Git.DiffServices
 {
-    public interface IItemIdentityService
+    public interface IGitItemIdentityService
     {
         bool HasItemInChangeSet(HashSet<DiffResultItem> gitChangeSet, string absoluteItemPath);
     }
 
-    public class ItemIdentityService : IItemIdentityService
+    public class GitItemIdentityService : IGitItemIdentityService
     {
         /// <summary>
         /// This method searches for item in the git change set by it's path. 

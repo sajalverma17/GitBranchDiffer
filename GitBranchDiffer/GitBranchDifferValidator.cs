@@ -1,6 +1,7 @@
 ﻿using BranchDiffer.Git.DiffModels;
 using BranchDiffer.Git.DiffServices;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -23,15 +24,15 @@ namespace GitBranchDiffer
                 return false;
             }
 
-            if (package.BranchToDiff is null || package.BranchToDiff == string.Empty)
+            if (package.BranchToDiffAgainst is null || package.BranchToDiffAgainst == string.Empty)
             {
                 VsShellUtilities.ShowMessageBox(
                     package,
                     "Branch to diff against is not set. Go to Options -> Git Branch Differ -> Set \"Branch To Diff Against\"",
                     "Git Branch Differ",
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGICON.OLEMSGICON_CRITICAL,
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    OLEMSGICON.OLEMSGICON_CRITICAL,
+                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
 
                 return false;
             }
@@ -48,9 +49,9 @@ namespace GitBranchDiffer
                     "Unable to get Solution directory from Visual Studio services.\n" +
                     "If a solution has been opened, please wait it is fully loaded.",
                     "Git Branch Differ",
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGICON.OLEMSGICON_CRITICAL,
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    OLEMSGICON.OLEMSGICON_CRITICAL,
+                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
 
                 return false;
             }
@@ -62,9 +63,9 @@ namespace GitBranchDiffer
                     "Unable to get Solution name from Visual Studio services.\n" +
                     "If a solution has been opened please wait until it is fully loaded.",
                     "Git Branch Differ",
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGICON.OLEMSGICON_CRITICAL,
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    OLEMSGICON.OLEMSGICON_CRITICAL,
+                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
 
                 return false;
             }
@@ -78,14 +79,25 @@ namespace GitBranchDiffer
                     $"If you have previously closed ({solutionFile}) and just opened ({solutionFileInHierarchy}), please wait untill it is fully loaded.\n" +
                     $"If the problem persists, please restart Visual Studio with {solutionFileInHierarchy} as a start-up solution.",
                     "Git Branch Differ",
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGICON.OLEMSGICON_CRITICAL,
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                    Microsoft.VisualStudio.Shell.Interop.OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    OLEMSGICON.OLEMSGICON_CRITICAL,
+                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
 
                 return false;
             }
 
             return true;
+        }
+
+        public static void ShowError(GitBranchDifferPackage package, string errorMsg)
+        {
+            VsShellUtilities.ShowMessageBox(
+                    package,
+                    errorMsg,
+                    "Git Branch Differ",
+                    OLEMSGICON.OLEMSGICON_CRITICAL,
+                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
         }
     }
 }
