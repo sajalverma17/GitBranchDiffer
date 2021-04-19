@@ -103,7 +103,7 @@ namespace GitBranchDiffer.Filter
                         }
                         else
                         {
-                            GitBranchDifferValidator.ShowError(this.package, error)
+                            GitBranchDifferValidator.ShowError(this.package, error);
                         }
                     }
                 }

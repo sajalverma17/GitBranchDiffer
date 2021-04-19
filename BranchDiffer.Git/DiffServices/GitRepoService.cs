@@ -48,7 +48,7 @@ namespace BranchDiffer.Git.DiffServices
                 exception = new InvalidOperationException("The Branch To Diff Against set in plugin options is not found in this repo.");
                 return false;
             }
-            else if (activeBranch != null || !branchesInRepo.Contains(activeBranch))
+            else if (string.IsNullOrEmpty(activeBranch) || !branchesInRepo.Contains(activeBranch))
             {
                 exception = new InvalidOperationException("There is no HEAD set in this repo.");
                 return false;
