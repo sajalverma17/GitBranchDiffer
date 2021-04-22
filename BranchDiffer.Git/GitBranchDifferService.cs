@@ -29,20 +29,23 @@ namespace GitBranchDiffer.ViewModels
         {
             if (this.gitRepoService.CreateGitRepository(solutionPath, out var repo, out var repoCreationException))
             {
-                repository = repo;
                 if (this.gitRepoService.IsRepoStateValid(repo, branchToDiffAgainst, out var repoStateException))
                 {
                     errorMsg = string.Empty;
+                    repository = repo;
                     return true;
                 }
 
-                // Return error                
+                // Return error
+                repository = null;
+                repo.Dispose();
                 errorMsg = repoStateException.Message;
                 return false;
             }
 
             // Return error
             repository = null;
+            repo.Dispose();
             errorMsg = repoCreationException.Message;
             return false;
         }
@@ -50,8 +53,7 @@ namespace GitBranchDiffer.ViewModels
         public HashSet<DiffResultItem> GenerateDiff(Repository repository, string branchToDiffAgainst)
         {
             var diffBranchPair = this.gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
-            return this.gitBranchDiffService.GetDiffedChangeSet(repository, diffBranchPair);
-            
+            return this.gitBranchDiffService.GetDiffedChangeSet(repository, diffBranchPair);            
         }
 
         public bool HasItemInChangeSet(HashSet<DiffResultItem> changeSet, string vsItemAbsolutePath)

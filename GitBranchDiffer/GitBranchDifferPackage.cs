@@ -32,6 +32,7 @@ namespace GitBranchDiffer
         /// </summary>
         public const string PackageGuidString = "156fcec6-25ac-4279-91cc-bbe2e4ea8c14";
         private EnvDTE.DTE dte;
+        private EnvDTE.DocumentEvents documentEvents;
 
         public GitBranchDifferPackage()
         {
@@ -59,6 +60,8 @@ namespace GitBranchDiffer
                 // FilterState.SolutionInfoNotSet (set this when Package is first sited, this state should never actually be possible to encounter)
                 // etc.
                 dte.Events.SolutionEvents.Opened += InitializeFilter;
+                documentEvents = dte.Events.DocumentEvents;
+                this.documentEvents.DocumentOpening += DocumentEvents_DocumentOpening;
                 this.InitializeFilter();
             }
             else
@@ -90,6 +93,11 @@ namespace GitBranchDiffer
             var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);
             var solutionFile = System.IO.Path.GetFileName(absoluteSolutionPath);
             BranchDiffFilterProvider.Initialize(solutionDirectory, solutionFile);
+        }
+
+        private void DocumentEvents_DocumentOpening(string DocumentPath, bool ReadOnly)
+        {
+            GitBranchDifferValidator.ShowError(this, $"Document opened. Is readonly: {ReadOnly}. Path: {DocumentPath}");
         }
 
         #endregion
