@@ -52,11 +52,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DIContainer.cs" />
+    <Compile Include="ErrorPresenter.cs" />
     <Compile Include="Filter\BranchDiffFilterProvider.cs" />
     <Compile Include="Filter\BranchDiffFilterCommandGuids.cs" />
     <Compile Include="GitBranchDifferPluginOptions.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="PackageInitializationState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GitBranchDifferPackage.cs" />
     <Compile Include="GitBranchDifferValidator.cs" />

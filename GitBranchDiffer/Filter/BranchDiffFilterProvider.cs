@@ -2,6 +2,7 @@
 using GitBranchDiffer.ViewModels;
 using Microsoft;
 using Microsoft.Internal.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
@@ -11,14 +12,14 @@ using System.Threading.Tasks;
 
 namespace GitBranchDiffer.Filter
 {
-    [SolutionTreeFilterProvider(BranchDiffFilterCommandGuids.guidGitBranchDifferPackageCmdSet, (uint)(BranchDiffFilterCommandGuids.CommandIdGenerateDiffAndFilter))]
+    [SolutionTreeFilterProvider(BranchDiffFilterCommandGuids.guidGitBranchDifferPackageCmdSet, (uint)(BranchDiffFilterCommandGuids.CommandIdGenerateDiffAndFilter))]    
     public class BranchDiffFilterProvider : HierarchyTreeFilterProvider
     {
         private readonly SVsServiceProvider serviceProvider;
         private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;
         private static GitBranchDifferPackage Package;
         private static string SolutionDirectory;
-        private static string SolutionFile;
+        private static string SolutionFile;        
 
         [ImportingConstructor]
         public BranchDiffFilterProvider(
@@ -104,7 +105,7 @@ namespace GitBranchDiffer.Filter
                         }
                         else
                         {
-                            GitBranchDifferValidator.ShowError(this.package, error);
+                            ErrorPresenter.ShowError(this.package, error);
                         }
                     }
                 }

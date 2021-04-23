@@ -31,21 +31,17 @@ namespace GitBranchDiffer
         /// BranchDiffWindowPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "156fcec6-25ac-4279-91cc-bbe2e4ea8c14";
+
         private EnvDTE.DTE dte;
-        private EnvDTE.DocumentEvents documentEvents;
+        private PackageInitializationState packageInitializationState = PackageInitializationState.Invalid;
 
         public GitBranchDifferPackage()
         {
-
-            // When VS sites the package, pass package object to our plugin's Filter. We use package to read PluginOptions evertime user triggers filter.
+            // When VS sites the package, pass package object to our plugin's Filter.
+            // We use package to read PluginOptions evertime user triggers filter.
             BranchDiffFilterProvider.InitializeOnce(this);
         }
 
-
-        /// <summary>
-        /// Initialization of the package; this method is called right after the package is sited, so this is the place
-        /// where you can put all the initialization code that rely on services provided by VisualStudio.
-        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "VSSDK006:Check services exist", Justification = "Show custom error if DTE service doesn't exist")]
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
@@ -53,20 +49,23 @@ namespace GitBranchDiffer
             dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
             if (dte != null)
             {
-                // TODO: Reset/Clear solution info from filter OnSolutionClose event???
-                // In that case, we can make a FilterState enum to provide better feedback to user:
-                // FilterState.SolutionInfoSet (set this On package load, and on SolutionEvents.Open),
-                // FilterState.SolutionInfoReset (set this when solution closed),
-                // FilterState.SolutionInfoNotSet (set this when Package is first sited, this state should never actually be possible to encounter)
-                // etc.
-                dte.Events.SolutionEvents.Opened += InitializeFilter;
-                documentEvents = dte.Events.DocumentEvents;
-                this.documentEvents.DocumentOpening += DocumentEvents_DocumentOpening;
-                this.InitializeFilter();
-            }
-            else
-            {
-                GitBranchDifferValidator.ShowError(this, "Failed intializing GitBranchDiffer. Unable to fetch Visual Studio services.");                
+                // Filter will be initialized "If and Only If" our package was initialized by VS instance
+                // And VS was opened with a solution pre-selected
+                if (dte.Solution.IsOpen)
+                {
+                    dte.Events.SolutionEvents.Opened += InitializeFilter;
+                    dte.Events.SolutionEvents.BeforeClosing += UnInitializeFilter;
+                    dte.Events.DocumentEvents.DocumentOpened += DocumentEvents_DocumentOpened;
+                    this.InitializeFilter();
+                }
+                else
+                {
+                    // User triggered our MEF component (the Filter) without a solution being opened in VS.
+                    // This unfortunatley Initializes our package and we lose the opportunity to init the Filter with solution info.
+                    // Nothing can be done, and we ask user to restart VS with a preselected solution. 
+                    this.PackageInitializationState = PackageInitializationState.Invalid;
+                    ErrorPresenter.ShowError(this, ErrorPresenter.PackageInvalidStateError);
+                }
             }
         }
 
@@ -84,20 +83,50 @@ namespace GitBranchDiffer
         }
 
         /// <summary>
+        /// The state of the package set whenever VS chooses to initialize it.
+        /// Defaults to invalid.
+        /// </summary>
+        public PackageInitializationState PackageInitializationState 
+        {
+            get
+            {
+                return this.packageInitializationState;
+            }
+            set
+            {
+                this.packageInitializationState = value;
+            }
+        }
+
+        /// <summary>
         /// Initializes Branch Diff Filter with Solution directory and name info.
         /// </summary> 
         private void InitializeFilter()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var absoluteSolutionPath = dte.Solution.FullName;
+            var absoluteSolutionPath = this.dte.Solution.FullName;
             var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);
             var solutionFile = System.IO.Path.GetFileName(absoluteSolutionPath);
             BranchDiffFilterProvider.Initialize(solutionDirectory, solutionFile);
+            this.PackageInitializationState = PackageInitializationState.SoltuionInfoSet;
         }
 
-        private void DocumentEvents_DocumentOpening(string DocumentPath, bool ReadOnly)
+        /// <summary>
+        /// Resets the filter by removing the solution info (directory path of the solution is set to string.Empty)
+        /// </summary>
+        private void UnInitializeFilter()
         {
-            GitBranchDifferValidator.ShowError(this, $"Document opened. Is readonly: {ReadOnly}. Path: {DocumentPath}");
+            BranchDiffFilterProvider.Initialize(string.Empty, string.Empty);
+            this.PackageInitializationState = PackageInitializationState.SolutionInfoUnset;
+        }
+
+        private void DocumentEvents_DocumentOpened(EnvDTE.Document Document)
+        {
+            if (this.PackageInitializationState == PackageInitializationState.SoltuionInfoSet)
+            {
+                // TODO : Find a way to inspect if the solution explorer has out filter applied.
+                // If yes, documnent opened must open the diff view.
+            }
         }
 
         #endregion

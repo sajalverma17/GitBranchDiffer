@@ -42,62 +42,49 @@ namespace GitBranchDiffer
 
         public static bool ValidateSolution(string solutionDirectory, string solutionFile, IVsHierarchyItem rootItemInSolution, GitBranchDifferPackage package)
         {
-            if (string.IsNullOrEmpty(solutionDirectory))
+            if (package.PackageInitializationState == PackageInitializationState.Invalid)
             {
-                VsShellUtilities.ShowMessageBox(
-                    package,
-                    "Unable to get Solution directory from Visual Studio services.\n" +
-                    "If a solution has been opened, please wait it is fully loaded.",
-                    "Git Branch Differ",
-                    OLEMSGICON.OLEMSGICON_CRITICAL,
-                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                ErrorPresenter.ShowError(
+                        package,
+                        ErrorPresenter.PackageInvalidStateError);
 
                 return false;
             }
 
-            if (string.IsNullOrEmpty(solutionFile))
+            if (package.PackageInitializationState == PackageInitializationState.SolutionInfoUnset)
             {
-                VsShellUtilities.ShowMessageBox(
-                    package,
-                    "Unable to get Solution name from Visual Studio services.\n" +
-                    "If a solution has been opened please wait until it is fully loaded.",
-                    "Git Branch Differ",
-                    OLEMSGICON.OLEMSGICON_CRITICAL,
-                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                ErrorPresenter.ShowError(
+                       package,
+                       "Unable to get Solution from Visual Studio services.\n" +
+                       "If you closed and then opened another solution, please wait until it is finished loading.\n" +
+                       "If the error persists, please restart Visual Studio with this solution as the start-up solution.");
 
                 return false;
+            }
+
+
+            if (package.PackageInitializationState == PackageInitializationState.SoltuionInfoSet && string.IsNullOrEmpty(solutionDirectory))
+            {
+                ErrorPresenter.ShowError(
+                    package,
+                    "GitBranchDiffer detected a solution, but was unable to extract directory in which the .sln file resides");
+                return false;
+
             }
 
             var solutionFileInHierarchy = System.IO.Path.GetFileName(rootItemInSolution.CanonicalName);
             if (!string.Equals(solutionFile, solutionFileInHierarchy))
             {
-                VsShellUtilities.ShowMessageBox(
+                ErrorPresenter.ShowError(
                     package,
                     $"The solution determined by GiBranchDiffer ({solutionFile}) does not correspond to the solution opened in Solution Explorer ({solutionFileInHierarchy}).\n" +
-                    $"If you have previously closed ({solutionFile}) and just opened ({solutionFileInHierarchy}), please wait untill it is fully loaded.\n" +
-                    $"If the problem persists, please restart Visual Studio with {solutionFileInHierarchy} as a start-up solution.",
-                    "Git Branch Differ",
-                    OLEMSGICON.OLEMSGICON_CRITICAL,
-                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    $"If you have previously closed ({solutionFile}) and just opened ({solutionFileInHierarchy}), please wait until it is fully loaded.\n" +
+                    $"If the problem persists, please restart Visual Studio with {solutionFileInHierarchy} as a start-up solution.");
 
                 return false;
             }
 
             return true;
-        }
-
-        public static void ShowError(GitBranchDifferPackage package, string errorMsg)
-        {
-            VsShellUtilities.ShowMessageBox(
-                    package,
-                    errorMsg,
-                    "Git Branch Differ",
-                    OLEMSGICON.OLEMSGICON_CRITICAL,
-                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-        }
+        }        
     }
 }
