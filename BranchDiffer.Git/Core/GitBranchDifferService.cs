@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using LibGit2Sharp;
 
-namespace GitBranchDiffer.ViewModels
+namespace BranchDiffer.Git.Core
 {
     /// <summary>
-    /// Worker class that composes all other Git services and performs operations that the plugin needs.
+    /// Worker class that composes all other Git services and performs branch diff with the solution path and branch to diff against provided.
     /// </summary>
     public class GitBranchDifferService
     {
@@ -27,9 +27,9 @@ namespace GitBranchDiffer.ViewModels
 
         public bool SetupRepository(string solutionPath, string branchToDiffAgainst, out Repository repository, out string errorMsg)
         {
-            if (this.gitRepoService.CreateGitRepository(solutionPath, out var repo, out var repoCreationException))
+            if (gitRepoService.CreateGitRepository(solutionPath, out var repo, out var repoCreationException))
             {
-                if (this.gitRepoService.IsRepoStateValid(repo, branchToDiffAgainst, out var repoStateException))
+                if (gitRepoService.IsRepoStateValid(repo, branchToDiffAgainst, out var repoStateException))
                 {
                     errorMsg = string.Empty;
                     repository = repo;
@@ -52,13 +52,13 @@ namespace GitBranchDiffer.ViewModels
 
         public HashSet<DiffResultItem> GenerateDiff(Repository repository, string branchToDiffAgainst)
         {
-            var diffBranchPair = this.gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
-            return this.gitBranchDiffService.GetDiffedChangeSet(repository, diffBranchPair);            
+            var diffBranchPair = gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
+            return this.gitBranchDiffService.GetDiffedChangeSet(repository, diffBranchPair);
         }
 
         public bool HasItemInChangeSet(HashSet<DiffResultItem> changeSet, string vsItemAbsolutePath)
         {
-            return this.itemIdentityService.HasItemInChangeSet(changeSet, vsItemAbsolutePath);
+            return itemIdentityService.HasItemInChangeSet(changeSet, vsItemAbsolutePath);
         }
     }
 }

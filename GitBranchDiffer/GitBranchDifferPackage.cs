@@ -26,7 +26,7 @@ namespace GitBranchDiffer
 
         private EnvDTE.DTE dte;
         private EnvDTE.DocumentEvents documentEvents;
-        private PackageInitializationState packageInitializationState = PackageInitializationState.Invalid;
+        private FilterInitializationState packageInitializationState = FilterInitializationState.Invalid;
 
         public GitBranchDifferPackage()
         {
@@ -37,7 +37,7 @@ namespace GitBranchDiffer
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-            dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;            
+            dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
             if (dte != null)
             {
                 // Filter will be initialized "If and Only If" our package was initialized by VS instance
@@ -56,13 +56,14 @@ namespace GitBranchDiffer
                     // This unfortunately calls InitializeAsync of our package and force loads it.
                     // After this, we lose the opportunity to init filter with solution info since VS will never load our package.
                     // Hence the error message asking to restart VS with a Solution pre-selected.
-                    this.PackageInitializationState = PackageInitializationState.Invalid;
+                    this.FilterInitializationState = FilterInitializationState.Invalid;
                     ErrorPresenter.ShowError(this, ErrorPresenter.PackageInvalidStateError);
                 }
             }
         }
 
-        #region Package Members        
+        #region Package Members   
+
         /// <summary>
         /// The branch against which active branch will be diffed
         /// </summary>
@@ -76,10 +77,10 @@ namespace GitBranchDiffer
         }
 
         /// <summary>
-        /// The state of the package set whenever VS chooses to initialize it.
+        /// The init state of the filter, describes if the solution info was passed to it or not.
         /// Defaults to invalid.
         /// </summary>
-        public PackageInitializationState PackageInitializationState 
+        public FilterInitializationState FilterInitializationState 
         {
             get
             {
@@ -101,7 +102,7 @@ namespace GitBranchDiffer
             var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);
             var solutionFile = System.IO.Path.GetFileName(absoluteSolutionPath);
             BranchDiffFilterProvider.Initialize(solutionDirectory, solutionFile);
-            this.PackageInitializationState = PackageInitializationState.SoltuionInfoSet;
+            this.FilterInitializationState = FilterInitializationState.SoltuionInfoSet;
         }
 
         /// <summary>
@@ -110,12 +111,13 @@ namespace GitBranchDiffer
         private void UnInitializeFilter()
         {
             BranchDiffFilterProvider.Initialize(string.Empty, string.Empty);
-            this.PackageInitializationState = PackageInitializationState.SolutionInfoUnset;
+            this.FilterInitializationState = FilterInitializationState.SolutionInfoUnset;
         }
 
         private void DocumentEvents_DocumentOpened(EnvDTE.Document document)
         {
-            if (this.PackageInitializationState == PackageInitializationState.SoltuionInfoSet)
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (this.FilterInitializationState == FilterInitializationState.SoltuionInfoSet)
             {
                 // If solution explorer has our filtered, we generate a diff view of the document.
                 if (BranchDiffFilterProvider.IsFilterApplied)

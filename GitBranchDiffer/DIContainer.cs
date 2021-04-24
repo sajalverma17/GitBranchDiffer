@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BranchDiffer.Git.Core;
 using BranchDiffer.Git.DiffServices;
-using GitBranchDiffer.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GitBranchDiffer
@@ -34,6 +30,7 @@ namespace GitBranchDiffer
         {
             var container = new ServiceCollection();
             container.AddScoped<GitBranchDifferService>();
+            container.AddScoped<GitFileDifferService>();
             container.AddScoped<IGitDiffService, GitDiffService>();
             container.AddScoped<IGitItemIdentityService, GitItemIdentityService>();
             container.AddScoped<IGitRepoService, GitRepoService>();

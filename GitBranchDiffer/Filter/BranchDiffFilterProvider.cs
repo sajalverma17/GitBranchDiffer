@@ -1,5 +1,5 @@
-﻿using BranchDiffer.Git.DiffModels;
-using GitBranchDiffer.ViewModels;
+﻿using BranchDiffer.Git.Core;
+using BranchDiffer.Git.DiffModels;
 using Microsoft;
 using Microsoft.Internal.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;

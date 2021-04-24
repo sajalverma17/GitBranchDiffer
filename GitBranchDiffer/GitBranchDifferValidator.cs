@@ -1,5 +1,6 @@
 ﻿using BranchDiffer.Git.DiffModels;
 using BranchDiffer.Git.DiffServices;
+using GitBranchDiffer.Filter;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
@@ -42,7 +43,7 @@ namespace GitBranchDiffer
 
         public static bool ValidateSolution(string solutionDirectory, string solutionFile, IVsHierarchyItem rootItemInSolution, GitBranchDifferPackage package)
         {
-            if (package.PackageInitializationState == PackageInitializationState.Invalid)
+            if (package.FilterInitializationState == FilterInitializationState.Invalid)
             {
                 ErrorPresenter.ShowError(
                         package,
@@ -51,7 +52,7 @@ namespace GitBranchDiffer
                 return false;
             }
 
-            if (package.PackageInitializationState == PackageInitializationState.SolutionInfoUnset)
+            if (package.FilterInitializationState == FilterInitializationState.SolutionInfoUnset)
             {
                 ErrorPresenter.ShowError(
                        package,
@@ -63,7 +64,7 @@ namespace GitBranchDiffer
             }
 
 
-            if (package.PackageInitializationState == PackageInitializationState.SoltuionInfoSet && string.IsNullOrEmpty(solutionDirectory))
+            if (package.FilterInitializationState == FilterInitializationState.SoltuionInfoSet && string.IsNullOrEmpty(solutionDirectory))
             {
                 ErrorPresenter.ShowError(
                     package,
