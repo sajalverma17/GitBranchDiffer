@@ -19,7 +19,7 @@ namespace GitBranchDiffer
             {
                 MessageBox.Show(
                     "Unable to load Git Branch Differ plug-in. It is possible Visual Studio is still initializing, please wait and try again.",
-                    "Git Branch Differ");
+                    ErrorPresenter.PackageNameToDisplay);
 
                 return false;
             }
@@ -29,7 +29,7 @@ namespace GitBranchDiffer
                 VsShellUtilities.ShowMessageBox(
                     package,
                     "Branch to diff against is not set. Go to Options -> Git Branch Differ -> Set \"Branch To Diff Against\"",
-                    "Git Branch Differ",
+                    ErrorPresenter.PackageNameToDisplay,
                     OLEMSGICON.OLEMSGICON_CRITICAL,
                     OLEMSGBUTTON.OLEMSGBUTTON_OK,
                     OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);

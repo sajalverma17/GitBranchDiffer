@@ -13,11 +13,6 @@ namespace GitBranchDiffer
     /// <summary>
     /// This is the class that implements the package exposed by this assembly.
     /// </summary>
-    /// <remarks>
-    /// <para>
-    /// To get loaded into VS, the package must be referred by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
-    /// </para>
-    /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
@@ -27,18 +22,14 @@ namespace GitBranchDiffer
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class GitBranchDifferPackage : AsyncPackage
     {
-        /// <summary>
-        /// BranchDiffWindowPackage GUID string.
-        /// </summary>
         public const string PackageGuidString = "156fcec6-25ac-4279-91cc-bbe2e4ea8c14";
 
         private EnvDTE.DTE dte;
+        private EnvDTE.DocumentEvents documentEvents;
         private PackageInitializationState packageInitializationState = PackageInitializationState.Invalid;
 
         public GitBranchDifferPackage()
         {
-            // When VS sites the package, pass package object to our plugin's Filter.
-            // We use package to read PluginOptions evertime user triggers filter.
             BranchDiffFilterProvider.InitializeOnce(this);
         }
 
@@ -46,7 +37,7 @@ namespace GitBranchDiffer
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-            dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+            dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;            
             if (dte != null)
             {
                 // Filter will be initialized "If and Only If" our package was initialized by VS instance
@@ -55,14 +46,16 @@ namespace GitBranchDiffer
                 {
                     dte.Events.SolutionEvents.Opened += InitializeFilter;
                     dte.Events.SolutionEvents.BeforeClosing += UnInitializeFilter;
-                    dte.Events.DocumentEvents.DocumentOpened += DocumentEvents_DocumentOpened;
+                    documentEvents = dte.Events.DocumentEvents;
+                    documentEvents.DocumentOpened += DocumentEvents_DocumentOpened;
                     this.InitializeFilter();
                 }
                 else
                 {
-                    // User triggered our MEF component (the Filter) without a solution being opened in VS.
-                    // This unfortunatley Initializes our package and we lose the opportunity to init the Filter with solution info.
-                    // Nothing can be done, and we ask user to restart VS with a preselected solution. 
+                    // User triggered our MEF component (by clicking on the Filter) without a solution being opened in VS.
+                    // This unfortunately calls InitializeAsync of our package and force loads it.
+                    // After this, we lose the opportunity to init filter with solution info since VS will never load our package.
+                    // Hence the error message asking to restart VS with a Solution pre-selected.
                     this.PackageInitializationState = PackageInitializationState.Invalid;
                     ErrorPresenter.ShowError(this, ErrorPresenter.PackageInvalidStateError);
                 }
@@ -120,12 +113,15 @@ namespace GitBranchDiffer
             this.PackageInitializationState = PackageInitializationState.SolutionInfoUnset;
         }
 
-        private void DocumentEvents_DocumentOpened(EnvDTE.Document Document)
+        private void DocumentEvents_DocumentOpened(EnvDTE.Document document)
         {
             if (this.PackageInitializationState == PackageInitializationState.SoltuionInfoSet)
             {
-                // TODO : Find a way to inspect if the solution explorer has out filter applied.
-                // If yes, documnent opened must open the diff view.
+                // If solution explorer has our filtered, we generate a diff view of the document.
+                if (BranchDiffFilterProvider.IsFilterApplied)
+                {
+                    ErrorPresenter.ShowError(this, $"{document.FullName} is opened after filter is applied.");
+                }
             }
         }
 

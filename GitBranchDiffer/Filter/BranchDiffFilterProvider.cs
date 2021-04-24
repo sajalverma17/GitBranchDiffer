@@ -2,9 +2,7 @@
 using GitBranchDiffer.ViewModels;
 using Microsoft;
 using Microsoft.Internal.VisualStudio.PlatformUI;
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -29,6 +27,12 @@ namespace GitBranchDiffer.Filter
             this.serviceProvider = serviceProvider;
             this.vsHierarchyItemCollectionProvider = hierarchyCollectionProvider;
         }
+        
+        /// <summary>
+        /// True if the BranchDiffFilter is applied on the Solution Explorer.
+        /// False otherwise.
+        /// </summary>
+        internal static bool IsFilterApplied { get; private set; }
 
         /// <summary>
         /// Initializes the Solution Explorer filter once per-Visual-Studio-startup.
@@ -36,16 +40,16 @@ namespace GitBranchDiffer.Filter
         /// <param name="package">
         /// The package becomes a static dependency of this filter,
         /// and is required in order to get the plugin option <see cref="GitBranchDifferPackage.BranchToDiffAgainst"/> set by user.</param>
-        public static void InitializeOnce(GitBranchDifferPackage package)
+        internal static void InitializeOnce(GitBranchDifferPackage package)
         {
             Package = package;
         }
 
         /// <summary>
-        /// Initalizes the Solution Explorer filter with Solution info once per-solution-load in Visula Studio
+        /// Initalizes the Solution Explorer filter with Solution info once per-solution-load in Visual Studio
         /// </summary>
         /// <param name="solutionPath"></param>
-        public static void Initialize(string solutionDirectory, string solutionFile)
+        internal static void Initialize(string solutionDirectory, string solutionFile)
         {
             SolutionDirectory = solutionDirectory;
             SolutionFile = solutionFile;
@@ -59,10 +63,10 @@ namespace GitBranchDiffer.Filter
         private sealed class BranchDiffFilter : HierarchyTreeFilter
         {
             private readonly SVsServiceProvider serviceProvider;
-            private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;
+            private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;            
             private readonly GitBranchDifferPackage package;
-            private string solutionDirectory;
-            private string solutionFile;
+            private readonly string solutionDirectory;
+            private readonly string solutionFile;
 
             private GitBranchDifferService branchDiffService;
             private HashSet<DiffResultItem> changeSet;
@@ -74,6 +78,7 @@ namespace GitBranchDiffer.Filter
                 this.solutionFile = solutionName;
                 this.serviceProvider = serviceProvider;
                 this.vsHierarchyItemCollectionProvider = vsHierarchyItemCollectionProvider;
+                this.Initialized += BranchDiffFilter_Initialized;
             }
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
@@ -128,6 +133,18 @@ namespace GitBranchDiffer.Filter
 
                 return false;
             }
+
+            private void BranchDiffFilter_Initialized(object sender, EventArgs e)
+            {
+                BranchDiffFilterProvider.IsFilterApplied = true;
+            }
+
+            // We override this method to use it as a life-cycle hook to mark that our filter was un-applied.
+            protected override void DisposeManagedResources()
+            {
+                base.DisposeManagedResources();
+                BranchDiffFilterProvider.IsFilterApplied = false;
+            }          
         }
     }
 

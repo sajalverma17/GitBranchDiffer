@@ -13,8 +13,7 @@ namespace GitBranchDiffer
     /// If with a solution, user can dynamically close a solution, which also changes state of our package.
     /// </summary>
     /// <remarks>
-    /// TODO: 
-    /// We can get rid of keeping track of solution info this way if we figure how to HIDE our filter button 
+    /// TODO: We can get rid of keeping track of solution info this way if we figure how to HIDE our filter button 
     /// based on Solution existing in Solution Explorer or not.
     /// </remarks>
     public enum PackageInitializationState

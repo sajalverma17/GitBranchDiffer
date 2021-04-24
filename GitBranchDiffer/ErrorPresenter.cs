@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace GitBranchDiffer
 {
@@ -15,15 +16,26 @@ namespace GitBranchDiffer
             "This means GitBranchDiffer extension was loaded without a solution in Visual Studio.\n" +
             "To use GitBranchDiffer filter, please restart Visual Studio with a solution pre-selected.";
 
+        public static string PackageNameToDisplay = "Git Branch Differ";
+
         public static void ShowError(GitBranchDifferPackage package, string errorMsg)
         {
-            VsShellUtilities.ShowMessageBox(
-                    package,
+            if (package != null)
+            {
+                VsShellUtilities.ShowMessageBox(
+                        package,
+                        errorMsg,
+                        "Git Branch Differ",
+                        OLEMSGICON.OLEMSGICON_CRITICAL,
+                        OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                        OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            }
+            else
+            {
+                MessageBox.Show(
                     errorMsg,
-                    "Git Branch Differ",
-                    OLEMSGICON.OLEMSGICON_CRITICAL,
-                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    "Git Branch Differ");
+            }
         }
     }
 }

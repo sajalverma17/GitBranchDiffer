@@ -30,13 +30,12 @@ namespace BranchDiffer.Git.DiffServices
             {
                 // Issue with LibGit2Sharp: Paths returned are *-nix format, not windows directory format.
                 var itemPathWithCorrectSeparator = item.Path.Replace("/", Constants.DirectorySeperator);
-                var repoPathWithCorrectSeperator = gitRepo.Info.Path.Replace("/", Constants.DirectorySeperator);
+                var repoPathWithCorrectSeperator = gitRepo.Info.WorkingDirectory.Replace("/", Constants.DirectorySeperator);
 
                 var diffedObject = new DiffResultItem
                 {
                     AbsoluteFilePath =
-                    repoPathWithCorrectSeperator.ToLowerInvariant() 
-                    + Constants.DirectorySeperator 
+                    repoPathWithCorrectSeperator.ToLowerInvariant()
                     + itemPathWithCorrectSeparator.ToLowerInvariant()
                 };
 
