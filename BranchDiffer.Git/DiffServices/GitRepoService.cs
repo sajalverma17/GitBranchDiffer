@@ -65,7 +65,7 @@ namespace BranchDiffer.Git.DiffServices
 
         public DiffBranchPair GetBranchesToDiffFromRepo(Repository repository, string branchNameToDiffAgainst)
         {
-            var branchToDiffAgainst = repository.Branches[branchNameToDiffAgainst];
+            var branchToDiffAgainst = repository.Branches[branchNameToDiffAgainst];            
             return new DiffBranchPair { WorkingBranch = repository.Head, BranchToDiffAgainst = branchToDiffAgainst };
         }
     }

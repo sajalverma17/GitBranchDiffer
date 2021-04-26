@@ -12,17 +12,20 @@ namespace BranchDiffer.Git.Core
     /// <summary>
     /// Worker class that composes Git-services to generate a file diff of the provided document opened in VS.
     /// </summary>
-    public class GitFileDifferService
+    public class GitFileDiffController
     {
         private readonly IGitDiffService gitDiffService;
         private readonly IGitRepoService gitRepoService;
+        private readonly IGitFileService gitFileService;
 
-        public GitFileDifferService(
+        public GitFileDiffController(
             IGitDiffService gitDiffService,
-            IGitRepoService gitRepoService)
+            IGitRepoService gitRepoService,
+            IGitFileService gitFileService)
         {
             this.gitDiffService = gitDiffService;
             this.gitRepoService = gitRepoService;
+            this.gitFileService = gitFileService;
         }
 
         public bool SetupRepository(string solutionPath, string branchToDiffAgainst, out Repository repository, out string errorMsg)
@@ -50,10 +53,10 @@ namespace BranchDiffer.Git.Core
             return false;
         }
 
-        public IEnumerable<HunkRangeInfo> GenerateDiff(Repository repository, string branchToDiffAgainst, string filePath)
+        // Creates and returns a temp file on disk. Contents of this temp file are the contents of the VS active document file under Base Branch tree.
+        public string GetBaseBranchRevisionOfFile(Repository repository, string branchToDiffAgainst, string activeVsDocumentPath)
         {
-            var diffBranchPair = gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
-            return this.gitDiffService.GetFileDiff(repository, diffBranchPair, filePath);
+            return this.gitFileService.GetBaseBranchRevisionOfFile(repository, branchToDiffAgainst, activeVsDocumentPath);
         }
     }
 }

@@ -18,6 +18,11 @@ namespace GitBranchDiffer
 
         public static string PackageNameToDisplay = "Git Branch Differ";
 
+        public static void ShowError(string error)
+        {
+            ShowError(null, error);
+        }
+
         public static void ShowError(GitBranchDifferPackage package, string errorMsg)
         {
             if (package != null)
@@ -25,7 +30,7 @@ namespace GitBranchDiffer
                 VsShellUtilities.ShowMessageBox(
                         package,
                         errorMsg,
-                        "Git Branch Differ",
+                        PackageNameToDisplay,
                         OLEMSGICON.OLEMSGICON_CRITICAL,
                         OLEMSGBUTTON.OLEMSGBUTTON_OK,
                         OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
@@ -34,7 +39,7 @@ namespace GitBranchDiffer
             {
                 MessageBox.Show(
                     errorMsg,
-                    "Git Branch Differ");
+                    PackageNameToDisplay);
             }
         }
     }

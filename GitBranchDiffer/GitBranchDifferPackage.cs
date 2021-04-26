@@ -1,11 +1,11 @@
 ﻿using GitBranchDiffer.Filter;
+using GitBranchDiffer.FileDiff;
 using Microsoft.VisualStudio.Shell;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
 using Microsoft.VisualStudio;
-using Microsoft;
 using Microsoft.VisualStudio.Shell.Interop;
 
 namespace GitBranchDiffer
@@ -27,6 +27,7 @@ namespace GitBranchDiffer
         private EnvDTE.DTE dte;
         private EnvDTE.DocumentEvents documentEvents;
         private FilterInitializationState packageInitializationState = FilterInitializationState.Invalid;
+        private IVsDifferenceService vsDifferenceService;
 
         public GitBranchDifferPackage()
         {
@@ -38,10 +39,11 @@ namespace GitBranchDiffer
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+            vsDifferenceService = await GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
             if (dte != null)
             {
-                // Filter will be initialized "If and Only If" our package was initialized by VS instance
-                // And VS was opened with a solution pre-selected
+                // Filter will be initialized "If and Only If" our package was initialized by VS instance having a solution pre-selected before open
+                // Also hook to all relevant events here.
                 if (dte.Solution.IsOpen)
                 {
                     dte.Events.SolutionEvents.Opened += InitializeFilter;
@@ -62,10 +64,10 @@ namespace GitBranchDiffer
             }
         }
 
-        #region Package Members   
+        #region Public Package Members   
 
         /// <summary>
-        /// The branch against which active branch will be diffed
+        /// The branch against which active branch will be diffed.
         /// </summary>
         public string BranchToDiffAgainst
         {
@@ -77,7 +79,7 @@ namespace GitBranchDiffer
         }
 
         /// <summary>
-        /// The init state of the filter, describes if the solution info was passed to it or not.
+        /// The state of the filter, describes if the solution path (which becomes the git repo path) was passed to it or not.
         /// Defaults to invalid.
         /// </summary>
         public FilterInitializationState FilterInitializationState 
@@ -92,6 +94,8 @@ namespace GitBranchDiffer
             }
         }
 
+        #endregion
+
         /// <summary>
         /// Initializes Branch Diff Filter with Solution directory and name info.
         /// </summary> 
@@ -101,6 +105,7 @@ namespace GitBranchDiffer
             var absoluteSolutionPath = this.dte.Solution.FullName;
             var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);
             var solutionFile = System.IO.Path.GetFileName(absoluteSolutionPath);
+
             BranchDiffFilterProvider.Initialize(solutionDirectory, solutionFile);
             this.FilterInitializationState = FilterInitializationState.SoltuionInfoSet;
         }
@@ -114,7 +119,7 @@ namespace GitBranchDiffer
             this.FilterInitializationState = FilterInitializationState.SolutionInfoUnset;
         }
 
-        private void DocumentEvents_DocumentOpened(EnvDTE.Document document)
+        private void DocumentEvents_DocumentOpened(EnvDTE.Document Document)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             if (this.FilterInitializationState == FilterInitializationState.SoltuionInfoSet)
@@ -122,11 +127,33 @@ namespace GitBranchDiffer
                 // If solution explorer has our filtered, we generate a diff view of the document.
                 if (BranchDiffFilterProvider.IsFilterApplied)
                 {
-                    ErrorPresenter.ShowError(this, $"{document.FullName} is opened after filter is applied.");
+                    // Prevent stack overflow: Unhook so opening comparison document does not trigger this event again.
+                    documentEvents.DocumentOpened -= DocumentEvents_DocumentOpened;
+
+                    var absoluteSoltuionPath = this.dte.Solution.FullName;
+                    var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSoltuionPath);
+                    var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, Document.FullName);
+                    fileDiffProvider.ShowFileDiffWithBaseBranch(this.BranchToDiffAgainst);
+                    this.TryCloseDocumentOpenedByVS(Document);
+
+                    // Once comparison document is opened, hook to DocumentOpening again
+                    documentEvents.DocumentOpened += DocumentEvents_DocumentOpened;
                 }
             }
         }
 
-        #endregion
+        private void TryCloseDocumentOpenedByVS(EnvDTE.Document Document)
+        {
+            // TODO: On document open, close the one VS opens as we only want to show comparison. Below code doesn't work.
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                Document.Close(EnvDTE.vsSaveChanges.vsSaveChangesNo);
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
     }
 }

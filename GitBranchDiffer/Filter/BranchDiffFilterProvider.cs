@@ -68,7 +68,7 @@ namespace GitBranchDiffer.Filter
             private readonly string solutionDirectory;
             private readonly string solutionFile;
 
-            private GitBranchDifferService branchDiffService;
+            private GitBranchDiffController branchDiffService;
             private HashSet<DiffResultItem> changeSet;
 
             public BranchDiffFilter(GitBranchDifferPackage package, string solutionPath, string solutionName, SVsServiceProvider serviceProvider, IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider)
@@ -83,7 +83,7 @@ namespace GitBranchDiffer.Filter
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
             {
-                this.branchDiffService = DIContainer.Instance.GetService(typeof(GitBranchDifferService)) as GitBranchDifferService;
+                this.branchDiffService = DIContainer.Instance.GetService(typeof(GitBranchDiffController)) as GitBranchDiffController;
                 Assumes.Present(this.branchDiffService);
 
                 if (GitBranchDifferValidator.ValidatePackage(this.package))

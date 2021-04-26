@@ -9,15 +9,15 @@ namespace BranchDiffer.Git.Core
     /// <summary>
     /// Worker class that composes all other Git services and performs branch diff with the solution path and branch to diff against provided.
     /// </summary>
-    public class GitBranchDifferService
+    public class GitBranchDiffController
     {
         private readonly IGitDiffService gitBranchDiffService;
-        private readonly IGitItemIdentityService itemIdentityService;
+        private readonly IGitFileService itemIdentityService;
         private readonly IGitRepoService gitRepoService;
 
-        public GitBranchDifferService(
+        public GitBranchDiffController(
             IGitDiffService gitBranchDiffService,
-            IGitItemIdentityService itemIdentityService,
+            IGitFileService itemIdentityService,
             IGitRepoService gitRepoService)
         {
             this.gitBranchDiffService = gitBranchDiffService;
@@ -58,7 +58,7 @@ namespace BranchDiffer.Git.Core
 
         public bool HasItemInChangeSet(HashSet<DiffResultItem> changeSet, string vsItemAbsolutePath)
         {
-            return itemIdentityService.HasItemInChangeSet(changeSet, vsItemAbsolutePath);
+            return itemIdentityService.HasFileInChangeSet(changeSet, vsItemAbsolutePath);
         }
     }
 }
