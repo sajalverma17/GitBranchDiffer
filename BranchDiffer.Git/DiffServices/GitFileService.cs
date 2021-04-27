@@ -20,6 +20,7 @@ namespace BranchDiffer.Git.DiffServices
     {
         /// <summary>
         /// Creates a temp file on disk having content of this file but from branch against which user wants to diff.
+        /// TODO [Feature]: Support getting revision of plain RENAMED files from base branch, by marking DiffResult with ChangeKind.
         /// </summary>
         /// <param name="repository"></param>
         /// <param name="filePath"></param>

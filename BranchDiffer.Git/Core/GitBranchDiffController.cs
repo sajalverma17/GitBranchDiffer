@@ -53,7 +53,11 @@ namespace BranchDiffer.Git.Core
         public HashSet<DiffResultItem> GenerateDiff(Repository repository, string branchToDiffAgainst)
         {
             var diffBranchPair = gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
-            return this.gitBranchDiffService.GetDiffedChangeSet(repository, diffBranchPair);
+
+            // TODO [Feature]: Always pull the latest from remote-tracked BranchToDiff, before doing the diff.
+            var changeset = this.gitBranchDiffService.GetDiffedChangeSet(repository, diffBranchPair);
+            repository.Dispose();
+            return changeset;
         }
 
         public bool HasItemInChangeSet(HashSet<DiffResultItem> changeSet, string vsItemAbsolutePath)

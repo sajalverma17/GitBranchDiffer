@@ -94,8 +94,7 @@ namespace GitBranchDiffer.Filter
                         var setupOk = this.branchDiffService.SetupRepository(this.solutionDirectory, this.package.BranchToDiffAgainst, out var repo, out var error);
                         if (setupOk)
                         {
-                            this.changeSet = this.branchDiffService.GenerateDiff(repo, this.package.BranchToDiffAgainst);
-                            repo.Dispose();
+                            this.changeSet = this.branchDiffService.GenerateDiff(repo, this.package.BranchToDiffAgainst);                            
 
                             IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
                                                 root.HierarchyIdentity.NestedHierarchy,

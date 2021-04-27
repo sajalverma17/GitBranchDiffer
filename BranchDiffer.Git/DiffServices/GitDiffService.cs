@@ -25,14 +25,20 @@ namespace BranchDiffer.Git.DiffServices
                 diffBranchPair.WorkingBranch.Tip.Tree,
                 compareOptions);
 
-            // TODO: Include diffResult.Added and Renamed. Should work since the file will already be present in working branch.
-            // Can not include delete items. Even if you want to get the deleted files in changeset, how would you add it in Solution Explorer hierarchy to display it?
+            // Can not include delete items, no way to show it in Solution Explorer unless we dynamically add/remove item in Solution hierarchy.
+            // No special handling to Conflicts/Copied change kinds.
             var modifiedTreeChanges = branchDiffResult.Modified;
+            var addedTreeChanges = branchDiffResult.Added;
+            var renamedTreeChanges = branchDiffResult.Renamed;
+            var allChanges = modifiedTreeChanges
+                .Concat(addedTreeChanges)
+                .Concat(renamedTreeChanges);
+               
             HashSet<DiffResultItem> changedPathsSet = new HashSet<DiffResultItem>();
-            foreach (var item in modifiedTreeChanges)
+            foreach (var treeChanges in allChanges)
             {
                 // Issue with LibGit2Sharp: Paths returned are *-nix format, not windows directory format.
-                var itemPathWithCorrectSeparator = item.Path.Replace("/", Constants.DirectorySeperator);
+                var itemPathWithCorrectSeparator = treeChanges.Path.Replace("/", Constants.DirectorySeperator);
                 var repoPathWithCorrectSeperator = gitRepo.Info.WorkingDirectory.Replace("/", Constants.DirectorySeperator);
 
                 var diffedObject = new DiffResultItem
@@ -46,6 +52,6 @@ namespace BranchDiffer.Git.DiffServices
             }
 
             return changedPathsSet;
-        } 
+        }
     }
 }

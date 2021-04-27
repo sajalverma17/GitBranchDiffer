@@ -119,32 +119,55 @@ namespace GitBranchDiffer
             this.FilterInitializationState = FilterInitializationState.SolutionInfoUnset;
         }
 
-        private void DocumentEvents_DocumentOpened(EnvDTE.Document Document)
+        private void DocumentEvents_DocumentOpened(EnvDTE.Document document)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
+            // TODO [Bug]: Event triggered even if document is already opened and we switch to it. Might be solved by using Running Document Table.
+            // TODO [Feature]: Support Showing diff for project files as well (project item is null for them, but they are physical files too.
+            if (document.ProjectItem is null || !document.ProjectItem.Kind.Equals(EnvDTE.Constants.vsProjectItemKindPhysicalFile))
+            {
+                return;
+            }
+
             if (this.FilterInitializationState == FilterInitializationState.SoltuionInfoSet)
             {
-                // If solution explorer has our filtered, we generate a diff view of the document.
-                if (BranchDiffFilterProvider.IsFilterApplied)
+                // We generate diff window if the DocumentOpened event is triggered by a Project Item visible in our filter.
+                if (BranchDiffFilterProvider.IsFilterApplied && this.IsVisibleInSolutionHierarchy(document.ProjectItem))
                 {
                     // Prevent stack overflow: Unhook so opening comparison document does not trigger this event again.
                     documentEvents.DocumentOpened -= DocumentEvents_DocumentOpened;
 
-                    var absoluteSoltuionPath = this.dte.Solution.FullName;
-                    var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSoltuionPath);
-                    var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, Document.FullName);
-                    fileDiffProvider.ShowFileDiffWithBaseBranch(this.BranchToDiffAgainst);
-                    this.TryCloseDocumentOpenedByVS(Document);
+                    this.ShowFileDiffWindow(document.FullName);
+                    this.TryCloseWindowOpenedByVS(document);
 
-                    // Once comparison document is opened, hook to DocumentOpening again
                     documentEvents.DocumentOpened += DocumentEvents_DocumentOpened;
                 }
             }
         }
 
-        private void TryCloseDocumentOpenedByVS(EnvDTE.Document Document)
+        private bool IsVisibleInSolutionHierarchy(EnvDTE.ProjectItem projectItem)
         {
-            // TODO: On document open, close the one VS opens as we only want to show comparison. Below code doesn't work.
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var uih = (EnvDTE.UIHierarchy)dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Object;
+            EnvDTE.UIHierarchyItem uiHierarchyItem = uih?.FindHierarchyItem(projectItem);
+
+            // If the item is null in the UI (after our filter is applied), we must NOT generate comparison view for this file.
+            return uiHierarchyItem != null;
+        }
+
+        private void ShowFileDiffWindow(string openedDocumentFullPath)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var absoluteSoltuionPath = this.dte.Solution.FullName;
+            var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSoltuionPath);
+            var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, openedDocumentFullPath);
+            fileDiffProvider.ShowFileDiffWithBaseBranch(this.BranchToDiffAgainst);
+        }
+
+        // TODO [Bug]: On document open, close the one VS opens as we only want to show comparison. Below code doesn't work.
+        private void TryCloseWindowOpenedByVS(EnvDTE.Document Document)
+        {
             ThreadHelper.ThrowIfNotOnUIThread();
             try
             {

@@ -1,4 +1,5 @@
 ﻿using BranchDiffer.Git.Core;
+using BranchDiffer.Git.DiffModels;
 using Microsoft;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
@@ -30,17 +31,32 @@ namespace GitBranchDiffer.FileDiff
 
             if (fileDiffService.SetupRepository(this.solutionPath, baseBranchToDiffAgainst, out var repo, out string error))
             {
-                var leftFileMoniker = fileDiffService.GetBaseBranchRevisionOfFile(repo, baseBranchToDiffAgainst, this.activeDocumentPath);
+                var branchPairs = fileDiffService.GetDiffBranchPair(repo, baseBranchToDiffAgainst);
+                var leftFileMoniker = fileDiffService.GetBaseBranchRevisionOfFile(repo, baseBranchToDiffAgainst, this.activeDocumentPath);                
                 var rightFileMoniker = this.activeDocumentPath;
+                repo.Dispose();
 
-                // TODO :1) Labels on left and right files (branch revision name). 2) Comparison window must be brought to focus: window.Show() doesnt work 
-                var vsWindowsFrame = vsDifferenceService.OpenComparisonWindow(leftFileMoniker, rightFileMoniker);
-                vsWindowsFrame.Show();
+                this.PresentComparisonWindow(branchPairs, leftFileMoniker, rightFileMoniker);
             }
             else
             {
-                ErrorPresenter.ShowError(error);                
+                ErrorPresenter.ShowError(error);
             }
+        }
+
+        private void PresentComparisonWindow(DiffBranchPair branchDiffPair, string leftFileMoniker, string rightFileMoniker)
+        {
+            Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();            
+            var filename = System.IO.Path.GetFileName(this.activeDocumentPath);
+            string leftLabel = $"{filename}@{branchDiffPair.BranchToDiffAgainst.FriendlyName}";
+            string rightLabel = $"{filename}@{branchDiffPair.WorkingBranch.FriendlyName}";
+            string caption = $"{System.IO.Path.GetFileName(leftFileMoniker)} Vs. {System.IO.Path.GetFileName(leftFileMoniker)}";
+            string tooltip = string.Empty;
+            string inlineLabel = string.Empty;
+            string roles = string.Empty;
+            __VSDIFFSERVICEOPTIONS diffServiceOptions = __VSDIFFSERVICEOPTIONS.VSDIFFOPT_DetectBinaryFiles;
+            var vsWindowsFrame = vsDifferenceService.OpenComparisonWindow2(leftFileMoniker, rightFileMoniker, caption, tooltip, leftLabel, rightLabel, inlineLabel, roles, (uint)diffServiceOptions);
+            vsWindowsFrame.Show();
         }
     }
 }

@@ -53,10 +53,16 @@ namespace BranchDiffer.Git.Core
             return false;
         }
 
+        public DiffBranchPair GetDiffBranchPair(Repository repository, string branchNameToDiffAgainst)
+        {
+            return this.gitRepoService.GetBranchesToDiffFromRepo(repository, branchNameToDiffAgainst);
+        }
+
         // Creates and returns a temp file on disk. Contents of this temp file are the contents of the VS active document file under Base Branch tree.
         public string GetBaseBranchRevisionOfFile(Repository repository, string branchToDiffAgainst, string activeVsDocumentPath)
         {
-            return this.gitFileService.GetBaseBranchRevisionOfFile(repository, branchToDiffAgainst, activeVsDocumentPath);
+            var tempFilePath = this.gitFileService.GetBaseBranchRevisionOfFile(repository, branchToDiffAgainst, activeVsDocumentPath);            
+            return tempFilePath;
         }
     }
 }

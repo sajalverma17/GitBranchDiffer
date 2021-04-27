@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="DIContainer.cs" />
     <Compile Include="ErrorPresenter.cs" />
+    <Compile Include="FileDiff\UIHierarchyExtensions.cs" />
     <Compile Include="FileDiff\VsFileDiffProvider.cs" />
     <Compile Include="Filter\BranchDiffFilterProvider.cs" />
     <Compile Include="Filter\BranchDiffFilterCommandGuids.cs" />
