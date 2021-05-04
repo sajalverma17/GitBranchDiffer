@@ -23,7 +23,7 @@ namespace GitBranchDiffer.FileDiff
             this.activeDocumentPath = activeDocumentPath;
         }
 
-        public void ShowFileDiffWithBaseBranch(string baseBranchToDiffAgainst)
+        public IVsWindowFrame ShowFileDiffWithBaseBranch(string baseBranchToDiffAgainst)
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
             var fileDiffService = DIContainer.Instance.GetService(typeof(GitFileDiffController)) as GitFileDiffController;
@@ -36,27 +36,27 @@ namespace GitBranchDiffer.FileDiff
                 var rightFileMoniker = this.activeDocumentPath;
                 repo.Dispose();
 
-                this.PresentComparisonWindow(branchPairs, leftFileMoniker, rightFileMoniker);
+                return this.PresentComparisonWindow(branchPairs, leftFileMoniker, rightFileMoniker);
             }
             else
             {
                 ErrorPresenter.ShowError(error);
+                return null;
             }
         }
 
-        private void PresentComparisonWindow(DiffBranchPair branchDiffPair, string leftFileMoniker, string rightFileMoniker)
+        private IVsWindowFrame PresentComparisonWindow(DiffBranchPair branchDiffPair, string leftFileMoniker, string rightFileMoniker)
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();            
             var filename = System.IO.Path.GetFileName(this.activeDocumentPath);
             string leftLabel = $"{filename}@{branchDiffPair.BranchToDiffAgainst.FriendlyName}";
             string rightLabel = $"{filename}@{branchDiffPair.WorkingBranch.FriendlyName}";
-            string caption = $"{System.IO.Path.GetFileName(leftFileMoniker)} Vs. {System.IO.Path.GetFileName(leftFileMoniker)}";
+            string caption = $"{System.IO.Path.GetFileName(leftFileMoniker)} Vs. {System.IO.Path.GetFileName(rightFileMoniker)}";
             string tooltip = string.Empty;
             string inlineLabel = string.Empty;
             string roles = string.Empty;
-            __VSDIFFSERVICEOPTIONS diffServiceOptions = __VSDIFFSERVICEOPTIONS.VSDIFFOPT_DetectBinaryFiles;
-            var vsWindowsFrame = vsDifferenceService.OpenComparisonWindow2(leftFileMoniker, rightFileMoniker, caption, tooltip, leftLabel, rightLabel, inlineLabel, roles, (uint)diffServiceOptions);
-            vsWindowsFrame.Show();
+            __VSDIFFSERVICEOPTIONS diffServiceOptions = __VSDIFFSERVICEOPTIONS.VSDIFFOPT_LeftFileIsTemporary;
+            return vsDifferenceService.OpenComparisonWindow2(leftFileMoniker, rightFileMoniker, caption, tooltip, leftLabel, rightLabel, inlineLabel, roles, (uint)diffServiceOptions);
         }
     }
 }

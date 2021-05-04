@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitBranchDiffer", "GitBranchDiffer\GitBranchDiffer.csproj", "{F68A200A-0E17-4351-9766-7A10E94DAC71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BranchDiffer.Git", "BranchDiffer.Git\BranchDiffer.Git.csproj", "{CBCFD494-A7AB-485D-B24B-67C09EC21758}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BranchDiffer.Git", "BranchDiffer.Git\BranchDiffer.Git.csproj", "{CBCFD494-A7AB-485D-B24B-67C09EC21758}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
