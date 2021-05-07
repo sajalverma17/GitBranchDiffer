@@ -13,7 +13,7 @@ namespace GitBranchDiffer.Filter
     /// If user closes a solution in VS, it changes state of our package to SolutionInfoUnset.
     /// </summary>
     /// <remarks>
-    /// TODO: We can get rid of keeping track of solution info this way if we figure how to HIDE our filter button 
+    /// TODO: We can get rid of keeping track of solution info this way if we figure out how to HIDE our filter button 
     /// based on Solution existing in Solution Explorer or not.
     /// </remarks>
     public enum FilterInitializationState

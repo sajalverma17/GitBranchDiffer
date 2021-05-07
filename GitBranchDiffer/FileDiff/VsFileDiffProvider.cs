@@ -2,11 +2,6 @@
 using BranchDiffer.Git.DiffModels;
 using Microsoft;
 using Microsoft.VisualStudio.Shell.Interop;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GitBranchDiffer.FileDiff
 {
@@ -23,7 +18,7 @@ namespace GitBranchDiffer.FileDiff
             this.activeDocumentPath = activeDocumentPath;
         }
 
-        public IVsWindowFrame ShowFileDiffWithBaseBranch(string baseBranchToDiffAgainst)
+        public void ShowFileDiffWithBaseBranch(string baseBranchToDiffAgainst)
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
             var fileDiffService = DIContainer.Instance.GetService(typeof(GitFileDiffController)) as GitFileDiffController;
@@ -36,16 +31,15 @@ namespace GitBranchDiffer.FileDiff
                 var rightFileMoniker = this.activeDocumentPath;
                 repo.Dispose();
 
-                return this.PresentComparisonWindow(branchPairs, leftFileMoniker, rightFileMoniker);
+                this.PresentComparisonWindow(branchPairs, leftFileMoniker, rightFileMoniker);
             }
             else
             {
                 ErrorPresenter.ShowError(error);
-                return null;
             }
         }
 
-        private IVsWindowFrame PresentComparisonWindow(DiffBranchPair branchDiffPair, string leftFileMoniker, string rightFileMoniker)
+        private void PresentComparisonWindow(DiffBranchPair branchDiffPair, string leftFileMoniker, string rightFileMoniker)
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();            
             var filename = System.IO.Path.GetFileName(this.activeDocumentPath);
@@ -56,7 +50,7 @@ namespace GitBranchDiffer.FileDiff
             string inlineLabel = string.Empty;
             string roles = string.Empty;
             __VSDIFFSERVICEOPTIONS diffServiceOptions = __VSDIFFSERVICEOPTIONS.VSDIFFOPT_LeftFileIsTemporary;
-            return vsDifferenceService.OpenComparisonWindow2(leftFileMoniker, rightFileMoniker, caption, tooltip, leftLabel, rightLabel, inlineLabel, roles, (uint)diffServiceOptions);
+            vsDifferenceService.OpenComparisonWindow2(leftFileMoniker, rightFileMoniker, caption, tooltip, leftLabel, rightLabel, inlineLabel, roles, (uint)diffServiceOptions);
         }
     }
 }
