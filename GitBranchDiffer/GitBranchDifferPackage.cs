@@ -36,9 +36,8 @@ namespace GitBranchDiffer
         private EnvDTE.SelectionEvents selectionEvents;
         private FilterInitializationState packageInitializationState = FilterInitializationState.Invalid;
         private IVsDifferenceService vsDifferenceService;
-        private IVsUIShell vsUIShell;
         private IVsMonitorSelection vsMonitorSelectionService;
-        private RunningDocumentTable vsRunningDocumentTable;
+        private IVsUIShell vsUIShell;
 
         public GitBranchDifferPackage()
         {
@@ -55,7 +54,6 @@ namespace GitBranchDiffer
             this.vsMonitorSelectionService = await GetServiceAsync(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
 
             IOleServiceProvider sp = GetGlobalService(typeof(IOleServiceProvider)) as IOleServiceProvider;
-            this.vsRunningDocumentTable = new RunningDocumentTable(new ServiceProvider(sp));
             if (sp == null) return;
             if (dte != null)
             {
@@ -70,8 +68,6 @@ namespace GitBranchDiffer
                     this.selectionEvents.OnChange += SelectionEvents_OnChange;
                     // documentEvents.DocumentOpening += DocumentEvents_DocumentOpening;
                     // documentEvents.DocumentOpened += DocumentEvents_DocumentOpened;
-                    // var documentWindowEventHandler = new DocumentWindowEventHandler(vsRunningDocumentTable);
-                    // uint clientIdToUnregister = this.vsRunningDocumentTable.Advise(documentWindowEventHandler);
                     this.InitializeFilter();
                 }
                 else
@@ -141,66 +137,7 @@ namespace GitBranchDiffer
             BranchDiffFilterProvider.Initialize(string.Empty, string.Empty);
             this.FilterInitializationState = FilterInitializationState.SolutionInfoUnset;
         }
-
-        /*
-        private void DocumentEvents_DocumentOpening(string DocumentPath, bool ReadOnly)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var projectItem = this.dte.Solution.FindProjectItem(DocumentPath);
-            // TODO [Bug]: Event triggered even if document is already opened and we switch to it. Might be solved by using Running Document Table.
-            // TODO [Feature]: Support Showing diff for project files as well (project item is null for them, but they are physical files too.
-            if (projectItem is null || !projectItem.Kind.Equals(EnvDTE.Constants.vsProjectItemKindPhysicalFile))
-            {
-                return;
-            }
-
-            if (this.FilterInitializationState == FilterInitializationState.SoltuionInfoSet)
-            {
-                // We generate diff window if the DocumentOpened event is triggered by a Project Item visible in our filter.
-                if (BranchDiffFilterProvider.IsFilterApplied && this.IsVisibleInSolutionHierarchy(projectItem))
-                {
-                    // Prevent stack overflow: Unhook so opening comparison document does not trigger this event again.
-                    documentEvents.DocumentOpening -= DocumentEvents_DocumentOpening;
-
-                    var filePathToDiff = DocumentPath;
-                    this.TryCloseWindow(DocumentPath);
-                    this.ShowFileDiffWindow(filePathToDiff);
-
-                    documentEvents.DocumentOpening += DocumentEvents_DocumentOpening;
-                }
-            }
-        }
-        */
-
-        private void DocumentEvents_DocumentOpened(EnvDTE.Document document)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            // TODO [Bug]: Event triggered even if document is already opened and we switch to it. Might be solved by using Running Document Table.
-            // TODO [Feature]: Support Showing diff for project files as well (project item is null for them, but they are physical files too.
-            if (document.ProjectItem is null || !document.ProjectItem.Kind.Equals(EnvDTE.Constants.vsProjectItemKindPhysicalFile))
-            {
-                return;
-            }
-            
-            if (this.FilterInitializationState == FilterInitializationState.SoltuionInfoSet)
-            {
-                // We generate diff window if the DocumentOpened event is triggered by a Project Item visible in our filter.
-                if (BranchDiffFilterProvider.IsFilterApplied && this.IsVisibleInSolutionHierarchy(document.ProjectItem))
-                {
-                    // Prevent stack overflow: Unhook so opening comparison document does not trigger this event again.
-                    documentEvents.DocumentOpened -= DocumentEvents_DocumentOpened;
-
-                    var filePathToDiff = document.FullName;
-                    var diffWindowFrame = this.ShowFileDiffWindow(filePathToDiff);
-                    this.TryCloseWindow(diffWindowFrame);
-
-                    documentEvents.DocumentOpened += DocumentEvents_DocumentOpened;
-                }
-            }
-
-        }
-
+        
         private void SelectionEvents_OnChange()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -218,6 +155,7 @@ namespace GitBranchDiffer
             IVsHierarchy selectedHierarchy = Marshal.GetTypedObjectForIUnknown(
                                                 hierarchyPointer,
                                                 typeof(IVsHierarchy)) as IVsHierarchy;
+            
             if (selectedHierarchy != null)
             {
                 ErrorHandler.ThrowOnFailure(selectedHierarchy.GetProperty(
@@ -226,22 +164,22 @@ namespace GitBranchDiffer
                                                   out selectedObject));
             }
 
-            EnvDTE.ProjectItem selectedProjectItem = selectedObject as EnvDTE.ProjectItem;
-
-            if (selectedProjectItem != null)
+            if (selectedObject is EnvDTE.ProjectItem selectedProjectItem)
             {
-                if (this.FilterInitializationState == FilterInitializationState.SoltuionInfoSet)
+                if (selectedProjectItem != null)
                 {
-                    // We generate diff window if the DocumentOpened event is triggered by a Project Item visible in our filter.
-                    if (BranchDiffFilterProvider.IsFilterApplied && this.IsVisibleInSolutionHierarchy(selectedProjectItem))
+                    if (this.FilterInitializationState == FilterInitializationState.SoltuionInfoSet)
                     {
-                        var projectPath = System.IO.Path.GetDirectoryName(selectedProjectItem.ContainingProject.FullName);
-                        var filePath = projectPath + "\\" + selectedProjectItem.Name;
-                        this.ShowFileDiffWindow(filePath);
+                        if (BranchDiffFilterProvider.IsFilterApplied && this.IsVisibleInSolutionHierarchy(selectedProjectItem))
+                        {
+                            var filePath = selectedProjectItem.Properties.Item("FullPath").Value.ToString();
+                            this.ShowFileDiffWindow(filePath);
+                        }
                     }
                 }
             }
         }
+        
 
         private bool IsVisibleInSolutionHierarchy(EnvDTE.ProjectItem projectItem)
         {
@@ -261,7 +199,10 @@ namespace GitBranchDiffer
             var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, openedDocumentFullPath);
             return fileDiffProvider.ShowFileDiffWithBaseBranch(this.BranchToDiffAgainst);
         }
+    }
+}
 
+/*
         // TODO [Bug]: On document open, close the one VS opens as we only want to show comparison. Might be solved by Running Document Table.
         private void TryCloseWindow(IVsWindowFrame diffWindowFrame)
         {         
@@ -305,16 +246,73 @@ namespace GitBranchDiffer
             {
             }
         }
+        private void DocumentEvents_DocumentOpening(string DocumentPath, bool ReadOnly)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var projectItem = this.dte.Solution.FindProjectItem(DocumentPath);
+            // TODO [Bug]: Event triggered even if document is already opened and we switch to it. Might be solved by using Running Document Table.
+            // TODO [Feature]: Support Showing diff for project files as well (project item is null for them, but they are physical files too.
+            if (projectItem is null || !projectItem.Kind.Equals(EnvDTE.Constants.vsProjectItemKindPhysicalFile))
+            {
+                return;
+            }
+
+            if (this.FilterInitializationState == FilterInitializationState.SoltuionInfoSet)
+            {
+                // We generate diff window if the DocumentOpened event is triggered by a Project Item visible in our filter.
+                if (BranchDiffFilterProvider.IsFilterApplied && this.IsVisibleInSolutionHierarchy(projectItem))
+                {
+                    // Prevent stack overflow: Unhook so opening comparison document does not trigger this event again.
+                    documentEvents.DocumentOpening -= DocumentEvents_DocumentOpening;
+
+                    var filePathToDiff = DocumentPath;
+                    this.TryCloseWindow(DocumentPath);
+                    this.ShowFileDiffWindow(filePathToDiff);
+
+                    documentEvents.DocumentOpening += DocumentEvents_DocumentOpening;
+                }
+            }
+        }
+
+        private void DocumentEvents_DocumentOpened(EnvDTE.Document document)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            // TODO [Bug]: Event triggered even if document is already opened and we switch to it. Might be solved by using Running Document Table.
+            // TODO [Feature]: Support Showing diff for project files as well (project item is null for them, but they are physical files too.
+            if (document.ProjectItem is null || !document.ProjectItem.Kind.Equals(EnvDTE.Constants.vsProjectItemKindPhysicalFile))
+            {
+                return;
+            }
+            
+            if (this.FilterInitializationState == FilterInitializationState.SoltuionInfoSet)
+            {
+                // We generate diff window if the DocumentOpened event is triggered by a Project Item visible in our filter.
+                if (BranchDiffFilterProvider.IsFilterApplied && this.IsVisibleInSolutionHierarchy(document.ProjectItem))
+                {
+                    // Prevent stack overflow: Unhook so opening comparison document does not trigger this event again.
+                    documentEvents.DocumentOpened -= DocumentEvents_DocumentOpened;
+
+                    var filePathToDiff = document.FullName;
+                    var diffWindowFrame = this.ShowFileDiffWindow(filePathToDiff);
+                    this.TryCloseWindow(diffWindowFrame);
+
+                    documentEvents.DocumentOpened += DocumentEvents_DocumentOpened;
+                }
+            }
+
+        } 
+
         private DocumentGroup GetDocumentGroup(WindowFrame windowFrame)
         {
             return Microsoft.VisualStudio.PlatformUI.ExtensionMethods.FindAncestor<DocumentGroup, ViewElement>(
                 windowFrame.FrameView, e => e.Parent as ViewElement);
         }
+
         private IDifferenceViewer GetDiffViewer(IVsWindowFrame frame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             return ErrorHandler.Succeeded(frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out object docView))
                 ? (docView as IVsDifferenceCodeWindow)?.DifferenceViewer : null;
-        }
-    }
-}
+        } 
+ */
