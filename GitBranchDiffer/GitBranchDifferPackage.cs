@@ -29,6 +29,7 @@ namespace GitBranchDiffer
         private EnvDTE.SelectionEvents selectionEvents;
         private FilterInitializationState packageInitializationState = FilterInitializationState.Invalid;
         private IVsDifferenceService vsDifferenceService;
+        private string currentSelectionInSolutionExplorer;
 
         public GitBranchDifferPackage()
         {
@@ -41,9 +42,6 @@ namespace GitBranchDiffer
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
             this.vsDifferenceService = await GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
-
-            IOleServiceProvider sp = GetGlobalService(typeof(IOleServiceProvider)) as IOleServiceProvider;
-            if (sp == null) return;
             if (dte != null)
             {
                 // Filter will be initialized "If and Only If" our package was initialized by VS instance having a solution pre-selected before open
@@ -100,6 +98,7 @@ namespace GitBranchDiffer
 
         #endregion
 
+        #region VS Events
         /// <summary>
         /// Initializes Branch Diff Filter with Solution directory and name info.
         /// </summary> 
@@ -128,19 +127,33 @@ namespace GitBranchDiffer
             ThreadHelper.ThrowIfNotOnUIThread();
             if (BranchDiffFilterProvider.IsFilterApplied && this.FilterInitializationState == FilterInitializationState.SoltuionInfoSet)
             {
-                var selectedProjectItem = this.GetCurrentSelectionInSolutionHierarchy();
-                if (this.IsVisibleInSolutionHierarchy(selectedProjectItem))
+                var selectedProjectItem = this.GetCurrentSelectionInSolutionExplorer();
+
+                // TODO [Feature]: Support for project files too, just allow returning EnvDTE.Project from above method
+                if (selectedProjectItem != null && this.IsSelectionChangeInSolutionExplorer(selectedProjectItem))
                 {
-                    string filePath = selectedProjectItem.Properties.Item("FullPath").Value.ToString();
-                    if (!string.IsNullOrEmpty(filePath))
+                    if (this.NoExistingWindowFor(selectedProjectItem) && this.IsVisibleInSolutionExplorer(selectedProjectItem))
                     {
-                        this.ShowFileDiffWindow(filePath);
+                        string filePath = selectedProjectItem.Properties.Item("FullPath").Value.ToString();
+                        if (!string.IsNullOrEmpty(filePath))
+                        {
+                            this.ShowFileDiffWindow(filePath);
+                        }
                     }
+                    else
+                    {
+                        // else, just bring existing document window of this item to front, don't open a new one
+                        SetFocusOnWindowFor(selectedProjectItem);
+                    }
+
+                    this.UpdateCurrentSelectionFromSolutionExplorer(selectedProjectItem);
                 }
             }
         }
+        #endregion
 
-        private bool IsVisibleInSolutionHierarchy(EnvDTE.ProjectItem projectItem)
+        #region Private methods - Solution Explorer inspection
+        private bool IsVisibleInSolutionExplorer(EnvDTE.ProjectItem projectItem)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var uih = (EnvDTE.UIHierarchy)this.dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Object;
@@ -150,29 +163,70 @@ namespace GitBranchDiffer
             return uiHierarchyItem != null;
         }
 
-        private EnvDTE.ProjectItem GetCurrentSelectionInSolutionHierarchy()
+        private EnvDTE.ProjectItem GetCurrentSelectionInSolutionExplorer()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var uih = (EnvDTE.UIHierarchy)this.dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Object;
             Array selectedItems = (Array)uih.SelectedItems;
             if (selectedItems != null && selectedItems.Length == 1)
             {
-                foreach (EnvDTE.UIHierarchyItem selItem in selectedItems)
-                {
-                    return selItem.Object as EnvDTE.ProjectItem;
-                }
+                var selectedHierarchyItem = selectedItems.GetValue(0) as EnvDTE.UIHierarchyItem;
+                return selectedHierarchyItem.Object as EnvDTE.ProjectItem;
             }
 
             return null;
         }
 
-        private void ShowFileDiffWindow(string openedDocumentFullPath)
+        // We are only interested in change in solution Explorer items. This detects if the Selection_Change event was due to change there. 
+        private bool IsSelectionChangeInSolutionExplorer(EnvDTE.ProjectItem projectItem)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var thisItemName = projectItem.Properties.Item("FullPath").Value.ToString();
+            return thisItemName != currentSelectionInSolutionExplorer;
+        }
+
+        private void UpdateCurrentSelectionFromSolutionExplorer(EnvDTE.ProjectItem projectItem)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var itemCanonicalName = projectItem.Properties.Item("FullPath").Value.ToString();
+            this.currentSelectionInSolutionExplorer = itemCanonicalName;
+        }
+        #endregion
+
+        #region Private methods - Window manipulation
+        private bool NoExistingWindowFor(EnvDTE.ProjectItem projectItem)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (projectItem.Document == null)
+            {
+                return true;
+            }
+
+            return projectItem.Document.Windows.Count == 0;
+        }
+
+        private void SetFocusOnWindowFor(EnvDTE.ProjectItem projectItem)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (projectItem.Document.Windows.Count == 1)
+            {
+                var enumerator = projectItem.Document.Windows.GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    var currentWindow = enumerator.Current as EnvDTE.Window;
+                    currentWindow.Activate();
+                }
+            }
+        }
+
+        private void ShowFileDiffWindow(string selectedItemPath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var absoluteSoltuionPath = this.dte.Solution.FullName;
             var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSoltuionPath);
-            var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, openedDocumentFullPath);
+            var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, selectedItemPath);
             fileDiffProvider.ShowFileDiffWithBaseBranch(this.BranchToDiffAgainst);
         }
+        #endregion
     }
 }
