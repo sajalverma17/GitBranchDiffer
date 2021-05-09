@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using GitBranchDiffer.SolutionSelectionModels;
 using Microsoft.VisualStudio.Shell;
 using System;
 using System.Collections;
@@ -22,28 +23,32 @@ namespace GitBranchDiffer.FileDiff
         ///     in the solution
         ///     explorer that represents the given project
         /// </returns>
-        public static UIHierarchyItem FindHierarchyItem(this UIHierarchy hierarchy, Project item)
+        public static UIHierarchyItem FindHierarchyItem(this UIHierarchy hierarchy, SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if(solutionSelectionContainer.IsProject)
+            {
+                var selectedProject = solutionSelectionContainer.Item as SelectedProject;
+                return FindHierarchyItem(hierarchy, selectedProject.Native);
+            }
+
+            if (solutionSelectionContainer.IsProjectItem)
+            {
+                var selectedProjectItem = solutionSelectionContainer.Item as SelectedProjectItem;
+                return FindHierarchyItem(hierarchy, selectedProjectItem.Native);
+            }
+
+            return null;
+        }
+
+        private static UIHierarchyItem FindHierarchyItem(this UIHierarchy hierarchy, Project item)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             return FindHierarchyItem(hierarchy, (object)item);
         }
 
-        /// <summary>
-        ///     <see cref="FindHierarchyItem(EnvDTE.UIHierarchy,EnvDTE.Project)" />
-        /// </summary>
-        public static UIHierarchyItem FindHierarchyItem(this UIHierarchy hierarchy, Solution item)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            return FindHierarchyItem(hierarchy, (object)item);
-        }
-
-        /// <summary>
-        ///     <see cref="FindHierarchyItem(EnvDTE.UIHierarchy,EnvDTE.Project)" />
-        /// </summary>
-        public static UIHierarchyItem FindHierarchyItem(this UIHierarchy hierarchy, ProjectItem item)
-
+        private static UIHierarchyItem FindHierarchyItem(this UIHierarchy hierarchy, ProjectItem item)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 

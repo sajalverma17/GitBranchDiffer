@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Text.Differencing;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.Platform.WindowManagement.DTE;
+using GitBranchDiffer.SolutionSelectionModels;
 
 namespace GitBranchDiffer
 {
@@ -134,31 +135,31 @@ namespace GitBranchDiffer
             ThreadHelper.ThrowIfNotOnUIThread();
             if (BranchDiffFilterProvider.IsFilterApplied && this.FilterInitializationState == FilterInitializationState.SoltuionInfoSet)
             {
-                var selectedProjectItem = this.GetCurrentSelectionInSolutionExplorer();
+                var selectionContainer = this.GetCurrentSelectionInSolutionExplorer();
 
-                // TODO [Feature]: Support for project files too, just allow returning EnvDTE.Project from above method
-                if (selectedProjectItem != null && this.IsSelectionChangeInSolutionExplorer(selectedProjectItem))
+                if (selectionContainer.Item != null && selectionContainer.IsSupported() && this.IsSelectionChangeInSolutionExplorer(selectionContainer))
                 {
-                    if (selectedProjectItem.HasNoAssociatedDiffWindow(this.vsUIShell) && this.IsVisibleInSolutionExplorer(selectedProjectItem))
+                    // Only open diff window for item if no diff window already associated
+                    if (selectionContainer.HasNoAssociatedDiffWindow(this.vsUIShell) && this.IsVisibleInSolutionExplorer(selectionContainer))
                     {
-                        this.ShowFileDiffWindow(selectedProjectItem);
+                        this.ShowFileDiffWindow(selectionContainer);
                     }
                     else
                     {
-                        // else, just bring existing document window of this item to front, don't open a new one
-                        selectedProjectItem.FocusAssociatedDiffWindow();
+                        // else, just bring existing diff window of this item to front, don't open a new one
+                        selectionContainer.FocusAssociatedDiffWindow(this.vsUIShell);
                     }
 
-                    this.UpdateCurrentSelectionFromSolutionExplorer(selectedProjectItem);
+                    this.UpdateCurrentSelectionFromSolutionExplorer(selectionContainer);
                 }
             }
         }
 
-        private void ShowFileDiffWindow(EnvDTE.ProjectItem selectedProjectItem)
+        private void ShowFileDiffWindow(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            string selectedItemPath = selectedProjectItem.Properties.Item("FullPath").Value.ToString();
-            if (string.IsNullOrEmpty(selectedItemPath))
+            string selectedItemPath = solutionSelectionContainer.FullName;
+            if (!string.IsNullOrEmpty(selectedItemPath))
             {
                 var absoluteSoltuionPath = this.dte.Solution.FullName;
                 var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSoltuionPath);
@@ -169,25 +170,25 @@ namespace GitBranchDiffer
         #endregion
 
         #region Private methods - Solution Explorer inspection
-        private bool IsVisibleInSolutionExplorer(EnvDTE.ProjectItem projectItem)
+        private bool IsVisibleInSolutionExplorer(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var uih = (EnvDTE.UIHierarchy)this.dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Object;
-            EnvDTE.UIHierarchyItem uiHierarchyItem = uih?.FindHierarchyItem(projectItem);
+            EnvDTE.UIHierarchyItem uiHierarchyItem = uih?.FindHierarchyItem(solutionSelectionContainer);
 
             // If the item is null in the UI (after our filter is applied), we must NOT generate comparison view for this file.
             return uiHierarchyItem != null;
         }
 
         // We are only interested in change in solution Explorer items. This detects if the Selection_Change event was due to change there. 
-        private bool IsSelectionChangeInSolutionExplorer(EnvDTE.ProjectItem projectItem)
+        private bool IsSelectionChangeInSolutionExplorer(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var thisItemName = projectItem.Properties.Item("FullPath").Value.ToString();
+            var thisItemName = solutionSelectionContainer.FullName;
             return thisItemName != this.currentSelectionInSolutionExplorer;
         }
 
-        private EnvDTE.ProjectItem GetCurrentSelectionInSolutionExplorer()
+        private SolutionSelectionContainer<ISolutionSelection> GetCurrentSelectionInSolutionExplorer()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var uih = (EnvDTE.UIHierarchy)this.dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Object;
@@ -195,16 +196,38 @@ namespace GitBranchDiffer
             if (selectedItems != null && selectedItems.Length == 1)
             {
                 var selectedHierarchyItem = selectedItems.GetValue(0) as EnvDTE.UIHierarchyItem;
-                return selectedHierarchyItem.Object as EnvDTE.ProjectItem;
+                var selectedObject = selectedHierarchyItem?.Object;
+
+                if (selectedObject != null)
+                {
+                    if (selectedObject is EnvDTE.Project selectedProject)
+                    {
+                        return new SolutionSelectionContainer<ISolutionSelection>
+                        {
+                            Item = new SelectedProject { Native = selectedProject }
+                        };
+                    }
+
+                    if (selectedObject is EnvDTE.ProjectItem selectedProjectItem)
+                    {
+                        return new SolutionSelectionContainer<ISolutionSelection>
+                        {
+                            Item = new SelectedProjectItem { Native = selectedProjectItem }
+                        };
+                    }
+                }
             }
 
-            return null;
+            return new SolutionSelectionContainer<ISolutionSelection>
+            {
+                Item = null
+            }; 
         }
 
-        private void UpdateCurrentSelectionFromSolutionExplorer(EnvDTE.ProjectItem projectItem)
+        private void UpdateCurrentSelectionFromSolutionExplorer(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var itemCanonicalName = projectItem.Properties.Item("FullPath")?.Value?.ToString();
+            var itemCanonicalName = solutionSelectionContainer.FullName;
             this.currentSelectionInSolutionExplorer = itemCanonicalName;
         }
         #endregion
