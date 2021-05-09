@@ -10,6 +10,8 @@ namespace GitBranchDiffer.SolutionSelectionModels
     {
         string FullPath { get; }
 
+        string OldFullPath { get; }
+
         /// <summary>
         /// One of EnvDTE.Constants.vsProjectItemKind....
         /// </summary>

@@ -18,7 +18,12 @@ namespace BranchDiffer.Git.DiffModels
         public string AbsoluteFilePath { get; set; }
 
         /// <summary>
-        /// Diffed item, returned by GitLib2Sharp library
+        /// Relevant for Renamed files. We look for this path if ChangeKind is Renamed
+        /// </summary>
+        public string OldAbsoluteFilePath { get; set; }
+
+        /// <summary>
+        /// Diffed item, returned by GitLib2Sharp library.
         /// </summary>
         public object DiffedObject { get; set; }
 

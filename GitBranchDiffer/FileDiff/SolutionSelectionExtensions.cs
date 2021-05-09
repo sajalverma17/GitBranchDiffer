@@ -90,7 +90,7 @@ namespace GitBranchDiffer.FileDiff
             ThreadHelper.ThrowIfNotOnUIThread();
 
             return selectedItemContainer.IsProject
-                || selectedItemContainer.Kind == EnvDTE.Constants.vsProjectItemKindPhysicalFile;
+                || selectedItemContainer.VsItemKind == EnvDTE.Constants.vsProjectItemKindPhysicalFile;
         }
 
         private static List<IVsWindowFrame> GetAllWindowFramesFromShell(IVsUIShell vsUIShell)

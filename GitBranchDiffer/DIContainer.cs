@@ -1,6 +1,7 @@
 ﻿using System;
 using BranchDiffer.Git.Core;
 using BranchDiffer.Git.DiffServices;
+using GitBranchDiffer.FileDiff;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GitBranchDiffer
@@ -31,6 +32,7 @@ namespace GitBranchDiffer
             var container = new ServiceCollection();
             container.AddScoped<GitBranchDiffController>();
             container.AddScoped<GitFileDiffController>();
+            container.AddScoped<ItemTagManager>();
             container.AddScoped<IGitDiffService, GitDiffService>();
             container.AddScoped<IGitFileService, GitFileService>();
             container.AddScoped<IGitRepoService, GitRepoService>();

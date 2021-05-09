@@ -33,7 +33,15 @@ namespace GitBranchDiffer.SolutionSelectionModels
             }
         }
 
-        public string Kind
+        public string OldFullName
+        {
+            get
+            {
+                return this.Item.OldFullPath; 
+            }
+        }
+
+        public string VsItemKind
         {
             get
             {

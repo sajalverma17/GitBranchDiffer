@@ -7,12 +7,6 @@ using System.Threading;
 using Task = System.Threading.Tasks.Task;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
-using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
-using Microsoft.VisualStudio.Platform.WindowManagement;
-using Microsoft.VisualStudio.Editor;
-using Microsoft.VisualStudio.Text.Differencing;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.Platform.WindowManagement.DTE;
 using GitBranchDiffer.SolutionSelectionModels;
 
 namespace GitBranchDiffer
@@ -36,7 +30,9 @@ namespace GitBranchDiffer
         private FilterInitializationState packageInitializationState = FilterInitializationState.Invalid;
         private IVsDifferenceService vsDifferenceService;
         private IVsUIShell vsUIShell;
+        private IVsSolution vsSolution;
         private string currentSelectionInSolutionExplorer;
+        private ItemTagManager filePathTagManager;
 
         public GitBranchDifferPackage()
         {
@@ -50,6 +46,9 @@ namespace GitBranchDiffer
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
             this.vsDifferenceService = await GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
             this.vsUIShell = await GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
+            this.vsSolution = await GetServiceAsync(typeof(SVsSolution)) as IVsSolution;
+            this.filePathTagManager = DIContainer.Instance.GetService(typeof(ItemTagManager)) as ItemTagManager;
+
             if (dte != null)
             {
                 // Filter will be initialized "If and Only If" our package was initialized by VS instance having a solution pre-selected before open
@@ -158,12 +157,11 @@ namespace GitBranchDiffer
         private void ShowFileDiffWindow(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            string selectedItemPath = solutionSelectionContainer.FullName;
-            if (!string.IsNullOrEmpty(selectedItemPath))
+            if (!string.IsNullOrEmpty(solutionSelectionContainer.FullName))
             {
                 var absoluteSoltuionPath = this.dte.Solution.FullName;
                 var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSoltuionPath);
-                var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, selectedItemPath);
+                var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, solutionSelectionContainer);
                 fileDiffProvider.ShowFileDiffWithBaseBranch(this.BranchToDiffAgainst);
             }
         }
@@ -210,9 +208,13 @@ namespace GitBranchDiffer
 
                     if (selectedObject is EnvDTE.ProjectItem selectedProjectItem)
                     {
+                        this.vsSolution.GetProjectOfUniqueName(selectedProjectItem.ContainingProject.FullName, out IVsHierarchy vsHierarchy);
+                        var itemCanonicalName = selectedProjectItem.Properties.Item("FullPath")?.Value.ToString();
+                        var oldPath = this.filePathTagManager.GetOldFilePathFromTag(vsHierarchy, itemCanonicalName);                       
+
                         return new SolutionSelectionContainer<ISolutionSelection>
                         {
-                            Item = new SelectedProjectItem { Native = selectedProjectItem }
+                            Item = new SelectedProjectItem { Native = selectedProjectItem, OldFullPath = oldPath }
                         };
                     }
                 }

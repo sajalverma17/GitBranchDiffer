@@ -1,5 +1,6 @@
 ﻿using BranchDiffer.Git.Core;
 using BranchDiffer.Git.DiffModels;
+using GitBranchDiffer.SolutionSelectionModels;
 using Microsoft;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -8,14 +9,16 @@ namespace GitBranchDiffer.FileDiff
     public class VsFileDiffProvider
     {
         private readonly IVsDifferenceService vsDifferenceService;
-        private readonly string activeDocumentPath;
+        private readonly string DocumentPath;
+        private readonly string OldDocumentPath;
         private readonly string solutionPath;
 
-        public VsFileDiffProvider(IVsDifferenceService vsDifferenceService, string solutionPath, string activeDocumentPath)
+        public VsFileDiffProvider(IVsDifferenceService vsDifferenceService, string solutionPath, SolutionSelectionContainer<ISolutionSelection> selectionContainer)
         {
             this.vsDifferenceService = vsDifferenceService;
             this.solutionPath = solutionPath;
-            this.activeDocumentPath = activeDocumentPath;
+            this.DocumentPath = selectionContainer.FullName;
+            this.OldDocumentPath = selectionContainer.OldFullName;
         }
 
         public void ShowFileDiffWithBaseBranch(string baseBranchToDiffAgainst)
@@ -27,8 +30,10 @@ namespace GitBranchDiffer.FileDiff
             if (fileDiffService.SetupRepository(this.solutionPath, baseBranchToDiffAgainst, out var repo, out string error))
             {
                 var branchPairs = fileDiffService.GetDiffBranchPair(repo, baseBranchToDiffAgainst);
-                var leftFileMoniker = fileDiffService.GetBaseBranchRevisionOfFile(repo, baseBranchToDiffAgainst, this.activeDocumentPath);                
-                var rightFileMoniker = this.activeDocumentPath;
+                var baseBranchFilePath = string.IsNullOrEmpty(this.OldDocumentPath) ? this.DocumentPath : this.OldDocumentPath;
+
+                var leftFileMoniker = fileDiffService.GetBaseBranchRevisionOfFile(repo, baseBranchToDiffAgainst, baseBranchFilePath);
+                var rightFileMoniker = this.DocumentPath;
                 repo.Dispose();
 
                 this.PresentComparisonWindow(branchPairs, leftFileMoniker, rightFileMoniker);
@@ -42,7 +47,7 @@ namespace GitBranchDiffer.FileDiff
         private void PresentComparisonWindow(DiffBranchPair branchDiffPair, string leftFileMoniker, string rightFileMoniker)
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();            
-            var filename = System.IO.Path.GetFileName(this.activeDocumentPath);
+            var filename = System.IO.Path.GetFileName(this.DocumentPath);
             string leftLabel = $"{filename}@{branchDiffPair.BranchToDiffAgainst.FriendlyName}";
             string rightLabel = $"{filename}@{branchDiffPair.WorkingBranch.FriendlyName}";
             string caption = $"{System.IO.Path.GetFileName(leftFileMoniker)} Vs. {System.IO.Path.GetFileName(rightFileMoniker)}";

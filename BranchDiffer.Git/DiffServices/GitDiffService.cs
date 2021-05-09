@@ -25,7 +25,7 @@ namespace BranchDiffer.Git.DiffServices
                 diffBranchPair.WorkingBranch.Tip.Tree,
                 compareOptions);
 
-            // Can not include delete items, no way to show it in Solution Explorer unless we dynamically add/remove item in Solution hierarchy.
+            // Can not include delete items, no way to show it in Solution Explorer
             // No special handling to Conflicts/Copied change kinds.
             var modifiedTreeChanges = branchDiffResult.Modified;
             var addedTreeChanges = branchDiffResult.Added;
@@ -33,19 +33,21 @@ namespace BranchDiffer.Git.DiffServices
             var allChanges = modifiedTreeChanges
                 .Concat(addedTreeChanges)
                 .Concat(renamedTreeChanges);
-               
+
             HashSet<DiffResultItem> changedPathsSet = new HashSet<DiffResultItem>();
-            foreach (var treeChanges in allChanges)
+            foreach (var treeEntryChange in allChanges)
             {
                 // Issue with LibGit2Sharp: Paths returned are *-nix format, not windows directory format.
-                var itemPathWithCorrectSeparator = treeChanges.Path.Replace("/", Constants.DirectorySeperator);
+                var itemPathWithCorrectSeparator = treeEntryChange.Path.Replace("/", Constants.DirectorySeperator);
                 var repoPathWithCorrectSeperator = gitRepo.Info.WorkingDirectory.Replace("/", Constants.DirectorySeperator);
 
                 var diffedObject = new DiffResultItem
                 {
                     AbsoluteFilePath =
                     repoPathWithCorrectSeperator.ToLowerInvariant()
-                    + itemPathWithCorrectSeparator.ToLowerInvariant()
+                    + itemPathWithCorrectSeparator.ToLowerInvariant(),
+
+                    OldAbsoluteFilePath = treeEntryChange.Status == ChangeKind.Renamed ? treeEntryChange.OldPath.Replace("/", Constants.DirectorySeperator) : string.Empty,
                 };
 
                 changedPathsSet.Add(diffedObject);

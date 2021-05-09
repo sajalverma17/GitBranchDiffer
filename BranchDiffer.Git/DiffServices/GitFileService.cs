@@ -11,7 +11,7 @@ namespace BranchDiffer.Git.DiffServices
 {
     public interface IGitFileService
     {
-        bool HasFileInChangeSet(HashSet<DiffResultItem> gitChangeSet, string absoluteItemPath);
+        bool HasFileInChangeSet(HashSet<DiffResultItem> gitChangeSet, string absoluteItemPath, out DiffResultItem diffResultItem);
 
         string GetBaseBranchRevisionOfFile(Repository repository, string baseBranchName, string filePath);
     }
@@ -19,8 +19,7 @@ namespace BranchDiffer.Git.DiffServices
     public class GitFileService : IGitFileService
     {
         /// <summary>
-        /// Creates a temp file on disk having content of this file but from branch against which user wants to diff.
-        /// TODO [Feature]: Support getting revision of plain RENAMED files from base branch, by marking DiffResult with ChangeKind.
+        /// Creates a temp file on disk having content of this file but from branch against which user wants to diff.       
         /// </summary>
         /// <param name="repository"></param>
         /// <param name="filePath"></param>
@@ -67,10 +66,10 @@ namespace BranchDiffer.Git.DiffServices
         /// </summary>
         /// <param name="gitChangeSet"></param>
         /// <param name="vsSolutionItemPath"></param>
-        public bool HasFileInChangeSet(HashSet<DiffResultItem> gitChangeSet, string vsSolutionItemPath)
+        public bool HasFileInChangeSet(HashSet<DiffResultItem> gitChangeSet, string vsSolutionItemPath, out DiffResultItem diffResultItem)
         {
             var vsItem = new DiffResultItem { AbsoluteFilePath = vsSolutionItemPath.ToLowerInvariant() };
-            return gitChangeSet.Contains(vsItem);
+            return gitChangeSet.TryGetValue(vsItem, out diffResultItem);
         }
 
         private static Encoding GetEncoding(string file)

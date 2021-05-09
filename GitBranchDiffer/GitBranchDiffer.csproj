@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="DIContainer.cs" />
     <Compile Include="ErrorPresenter.cs" />
+    <Compile Include="FileDiff\ItemTagManager.cs" />
     <Compile Include="FileDiff\SolutionSelectionExtensions.cs" />
     <Compile Include="FileDiff\UIHierarchyExtensions.cs" />
     <Compile Include="FileDiff\VsFileDiffProvider.cs" />
@@ -105,10 +106,7 @@
     <Reference Include="Microsoft.VisualStudio.Platform.WindowManagement, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libs\Microsoft.VisualStudio.Platform.WindowManagement.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.VisualStudio.Shell.ViewManager, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libs\Microsoft.VisualStudio.Shell.ViewManager.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />

@@ -1,5 +1,6 @@
 ﻿using BranchDiffer.Git.Core;
 using BranchDiffer.Git.DiffModels;
+using GitBranchDiffer.FileDiff;
 using Microsoft;
 using Microsoft.Internal.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
@@ -68,7 +69,8 @@ namespace GitBranchDiffer.Filter
             private readonly string solutionDirectory;
             private readonly string solutionFile;
 
-            private GitBranchDiffController branchDiffService;
+            private readonly GitBranchDiffController branchDiffWorker;
+            private readonly ItemTagManager fileDiffTagManager;
             private HashSet<DiffResultItem> changeSet;
 
             public BranchDiffFilter(GitBranchDifferPackage package, string solutionPath, string solutionName, SVsServiceProvider serviceProvider, IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider)
@@ -79,22 +81,23 @@ namespace GitBranchDiffer.Filter
                 this.serviceProvider = serviceProvider;
                 this.vsHierarchyItemCollectionProvider = vsHierarchyItemCollectionProvider;
                 this.Initialized += BranchDiffFilter_Initialized;
+                this.branchDiffWorker = DIContainer.Instance.GetService(typeof(GitBranchDiffController)) as GitBranchDiffController;
+                this.fileDiffTagManager = DIContainer.Instance.GetService(typeof(ItemTagManager)) as ItemTagManager;
+                Assumes.Present(this.branchDiffWorker);
+                Assumes.Present(this.fileDiffTagManager);
             }
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
-            {
-                this.branchDiffService = DIContainer.Instance.GetService(typeof(GitBranchDiffController)) as GitBranchDiffController;
-                Assumes.Present(this.branchDiffService);
-
+            {                
                 if (GitBranchDifferValidator.ValidatePackage(this.package))
                 {
                     IVsHierarchyItem root = HierarchyUtilities.FindCommonAncestor(rootItems);
                     if (GitBranchDifferValidator.ValidateSolution(this.solutionDirectory, this.solutionFile, root, this.package))
                     {
-                        var setupOk = this.branchDiffService.SetupRepository(this.solutionDirectory, this.package.BranchToDiffAgainst, out var repo, out var error);
+                        var setupOk = this.branchDiffWorker.SetupRepository(this.solutionDirectory, this.package.BranchToDiffAgainst, out var repo, out var error);
                         if (setupOk)
                         {
-                            this.changeSet = this.branchDiffService.GenerateDiff(repo, this.package.BranchToDiffAgainst);                            
+                            this.changeSet = this.branchDiffWorker.GenerateDiff(repo, this.package.BranchToDiffAgainst);                            
 
                             IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
                                                 root.HierarchyIdentity.NestedHierarchy,
@@ -111,7 +114,7 @@ namespace GitBranchDiffer.Filter
                         {
                             ErrorPresenter.ShowError(this.package, error);
                         }
-                    }
+                    } 
                 }
 
                 return null;
@@ -119,15 +122,26 @@ namespace GitBranchDiffer.Filter
 
             private bool ShouldIncludeInFilter(IVsHierarchyItem hierarchyItem)
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 if (hierarchyItem == null)
                 {
                     return false;
                 }
-
-                // Only support showing diffed Physical Files (leaf nodes on soltuion explorer)
+               
                 if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity))
                 {
-                    return this.branchDiffService.HasItemInChangeSet(this.changeSet, hierarchyItem.CanonicalName);
+                    if (this.branchDiffWorker.HasItemInChangeSet(this.changeSet, hierarchyItem.CanonicalName, out var diffResultItem))
+                    {
+                        // Tag the old path so it is picked up for comparison for modified files
+                        if (!string.IsNullOrEmpty(diffResultItem.OldAbsoluteFilePath))
+                        {
+                            this.fileDiffTagManager.SetOldFilePathInTag(
+                                hierarchyItem.HierarchyIdentity.Hierarchy,
+                                hierarchyItem.CanonicalName, 
+                                diffResultItem.OldAbsoluteFilePath);
+                        }
+                        return true;
+                    }
                 }
 
                 return false;
@@ -143,7 +157,7 @@ namespace GitBranchDiffer.Filter
             {
                 base.DisposeManagedResources();
                 BranchDiffFilterProvider.IsFilterApplied = false;
-            }          
+            }
         }
     }
 

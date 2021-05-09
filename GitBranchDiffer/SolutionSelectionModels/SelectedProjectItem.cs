@@ -29,6 +29,8 @@ namespace GitBranchDiffer.SolutionSelectionModels
             }
         }
 
+        public string OldFullPath { get; set; }
+
         public string Kind
         {
             get
