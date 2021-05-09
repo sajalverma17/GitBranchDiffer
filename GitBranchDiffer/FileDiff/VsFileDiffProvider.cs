@@ -51,6 +51,7 @@ namespace GitBranchDiffer.FileDiff
             string roles = string.Empty;
             __VSDIFFSERVICEOPTIONS diffServiceOptions = __VSDIFFSERVICEOPTIONS.VSDIFFOPT_LeftFileIsTemporary;
             vsDifferenceService.OpenComparisonWindow2(leftFileMoniker, rightFileMoniker, caption, tooltip, leftLabel, rightLabel, inlineLabel, roles, (uint)diffServiceOptions);
+            System.IO.File.Delete(leftFileMoniker);
         }
     }
 }
