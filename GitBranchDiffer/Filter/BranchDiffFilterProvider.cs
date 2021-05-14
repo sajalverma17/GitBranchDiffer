@@ -18,7 +18,7 @@ namespace GitBranchDiffer.Filter
         private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;
         private static GitBranchDifferPackage Package;
         private static string SolutionDirectory;
-        private static string SolutionFile;        
+        private static string SolutionFile;
 
         [ImportingConstructor]
         public BranchDiffFilterProvider(
@@ -35,6 +35,10 @@ namespace GitBranchDiffer.Filter
         /// </summary>
         internal static bool IsFilterApplied { get; private set; }
 
+        internal static ItemTagManager TagManager { get; private set; }
+        
+        internal static string CurrentSelectionInFilter { get; set; }
+
         /// <summary>
         /// Initializes the Solution Explorer filter once per-Visual-Studio-startup.
         /// </summary>
@@ -44,6 +48,7 @@ namespace GitBranchDiffer.Filter
         internal static void InitializeOnce(GitBranchDifferPackage package)
         {
             Package = package;
+            BranchDiffFilterProvider.TagManager = new ItemTagManager();
         }
 
         /// <summary>
@@ -70,10 +75,14 @@ namespace GitBranchDiffer.Filter
             private readonly string solutionFile;
 
             private readonly GitBranchDiffController branchDiffWorker;
-            private readonly ItemTagManager fileDiffTagManager;
             private HashSet<DiffResultItem> changeSet;
 
-            public BranchDiffFilter(GitBranchDifferPackage package, string solutionPath, string solutionName, SVsServiceProvider serviceProvider, IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider)
+            public BranchDiffFilter(
+                GitBranchDifferPackage package,
+                string solutionPath,
+                string solutionName,
+                SVsServiceProvider serviceProvider, 
+                IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider)
             {
                 this.package = package;
                 this.solutionDirectory = solutionPath;
@@ -82,22 +91,23 @@ namespace GitBranchDiffer.Filter
                 this.vsHierarchyItemCollectionProvider = vsHierarchyItemCollectionProvider;
                 this.Initialized += BranchDiffFilter_Initialized;
                 this.branchDiffWorker = DIContainer.Instance.GetService(typeof(GitBranchDiffController)) as GitBranchDiffController;
-                this.fileDiffTagManager = DIContainer.Instance.GetService(typeof(ItemTagManager)) as ItemTagManager;
                 Assumes.Present(this.branchDiffWorker);
-                Assumes.Present(this.fileDiffTagManager);
             }
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
-            {                
+            {
                 if (GitBranchDifferValidator.ValidatePackage(this.package))
                 {
+                    // Create new tag tables everytime the filter is applied 
+                    BranchDiffFilterProvider.TagManager.CreateTagTables();
                     IVsHierarchyItem root = HierarchyUtilities.FindCommonAncestor(rootItems);
+
                     if (GitBranchDifferValidator.ValidateSolution(this.solutionDirectory, this.solutionFile, root, this.package))
                     {
                         var setupOk = this.branchDiffWorker.SetupRepository(this.solutionDirectory, this.package.BranchToDiffAgainst, out var repo, out var error);
                         if (setupOk)
                         {
-                            this.changeSet = this.branchDiffWorker.GenerateDiff(repo, this.package.BranchToDiffAgainst);                            
+                            this.changeSet = this.branchDiffWorker.GenerateDiff(repo, this.package.BranchToDiffAgainst);
 
                             IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
                                                 root.HierarchyIdentity.NestedHierarchy,
@@ -114,7 +124,7 @@ namespace GitBranchDiffer.Filter
                         {
                             ErrorPresenter.ShowError(this.package, error);
                         }
-                    } 
+                    }
                 }
 
                 return null;
@@ -128,18 +138,21 @@ namespace GitBranchDiffer.Filter
                     return false;
                 }
                
-                if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity))
+                if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity)
+                    || HierarchyUtilities.IsProject(hierarchyItem.HierarchyIdentity))
                 {
+                    // TODO [Bug] : Get absolute file path of CsProjects, currently the canonical name will not be absolute file path for projects
                     if (this.branchDiffWorker.HasItemInChangeSet(this.changeSet, hierarchyItem.CanonicalName, out var diffResultItem))
                     {
-                        // Tag the old path so it is picked up for comparison for modified files
+                        // Tag the old path so we find the Base branch version of file using the Old Path (for files renamed in the working branch)
                         if (!string.IsNullOrEmpty(diffResultItem.OldAbsoluteFilePath))
                         {
-                            this.fileDiffTagManager.SetOldFilePathInTag(
+                            BranchDiffFilterProvider.TagManager.SetOldFilePathOnRenamedItem(
                                 hierarchyItem.HierarchyIdentity.Hierarchy,
-                                hierarchyItem.CanonicalName, 
+                                hierarchyItem.CanonicalName,
                                 diffResultItem.OldAbsoluteFilePath);
                         }
+
                         return true;
                     }
                 }
@@ -157,6 +170,7 @@ namespace GitBranchDiffer.Filter
             {
                 base.DisposeManagedResources();
                 BranchDiffFilterProvider.IsFilterApplied = false;
+                BranchDiffFilterProvider.CurrentSelectionInFilter = string.Empty;
             }
         }
     }

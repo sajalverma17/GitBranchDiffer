@@ -2,35 +2,56 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GitBranchDiffer.FileDiff
 {
+    /// <summary>
+    /// Tags an item in the SolutionExplorer hierarchy with the old path (the path it has in the branch against which we diff working branch)
+    /// </summary>
     public class ItemTagManager
     {
-        public const string OldFilePathTagName = "RenamedFileOldPath";
+        private RenamedPathTable<EnvDTE.ProjectItem> renamedProjectItemTable;
+        private RenamedPathTable<EnvDTE.Project> renamedCsProjectTable;
 
-        /// <summary>
-        /// Gets old path from Tag, if any. Will be non-empty string if the file was renamed in base branch.
-        /// </summary>
-        public string GetOldFilePathFromTag(IVsHierarchy vsHierarchy, string itemCanonicalName)
+        public void CreateTagTables()
         {
-            Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
-            var buildPropertyStorage = vsHierarchy as IVsBuildPropertyStorage;            
-            vsHierarchy.ParseCanonicalName(itemCanonicalName, out uint selectedItemId);
-            buildPropertyStorage.GetItemAttribute(selectedItemId, ItemTagManager.OldFilePathTagName, out string oldPath);
-            return oldPath;
+            // Does not support Clear(), so we dispose the tables, create new
+            this.renamedProjectItemTable?.Dispose();
+            this.renamedCsProjectTable?.Dispose();
+            this.renamedProjectItemTable = new RenamedPathTable<EnvDTE.ProjectItem>();
+            this.renamedCsProjectTable = new RenamedPathTable<EnvDTE.Project>();
         }
 
-        public void SetOldFilePathInTag(IVsHierarchy vsHierarchy, string itemCanonicalName, string oldPath)
+        public string GetOldFilePathFromRenamed(EnvDTE.Project project)
+        {
+            Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
+            return this.renamedCsProjectTable.GetValue(project);
+        }
+
+        public string GetOldFilePathFromRenamed(EnvDTE.ProjectItem projectItem)
+        {
+            Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
+            return this.renamedProjectItemTable.GetValue(projectItem);
+        }
+
+        public void SetOldFilePathOnRenamedItem(IVsHierarchy vsHierarchy, string itemCanonicalName, string oldPath)
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
             vsHierarchy.ParseCanonicalName(itemCanonicalName, out uint itemId);
-            var buildItemStorage = vsHierarchy as IVsBuildPropertyStorage;
-            if (buildItemStorage != null)
+            vsHierarchy.GetProperty(itemId, (int)__VSHPROPID.VSHPROPID_ExtObject, out object itemObject);
+            var projectItem = itemObject as EnvDTE.ProjectItem;
+            if (projectItem != null)
             {
-                buildItemStorage.SetItemAttribute(itemId, ItemTagManager.OldFilePathTagName, oldPath);
+                this.renamedProjectItemTable.Set(projectItem, oldPath);
+            }
+
+            var project = itemObject as EnvDTE.Project;
+            if (project != null)
+            {
+                this.renamedCsProjectTable.Set(project, oldPath);
             }
         }
     }

@@ -122,6 +122,8 @@ namespace GitBranchDiffer.FileDiff
 
         private static bool IsDiffWindowFrame(IVsWindowFrame frame)
         {
+            // TODO [Bug] : Normal windows are recognized as IVsDifferenceCodeWindows as well. Make this check more specific
+            // or diff window will not be opened if a normal window is already open
             ThreadHelper.ThrowIfNotOnUIThread();
             ErrorHandler.Succeeded(frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out object docView));
             return docView is IVsDifferenceCodeWindow;

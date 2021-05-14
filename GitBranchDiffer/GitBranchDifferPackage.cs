@@ -8,6 +8,8 @@ using Task = System.Threading.Tasks.Task;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using GitBranchDiffer.SolutionSelectionModels;
+using System.Runtime.CompilerServices;
+using Microsoft;
 
 namespace GitBranchDiffer
 {
@@ -30,9 +32,6 @@ namespace GitBranchDiffer
         private FilterInitializationState packageInitializationState = FilterInitializationState.Invalid;
         private IVsDifferenceService vsDifferenceService;
         private IVsUIShell vsUIShell;
-        private IVsSolution vsSolution;
-        private string currentSelectionInSolutionExplorer;
-        private ItemTagManager filePathTagManager;
 
         public GitBranchDifferPackage()
         {
@@ -46,8 +45,6 @@ namespace GitBranchDiffer
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
             this.vsDifferenceService = await GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
             this.vsUIShell = await GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
-            this.vsSolution = await GetServiceAsync(typeof(SVsSolution)) as IVsSolution;
-            this.filePathTagManager = DIContainer.Instance.GetService(typeof(ItemTagManager)) as ItemTagManager;
 
             if (dte != null)
             {
@@ -148,9 +145,9 @@ namespace GitBranchDiffer
                         // else, just bring existing diff window of this item to front, don't open a new one
                         selectionContainer.FocusAssociatedDiffWindow(this.vsUIShell);
                     }
-
-                    this.UpdateCurrentSelectionFromSolutionExplorer(selectionContainer);
                 }
+
+                this.UpdateCurrentSelectionFromSolutionExplorer(selectionContainer);
             }
         }
 
@@ -183,7 +180,7 @@ namespace GitBranchDiffer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var thisItemName = solutionSelectionContainer.FullName;
-            return thisItemName != this.currentSelectionInSolutionExplorer;
+            return thisItemName != BranchDiffFilterProvider.CurrentSelectionInFilter;
         }
 
         private SolutionSelectionContainer<ISolutionSelection> GetCurrentSelectionInSolutionExplorer()
@@ -200,18 +197,16 @@ namespace GitBranchDiffer
                 {
                     if (selectedObject is EnvDTE.Project selectedProject)
                     {
+                        var oldPath = BranchDiffFilterProvider.TagManager.GetOldFilePathFromRenamed(selectedProject);
                         return new SolutionSelectionContainer<ISolutionSelection>
                         {
-                            Item = new SelectedProject { Native = selectedProject }
+                            Item = new SelectedProject { Native = selectedProject, OldFullPath = oldPath }
                         };
                     }
 
                     if (selectedObject is EnvDTE.ProjectItem selectedProjectItem)
                     {
-                        this.vsSolution.GetProjectOfUniqueName(selectedProjectItem.ContainingProject.FullName, out IVsHierarchy vsHierarchy);
-                        var itemCanonicalName = selectedProjectItem.Properties.Item("FullPath")?.Value.ToString();
-                        var oldPath = this.filePathTagManager.GetOldFilePathFromTag(vsHierarchy, itemCanonicalName);                       
-
+                        var oldPath = BranchDiffFilterProvider.TagManager.GetOldFilePathFromRenamed(selectedProjectItem);
                         return new SolutionSelectionContainer<ISolutionSelection>
                         {
                             Item = new SelectedProjectItem { Native = selectedProjectItem, OldFullPath = oldPath }
@@ -229,8 +224,14 @@ namespace GitBranchDiffer
         private void UpdateCurrentSelectionFromSolutionExplorer(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var itemCanonicalName = solutionSelectionContainer.FullName;
-            this.currentSelectionInSolutionExplorer = itemCanonicalName;
+            if (solutionSelectionContainer.Item != null)
+            {
+                var itemCanonicalName = solutionSelectionContainer.FullName;
+                BranchDiffFilterProvider.CurrentSelectionInFilter = itemCanonicalName;
+                return;
+            }
+
+            BranchDiffFilterProvider.CurrentSelectionInFilter = string.Empty;
         }
         #endregion
     }

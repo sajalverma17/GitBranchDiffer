@@ -11,17 +11,13 @@ using System.Threading.Tasks;
 namespace GitBranchDiffer.FileDiff
 {
     internal static class UIHierarchyExtensions
-#pragma warning restore S101 // Types should be named in camel case
     {
         /// <summary>
         ///     Finds the hierarchy item for the given item.
         /// </summary>
-        /// <param name="hierarchy">The hierarchy object</param>
-        /// <param name="item">The item.</param>
         /// <returns>
         ///     The found UIHierarchyItem, null if none found. For example, in case of the Solution explorer, it would be the item
-        ///     in the solution
-        ///     explorer that represents the given project
+        ///     in the solution explorer that represents the given project
         /// </returns>
         public static UIHierarchyItem FindHierarchyItem(this UIHierarchy hierarchy, SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
         {
