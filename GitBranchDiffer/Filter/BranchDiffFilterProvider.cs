@@ -3,7 +3,9 @@ using BranchDiffer.Git.DiffModels;
 using GitBranchDiffer.FileDiff;
 using Microsoft;
 using Microsoft.Internal.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -141,8 +143,21 @@ namespace GitBranchDiffer.Filter
                 if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity)
                     || HierarchyUtilities.IsProject(hierarchyItem.HierarchyIdentity))
                 {
-                    // TODO [Bug] : Get absolute file path of CsProjects, currently the canonical name will not be absolute file path for projects
-                    if (this.branchDiffWorker.HasItemInChangeSet(this.changeSet, hierarchyItem.CanonicalName, out var diffResultItem))
+                    var absoluteFilePath = string.Empty;
+                    if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity))
+                    {
+                        absoluteFilePath = hierarchyItem.CanonicalName;
+                    }
+                    else if (HierarchyUtilities.IsProject(hierarchyItem.HierarchyIdentity))
+                    {
+                        hierarchyItem.HierarchyIdentity.Hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ExtObject, out var prjObject);
+                        if (prjObject is EnvDTE.Project project)
+                        {
+                            absoluteFilePath = project.FullName;
+                        }
+                    }
+                    
+                    if (!string.IsNullOrEmpty(absoluteFilePath) && this.branchDiffWorker.HasItemInChangeSet(this.changeSet, hierarchyItem.CanonicalName, out var diffResultItem))
                     {
                         // Tag the old path so we find the Base branch version of file using the Old Path (for files renamed in the working branch)
                         if (!string.IsNullOrEmpty(diffResultItem.OldAbsoluteFilePath))
@@ -165,7 +180,7 @@ namespace GitBranchDiffer.Filter
                 BranchDiffFilterProvider.IsFilterApplied = true;
             }
 
-            // We override this method to use it as a life-cycle hook to mark that our filter was un-applied.
+            // We override this method to use it as a life-cycle hook to mark that our filter was un-applied
             protected override void DisposeManagedResources()
             {
                 base.DisposeManagedResources();

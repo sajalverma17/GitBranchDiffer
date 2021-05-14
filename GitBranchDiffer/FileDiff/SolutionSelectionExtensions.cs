@@ -4,11 +4,9 @@ using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Platform.WindowManagement;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text.Differencing;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GitBranchDiffer.FileDiff
 {
@@ -18,8 +16,6 @@ namespace GitBranchDiffer.FileDiff
         /// Here we iterate over all open window frames in UI Shell, and check if a frame has the same name as this projectItem, and
         /// if that frame is of type DifferenceCodeWindow.
         /// </summary>
-        /// <param name="projectItem"></param>
-        /// <param name="vsUIShell"></param>
         /// <remarks>
         /// Note that if this method proves to be too slow for large number of document frames opened in UI shell: 
         /// We can just checks for Window captions of the windows in given projectItem: projectItem.Document.Windows.
@@ -122,11 +118,18 @@ namespace GitBranchDiffer.FileDiff
 
         private static bool IsDiffWindowFrame(IVsWindowFrame frame)
         {
-            // TODO [Bug] : Normal windows are recognized as IVsDifferenceCodeWindows as well. Make this check more specific
-            // or diff window will not be opened if a normal window is already open
             ThreadHelper.ThrowIfNotOnUIThread();
             ErrorHandler.Succeeded(frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out object docView));
-            return docView is IVsDifferenceCodeWindow;
+            if (docView is IVsDifferenceCodeWindow vsDifferenceCodeWindow)
+            {
+                var diffViewer = vsDifferenceCodeWindow.DifferenceViewer as IDifferenceViewer2;
+                if (diffViewer != null)
+                {
+                    return diffViewer.LeftViewExists && diffViewer.RightViewExists;
+                }
+            }
+
+            return false;
         }
     }
 }
