@@ -55,7 +55,7 @@
       <!-- Diff and filter solution button in Solution Explorer -->
       <Button guid="guidBranchDiffPackageCmdSet" id="cmdidBranchDiffAndFilter" priority="0x0400" type="Button">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_TOOLBAR_PROJWIN_FILTERS" />
-        <Icon guid="guidImages" id="bmpPic1" />
+        <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16" />
         <Strings>
           <ButtonText>Show diff in solution</ButtonText>
           <CommandName>cmdidBrandDiffAndFilter</CommandName>
@@ -70,7 +70,7 @@
             bitmap strip containing the bitmaps and then there are the numeric ids of the elements used
             inside a button definition. An important aspect of this declaration is that the element id
             must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
-      <Bitmap guid="guidImages" href="Resources\BranchDiffWindowCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough"/>
+      <Bitmap guid="guidDiffFilterImage" href="Resources\GitBranchDifferIconList_16_20.png" usedList="GitBranchDifferDiffIcon16" />
     </Bitmaps>
   </Commands>
 
@@ -83,13 +83,8 @@
       <IDSymbol name="cmdidBranchDiffAndFilter" value="0x0133"/>
     </GuidSymbol>
 
-    <GuidSymbol name="guidImages" value="{25d85e45-0907-47dc-941b-510c628b5245}" >
-      <IDSymbol name="bmpPic1" value="1" />
-      <IDSymbol name="bmpPic2" value="2" />
-      <IDSymbol name="bmpPicSearch" value="3" />
-      <IDSymbol name="bmpPicX" value="4" />
-      <IDSymbol name="bmpPicArrows" value="5" />
-      <IDSymbol name="bmpPicStrikethrough" value="6" />
+    <GuidSymbol name="guidDiffFilterImage" value="{C4223526-2F74-4AEA-9218-6C29A9793BE8}">
+      <IDSymbol name="GitBranchDifferDiffIcon16" value="1"/>
     </GuidSymbol>
   </Symbols>
 </CommandTable>
