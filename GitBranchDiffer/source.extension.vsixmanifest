@@ -3,7 +3,9 @@
     <Metadata>
         <Identity Id="GitBranchDiffer.53f34d66-fcfb-4b1b-a864-c542da222902" Version="1.0" Language="en-US" Publisher="Sajal Verma" />
         <DisplayName>GitBranchDiffer</DisplayName>
-        <Description xml:space="preserve">VSIX Project for Showing a Git Branch Diff in a SolutionExplorer</Description>
+        <Description xml:space="preserve">GitBranchDiffer compares the current working branch of your Git repo with the branch you choose to compare it with, and filters out all unmodified files form Solution Explorer. When the filter is applied, clicking a file will open a diff view of the content, allowing you to review .NET code in a more "native" manner inside Visual Studio. </Description>
+        <MoreInfo>https://github.com/sajalverma17/GitBranchDiffer</MoreInfo>
+        <License>LICENSE.md</License>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[16.0, 17.0)" />
