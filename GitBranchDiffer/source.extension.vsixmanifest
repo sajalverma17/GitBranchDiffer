@@ -5,7 +5,9 @@
         <DisplayName>GitBranchDiffer</DisplayName>
         <Description xml:space="preserve">GitBranchDiffer compares the current working branch of your Git repo with the branch you choose to compare it with, and filters out all unmodified files form Solution Explorer. When the filter is applied, clicking a file will open a diff view of the content, allowing you to review .NET code in a more "native" manner inside Visual Studio. </Description>
         <MoreInfo>https://github.com/sajalverma17/GitBranchDiffer</MoreInfo>
-        <License>LICENSE.md</License>
+        <License>LICENSE.txt</License>
+        <Icon>Resources\GitBranchDifferPackage.ico</Icon>
+        <PreviewImage>Resources\GitBranchDifferPackage.ico</PreviewImage>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[16.0, 17.0)" />

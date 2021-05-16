@@ -89,9 +89,15 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\BranchDiffWindowCommand.png" />
-    <Content Include="Resources\BranchDiffWindowPackage.ico" />
-    <Content Include="Resources\GitBranchDifferIconList_16_40.png" />
+    <Content Include="LICENSE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Resources\GitBranchDifferIconList_16_20.png" />
+    <Content Include="Resources\GitBranchDifferPackage.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <VSCTCompile Include="GitBranchDifferPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
