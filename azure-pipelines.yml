@@ -1,0 +1,54 @@
+#CI-only pipeline: Build, test and create the artifact.
+trigger:
+  branches:
+    include:
+      - '*'
+  paths:
+    exclude:
+      - 'README.md'
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+   
+# Update Major/Minor/Patch number manually before releasing
+name: 1.0.0.$(Rev:r)
+
+steps:
+
+- task: PowerShell@2
+  displayName: Update version in the vsix manifest
+  inputs:
+    filePath: 'VersionUpdater.ps1'
+    arguments: '$(Build.BuildNumber)'
+    pwsh: true
+
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  displayName: NuGet Restore 
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  displayName: Build solution
+  inputs:
+    solution: '$(solution)'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: CopyFiles@2
+  displayName: 'Copy VSIX to staging directory'
+  inputs: 
+    SourceFolder: '$(Build.SourcesDirectory)\$(System.TeamProject)\bin\Release'
+    Contents: '*.vsix'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'    
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    artifactName: '$(System.TeamProject)-$(Build.BuildNumber)'
+    targetPath: '$(Build.ArtifactStagingDirectory)'
