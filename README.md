@@ -24,7 +24,8 @@ Note that GitBranchDiffer filter does not support displaying files that were del
 ## Contributions
 
 All contributions welcome. 
-The plug-in aims to make reviews easier, but ubiquitous dev-tasks (for example, git-pull before applying GitBranchDiffer filter) are expected to be done by users via existing tools in VS/CLI and are to be kept out of this plugin. However, any suggestions/ideas can be discussed, and assigned freely to whomever interested in contributing.
+Any suggestions/ideas can be discussed, and possibly assigned freely to whomever interested in contributing.
+To report a bug, please use the [bug template](https://github.com/sajalverma17/GitBranchDiffer/issues/new?assignees=&labels=bug&template=bug-report.md&title=)
 
 ### Build 
 
@@ -37,4 +38,7 @@ Open the `GitBranchDiffer.sln`, build and then run.
 
 ## Roadmap
 * Currently, GitBranchDiffer is not supported on versions older than Visual Studio 2019 (highly reducing the target audience of the plugin). This is mostly because I do not have the ability to test on older versions, and no experience developing Visual Studio plug-ins prior to this. Any contributions in this direction are highly appreciated!
-* The plugin is designed for code reviews on .NET, and further improvements are in that direction. For example, indicating conflicts in diff inside Visual Studio would be a nice addition.
+* The plugin is designed for code reviews on .NET, and further improvements are expected to be in that direction.
+* Ubiquitous dev-tasks (for example, git-pull before applying GitBranchDiffer filter) are expected to be done by users via existing tools in VS/CLI and are to be kept out of this plugin.
+* General improvements in code quality, eg. test coverage of BranchDiffer.Git library.
+

@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BranchDiffer.Git", "BranchD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{855A4207-609F-4E68-B763-439FE6018E91}"
 	ProjectSection(SolutionItems) = preProject
+		azure-pipelines.yml = azure-pipelines.yml
 		LICENSE.md = LICENSE.md
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
+		VersionUpdater.ps1 = VersionUpdater.ps1
 	EndProjectSection
 EndProject
 Global

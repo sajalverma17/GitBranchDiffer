@@ -1,7 +1,7 @@
 ---
 name: Bug Report
 about: Thanks for taking the time to report a bug to Git Branch Differ
-title: "[Bug]"
+title: ""
 labels: bug
 assignees: ''
 
