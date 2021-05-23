@@ -49,8 +49,17 @@
         </Strings>
       </Button>
 
-      <!-- Open File Diff button in Solution Explorer Context Menu-->
-      <Button guid="guidFileDiffPackageCmdSet" id="cmdidFileDiffMenuCommand" type="Button">
+      <!-- Button to open diff window for physical file node in Solution Explorer tree-->
+      <Button guid="guidFileDiffPackageCmdSet" id="cmdidPhysicalFileDiffMenuCommand" type="Button">
+        <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>Open Diff With Base</ButtonText>
+        </Strings>
+      </Button>
+      
+      <!--Button to open diff window for a project node in Solution Explorer tree-->
+      <Button guid="guidFileDiffPackageCmdSet" id="cmdidProjectFileDiffMenuCommand" type="Button">
         <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16" />
         <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
@@ -67,9 +76,14 @@
 
   <CommandPlacements>
     
-    <!--Placement for the actual file diff command button, inside our MenuGroupForFileDiffButton-->
-    <CommandPlacement guid="guidFileDiffPackageCmdSet" id="cmdidFileDiffMenuCommand">
+    <!--Placement for the physical file node button, in the Open menu group of a file-->
+    <CommandPlacement guid="guidFileDiffPackageCmdSet" id="cmdidPhysicalFileDiffMenuCommand">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_OPEN"/>
+    </CommandPlacement>
+
+    <!--Placement for the project node diff button, in the Open menu group of a file-->
+    <CommandPlacement guid="guidFileDiffPackageCmdSet" id="cmdidProjectFileDiffMenuCommand">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_BUILD"/>
     </CommandPlacement>
     
   </CommandPlacements>
@@ -85,7 +99,8 @@
 
     <!--This is the guid containing commands for file diff -->
     <GuidSymbol name="guidFileDiffPackageCmdSet" value="{2C760378-A2F7-4140-8478-9BD354E38430}">
-      <IDSymbol name="cmdidFileDiffMenuCommand" value="0x0100" />      
+      <IDSymbol name="cmdidPhysicalFileDiffMenuCommand" value="0x0100" />
+      <IDSymbol name="cmdidProjectFileDiffMenuCommand" value="0x0200"/>
     </GuidSymbol>
 
     <GuidSymbol name="guidDiffFilterImage" value="{C4223526-2F74-4AEA-9218-6C29A9793BE8}">
