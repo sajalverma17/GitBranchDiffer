@@ -44,6 +44,8 @@
       <Button guid="guidBranchDiffPackageCmdSet" id="cmdidBranchDiffAndFilter" priority="0x0400" type="Button">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_TOOLBAR_PROJWIN_FILTERS" />
         <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16" />
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
           <ButtonText>Base Branch Diff Filter</ButtonText>
         </Strings>
@@ -91,9 +93,9 @@
   </CommandPlacements>
 
   <VisibilityConstraints>
-    
-    <VisibilityItem guid="guidFileDiffPackageCmdSet" id="cmdidPhysicalFileDiffMenuCommand" context="UICONTEXT_BranchDifferFilterApplied" />
-    <VisibilityItem guid="guidFileDiffPackageCmdSet" id="cmdidProjectFileDiffMenuCommand" context="UICONTEXT_BranchDifferFilterApplied" />
+      <VisibilityItem guid="guidBranchDiffPackageCmdSet" id="cmdidBranchDiffAndFilter" context="UICONTEXT_SolutionExists"/>
+      <VisibilityItem guid="guidFileDiffPackageCmdSet" id="cmdidPhysicalFileDiffMenuCommand" context="UICONTEXT_BranchDifferFilterApplied" />
+      <VisibilityItem guid="guidFileDiffPackageCmdSet" id="cmdidProjectFileDiffMenuCommand" context="UICONTEXT_BranchDifferFilterApplied" />
     
   </VisibilityConstraints>
 
