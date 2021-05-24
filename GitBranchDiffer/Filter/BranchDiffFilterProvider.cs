@@ -42,12 +42,12 @@ namespace GitBranchDiffer.Filter
         internal static string CurrentSelectionInFilter { get; set; }
 
         /// <summary>
-        /// Initializes the Solution Explorer filter once per-Visual-Studio-startup.
+        /// One time initialization of the Solution Explorer filter, happens once per-Visual-Studio-startup.
         /// </summary>
         /// <param name="package">
         /// The package becomes a static dependency of this filter,
         /// and is required in order to get the plugin option <see cref="GitBranchDifferPackage.BranchToDiffAgainst"/> set by user.</param>
-        internal static void InitializeOnce(GitBranchDifferPackage package)
+        internal static void Initialize(GitBranchDifferPackage package)
         {
             Package = package;
             BranchDiffFilterProvider.TagManager = new ItemTagManager();
@@ -56,8 +56,7 @@ namespace GitBranchDiffer.Filter
         /// <summary>
         /// Initalizes the Solution Explorer filter with Solution info once per-solution-load in Visual Studio
         /// </summary>
-        /// <param name="solutionPath"></param>
-        internal static void Initialize(string solutionDirectory, string solutionFile)
+        internal static void SetSolutionInfo(string solutionDirectory, string solutionFile)
         {
             SolutionDirectory = solutionDirectory;
             SolutionFile = solutionFile;
@@ -98,13 +97,13 @@ namespace GitBranchDiffer.Filter
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
             {
-                if (GitBranchDifferValidator.ValidatePackage(this.package))
+                if (BranchDiffFilterValidator.ValidatePackage(this.package))
                 {
                     // Create new tag tables everytime the filter is applied 
                     BranchDiffFilterProvider.TagManager.CreateTagTables();
                     IVsHierarchyItem root = HierarchyUtilities.FindCommonAncestor(rootItems);
 
-                    if (GitBranchDifferValidator.ValidateSolution(this.solutionDirectory, this.solutionFile, root, this.package))
+                    if (BranchDiffFilterValidator.ValidateSolution(this.solutionDirectory, this.solutionFile, this.package))
                     {
                         var setupOk = this.branchDiffWorker.SetupRepository(this.solutionDirectory, this.package.BranchToDiffAgainst, out var repo, out var error);
                         if (setupOk)
@@ -157,7 +156,8 @@ namespace GitBranchDiffer.Filter
                         }
                     }
                     
-                    if (!string.IsNullOrEmpty(absoluteFilePath) && this.branchDiffWorker.HasItemInChangeSet(this.changeSet, hierarchyItem.CanonicalName, out var diffResultItem))
+                    if (!string.IsNullOrEmpty(absoluteFilePath) 
+                        && this.branchDiffWorker.HasItemInChangeSet(this.changeSet, hierarchyItem.CanonicalName, out var diffResultItem))
                     {
                         // Tag the old path so we find the Base branch version of file using the Old Path (for files renamed in the working branch)
                         if (!string.IsNullOrEmpty(diffResultItem.OldAbsoluteFilePath))
