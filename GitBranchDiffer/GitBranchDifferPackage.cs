@@ -22,14 +22,13 @@ namespace GitBranchDiffer
     [Guid(PackageGuidString)]
     [ProvideOptionPage(typeof(GitBranchDifferPluginOptions),
     "Git Branch Differ", "Git Branch Differ Options", 0, 0, true)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class GitBranchDifferPackage : AsyncPackage
     {
         public const string PackageGuidString = "156fcec6-25ac-4279-91cc-bbe2e4ea8c14";
 
         private EnvDTE.DTE dte;
         private EnvDTE.SelectionEvents selectionEvents;
-        private FilterInitializationState packageInitializationState = FilterInitializationState.Invalid;
         private IVsDifferenceService vsDifferenceService;
         private IVsUIShell vsUIShell;
 
@@ -48,25 +47,13 @@ namespace GitBranchDiffer
 
             if (dte != null)
             {
-                // Filter will be initialized "If and Only If" our package was initialized by VS instance having a solution pre-selected before open
-                // Also hook to all relevant events here.
-                if (dte.Solution.IsOpen)
-                {
-                    this.dte.Events.SolutionEvents.Opened += InitializeFilter;
-                    this.dte.Events.SolutionEvents.BeforeClosing += UnInitializeFilter;
-                    this.selectionEvents = dte.Events.SelectionEvents;
-                    this.selectionEvents.OnChange += SelectionEvents_OnChange;
-                    this.InitializeFilter();
-                }
-                else
-                {
-                    // User triggered our MEF component (by clicking on the Filter) without a solution being opened in VS.
-                    // This unfortunately calls InitializeAsync of our package and force loads it.
-                    // After this, we lose the opportunity to init filter with solution info since VS will never load our package.
-                    // Hence the error message asking to restart VS with a Solution pre-selected.
-                    this.FilterInitializationState = FilterInitializationState.Invalid;
-                    ErrorPresenter.ShowError(this, ErrorPresenter.PackageInvalidStateError);
-                }
+                // Filter will be initialized on package load.
+                // Also hook to all relevant events here so we can solution-info set on the Filter when they are fired
+                this.dte.Events.SolutionEvents.Opened += InitializeFilter;
+                this.dte.Events.SolutionEvents.BeforeClosing += UnInitializeFilter;
+                this.selectionEvents = dte.Events.SelectionEvents;
+                this.selectionEvents.OnChange += SelectionEvents_OnChange;
+                this.InitializeFilter();
             }
         }
 
@@ -84,22 +71,6 @@ namespace GitBranchDiffer
             }
         }
 
-        /// <summary>
-        /// The state of the filter, describes if the solution path (which becomes the git repo path) was passed to it or not.
-        /// Defaults to invalid.
-        /// </summary>
-        public FilterInitializationState FilterInitializationState 
-        {
-            get
-            {
-                return this.packageInitializationState;
-            }
-            set
-            {
-                this.packageInitializationState = value;
-            }
-        }
-
         #endregion
 
         #region VS Events
@@ -112,9 +83,7 @@ namespace GitBranchDiffer
             var absoluteSolutionPath = this.dte.Solution.FullName;
             var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);
             var solutionFile = System.IO.Path.GetFileName(absoluteSolutionPath);
-
-            BranchDiffFilterProvider.Initialize(solutionDirectory, solutionFile);
-            this.FilterInitializationState = FilterInitializationState.SoltuionInfoSet;
+            BranchDiffFilterProvider.SetSolutionInfo(solutionDirectory, solutionFile);
         }
 
         /// <summary>
@@ -122,14 +91,13 @@ namespace GitBranchDiffer
         /// </summary>
         private void UnInitializeFilter()
         {
-            BranchDiffFilterProvider.Initialize(string.Empty, string.Empty);
-            this.FilterInitializationState = FilterInitializationState.SolutionInfoUnset;
+            BranchDiffFilterProvider.SetSolutionInfo(string.Empty, string.Empty);
         }
 
         private void SelectionEvents_OnChange()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            if (BranchDiffFilterProvider.IsFilterApplied && this.FilterInitializationState == FilterInitializationState.SoltuionInfoSet)
+            if (BranchDiffFilterProvider.IsFilterApplied)
             {
                 var selectionContainer = this.GetCurrentSelectionInSolutionExplorer();
 

@@ -11,11 +11,6 @@ namespace GitBranchDiffer
 {
     public static class ErrorPresenter
     {
-        public static string PackageInvalidStateError =
-            "Intializing GitBranchDiffer filter failed, and it can not be re-initialized again.\n" +
-            "This means GitBranchDiffer extension was loaded without a solution in Visual Studio.\n" +
-            "To use GitBranchDiffer filter, please restart Visual Studio with a solution pre-selected.";
-
         public static string PackageNameToDisplay = "Git Branch Differ";
 
         public static void ShowError(string error)

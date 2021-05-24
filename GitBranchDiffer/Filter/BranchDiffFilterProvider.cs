@@ -56,8 +56,7 @@ namespace GitBranchDiffer.Filter
         /// <summary>
         /// Initalizes the Solution Explorer filter with Solution info once per-solution-load in Visual Studio
         /// </summary>
-        /// <param name="solutionPath"></param>
-        internal static void Initialize(string solutionDirectory, string solutionFile)
+        internal static void SetSolutionInfo(string solutionDirectory, string solutionFile)
         {
             SolutionDirectory = solutionDirectory;
             SolutionFile = solutionFile;
@@ -104,7 +103,7 @@ namespace GitBranchDiffer.Filter
                     BranchDiffFilterProvider.TagManager.CreateTagTables();
                     IVsHierarchyItem root = HierarchyUtilities.FindCommonAncestor(rootItems);
 
-                    if (GitBranchDifferValidator.ValidateSolution(this.solutionDirectory, this.solutionFile, root, this.package))
+                    if (GitBranchDifferValidator.ValidateSolution(this.solutionDirectory, this.solutionFile, this.package))
                     {
                         var setupOk = this.branchDiffWorker.SetupRepository(this.solutionDirectory, this.package.BranchToDiffAgainst, out var repo, out var error);
                         if (setupOk)
@@ -157,7 +156,8 @@ namespace GitBranchDiffer.Filter
                         }
                     }
                     
-                    if (!string.IsNullOrEmpty(absoluteFilePath) && this.branchDiffWorker.HasItemInChangeSet(this.changeSet, hierarchyItem.CanonicalName, out var diffResultItem))
+                    if (!string.IsNullOrEmpty(absoluteFilePath) 
+                        && this.branchDiffWorker.HasItemInChangeSet(this.changeSet, hierarchyItem.CanonicalName, out var diffResultItem))
                     {
                         // Tag the old path so we find the Base branch version of file using the Old Path (for files renamed in the working branch)
                         if (!string.IsNullOrEmpty(diffResultItem.OldAbsoluteFilePath))
