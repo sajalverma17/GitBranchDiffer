@@ -63,10 +63,9 @@
     <Compile Include="GitBranchDifferPluginOptions.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Filter\FilterInitializationState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GitBranchDifferPackage.cs" />
-    <Compile Include="GitBranchDifferValidator.cs" />
+    <Compile Include="Filter\BranchDiffFilterValidator.cs" />
     <Compile Include="SolutionSelectionModels\ISolutionSelection.cs" />
     <Compile Include="SolutionSelectionModels\SelectedProject.cs" />
     <Compile Include="SolutionSelectionModels\SelectedProjectItem.cs" />
