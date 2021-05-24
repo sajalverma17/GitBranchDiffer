@@ -34,7 +34,7 @@ namespace GitBranchDiffer
 
         public GitBranchDifferPackage()
         {
-            BranchDiffFilterProvider.InitializeOnce(this);
+            BranchDiffFilterProvider.Initialize(this);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "VSSDK006:Check services exist", Justification = "Show custom error if DTE service doesn't exist")]
@@ -49,11 +49,15 @@ namespace GitBranchDiffer
             {
                 // Filter will be initialized on package load.
                 // Also hook to all relevant events here so we can solution-info set on the Filter when they are fired
-                this.dte.Events.SolutionEvents.Opened += InitializeFilter;
-                this.dte.Events.SolutionEvents.BeforeClosing += UnInitializeFilter;
+                this.dte.Events.SolutionEvents.Opened += SetSolutionInfo;
+                this.dte.Events.SolutionEvents.BeforeClosing += ResetSolutionInfo;
                 this.selectionEvents = dte.Events.SelectionEvents;
                 this.selectionEvents.OnChange += SelectionEvents_OnChange;
-                this.InitializeFilter();
+                this.SetSolutionInfo();
+            }
+            else
+            {
+                ErrorPresenter.ShowError(this, "Unable to load Git Branch Differ plug-in. Failed to get Visual Studio services.");
             }
         }
 
@@ -75,9 +79,9 @@ namespace GitBranchDiffer
 
         #region VS Events
         /// <summary>
-        /// Initializes Branch Diff Filter with Solution directory and name info.
+        /// Sets the Solution directory and name info on Branch Diff Filter.
         /// </summary> 
-        private void InitializeFilter()
+        private void SetSolutionInfo()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var absoluteSolutionPath = this.dte.Solution.FullName;
@@ -87,9 +91,9 @@ namespace GitBranchDiffer
         }
 
         /// <summary>
-        /// Resets the filter by removing the solution info (directory path of the solution is set to string.Empty)
+        /// Resets the filter by removing the solution info (set to string.Empty)
         /// </summary>
-        private void UnInitializeFilter()
+        private void ResetSolutionInfo()
         {
             BranchDiffFilterProvider.SetSolutionInfo(string.Empty, string.Empty);
         }
