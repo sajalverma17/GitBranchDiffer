@@ -10,7 +10,7 @@ on:
 
 jobs:
   
-  # TODO: Also add a job to automatically create a Github Release  
+  # TODO: Also add a step to automatically create a Github Release  
   publish:
     
     runs-on: windows-2019
@@ -20,21 +20,23 @@ jobs:
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
       Vs2019ToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       
       - name: Login to marketplace
         shell : powershell
         run: |     
           $vsixPublisherTool = '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
-          echo "Executing VsixPublisher found at: " $vsixPublisherTool
           & $vsixPublisherTool login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
+      
+      - name: Publish to marketplace
+        shell: powershell
+        run: echo "TODO Publish to marketplace"
           
       - name: Logout of marketplace
         shell : powershell
         run: |
           $vsixPublisherTool = '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
-          & $vsixPublisherTool logout -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
+          & $vsixPublisherTool logout -publisherName $env:Publisher_Name -ignoreMissingPublisher
           
     
 
