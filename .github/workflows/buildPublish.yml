@@ -27,14 +27,14 @@ jobs:
         shell : powershell
         run: |
           cd $Env:ProgramFiles
-          cd ${{ env.VsixPublisherToolPath }}
+          cd '${{ env.VsixPublisherToolPath }}'
           VsixPublisher.exe login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
           
       - name: Logout of marketplace
         shell : powershell
         run: |
           cd $Env:ProgramFiles
-          cd ${{ env.VsixPublisherToolPath }}
+          cd '${{ env.VsixPublisherToolPath }}'
           VsixPublisher.exe logout -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
           
     
