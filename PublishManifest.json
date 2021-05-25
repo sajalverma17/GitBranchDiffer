@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json.schemastore.org/vsix-publish",
+  "categories": [
+    "coding",
+    "team development",
+    "source control"
+  ],
+  "identity": {
+    "internalName": "GitBranchDiffer",
+    "tags": [
+      "Git"
+    ]
+  },
+  "overview": "README-Marketplace.md",
+  "priceCategory": "free",
+  "publisher": "SajalVerma",
+  "private": false,
+  "qna": true,
+  "repo": "https://github.com/sajalverma17/GitBranchDiffer"
+}
