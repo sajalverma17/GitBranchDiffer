@@ -28,15 +28,16 @@ jobs:
         # Access Program Files (x86) on Github runner via Powershell's $Env
         run: |
           $programFiles = $Env:ProgramFiles+'\'          
-          $vsixPublisherTool = $programFiles + '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'         
-          & $vsixPublisher login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
+          $vsixPublisherTool = $programFiles + '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
+          echo "Executing VsixPublisher found at: " $vsixPublisherTool
+          & $vsixPublisherTool login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
           
       - name: Logout of marketplace
         shell : powershell
         run: |
           $programFiles = $Env:ProgramFiles+'\'          
           $vsixPublisherTool = $programFiles + '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
-          & $vsixPublisher logout -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
+          & $vsixPublisherTool logout -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
           
     
 
