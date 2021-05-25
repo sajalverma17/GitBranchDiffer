@@ -1,11 +1,12 @@
-#CI-only pipeline: Build, test and create the artifact.
+#CI-only pipeline: Build, test and create the artifact. Currently disabled 
 trigger:
   branches:
-    include:
+    exclude:
       - '*'
   paths:
     exclude:
       - 'README.md'
+      - 'README-Marketplace.md'
 
 pool:
   vmImage: 'windows-latest'
