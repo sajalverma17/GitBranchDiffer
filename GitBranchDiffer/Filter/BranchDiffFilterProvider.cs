@@ -6,6 +6,7 @@ using Microsoft.Internal.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Threading;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -41,6 +42,8 @@ namespace GitBranchDiffer.Filter
         
         internal static string CurrentSelectionInFilter { get; set; }
 
+        private static BranchDiffFilter Instance { get; set; }
+
         /// <summary>
         /// One time initialization of the Solution Explorer filter, happens once per-Visual-Studio-startup.
         /// </summary>
@@ -70,6 +73,7 @@ namespace GitBranchDiffer.Filter
         private sealed class BranchDiffFilter : HierarchyTreeFilter
         {
             private readonly SVsServiceProvider serviceProvider;
+            private readonly IVsMonitorSelection vsMonitorSelection;
             private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;            
             private readonly GitBranchDifferPackage package;
             private readonly string solutionDirectory;
@@ -85,14 +89,17 @@ namespace GitBranchDiffer.Filter
                 SVsServiceProvider serviceProvider, 
                 IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider)
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 this.package = package;
                 this.solutionDirectory = solutionPath;
                 this.solutionFile = solutionName;
                 this.serviceProvider = serviceProvider;
                 this.vsHierarchyItemCollectionProvider = vsHierarchyItemCollectionProvider;
                 this.Initialized += BranchDiffFilter_Initialized;
+                this.vsMonitorSelection = this.serviceProvider.GetService(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
                 this.branchDiffWorker = DIContainer.Instance.GetService(typeof(GitBranchDiffController)) as GitBranchDiffController;
                 Assumes.Present(this.branchDiffWorker);
+                Assumes.Present(this.vsMonitorSelection);
             }
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
@@ -177,6 +184,7 @@ namespace GitBranchDiffer.Filter
 
             private void BranchDiffFilter_Initialized(object sender, EventArgs e)
             {
+                Package.FilterApplied();
                 BranchDiffFilterProvider.IsFilterApplied = true;
             }
 
@@ -184,6 +192,7 @@ namespace GitBranchDiffer.Filter
             protected override void DisposeManagedResources()
             {
                 base.DisposeManagedResources();
+                Package.FilterUnapplied();
                 BranchDiffFilterProvider.IsFilterApplied = false;
                 BranchDiffFilterProvider.CurrentSelectionInFilter = string.Empty;
             }

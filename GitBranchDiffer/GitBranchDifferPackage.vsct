@@ -53,6 +53,7 @@
 
       <!-- Button to open diff window for physical file node in Solution Explorer tree-->
       <Button guid="guidFileDiffPackageCmdSet" id="cmdidPhysicalFileDiffMenuCommand" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_OPEN"/>
         <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16" />
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
@@ -63,6 +64,7 @@
       
       <!--Button to open diff window for a project node in Solution Explorer tree-->
       <Button guid="guidFileDiffPackageCmdSet" id="cmdidProjectFileDiffMenuCommand" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_BUILD"/>
         <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16" />
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
@@ -78,27 +80,14 @@
     </Bitmaps>
   </Commands>
 
-  <CommandPlacements>
-    
-    <!--Placement for the physical file node button, in the Open menu group of a file-->
-    <CommandPlacement guid="guidFileDiffPackageCmdSet" id="cmdidPhysicalFileDiffMenuCommand">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_OPEN"/>
-    </CommandPlacement>
-
-    <!--Placement for the project node diff button, in the Open menu group of a file-->
-    <CommandPlacement guid="guidFileDiffPackageCmdSet" id="cmdidProjectFileDiffMenuCommand">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_BUILD"/>
-    </CommandPlacement>
-    
-  </CommandPlacements>
-
   <VisibilityConstraints>
       <VisibilityItem guid="guidBranchDiffPackageCmdSet" id="cmdidBranchDiffAndFilter" context="UICONTEXT_SolutionExists"/>
-      <VisibilityItem guid="guidFileDiffPackageCmdSet" id="cmdidPhysicalFileDiffMenuCommand" context="UICONTEXT_BranchDifferFilterApplied" />
-      <VisibilityItem guid="guidFileDiffPackageCmdSet" id="cmdidProjectFileDiffMenuCommand" context="UICONTEXT_BranchDifferFilterApplied" />
     
+      <VisibilityItem guid="guidFileDiffPackageCmdSet" id="cmdidPhysicalFileDiffMenuCommand" context="guidFileDiffPackageCmdSet" />
+      <VisibilityItem guid="guidFileDiffPackageCmdSet" id="cmdidProjectFileDiffMenuCommand" context="guidFileDiffPackageCmdSet" />
+      
   </VisibilityConstraints>
-
+  
   <Symbols>
     <!-- This is the package guid. -->
     <GuidSymbol name="guidBranchDiffWindowPackage" value="{156fcec6-25ac-4279-91cc-bbe2e4ea8c14}" />
@@ -117,7 +106,5 @@
     <GuidSymbol name="guidDiffFilterImage" value="{C4223526-2F74-4AEA-9218-6C29A9793BE8}">
       <IDSymbol name="GitBranchDifferDiffIcon16" value="1"/>
     </GuidSymbol>
-    
-    <GuidSymbol name="UICONTEXT_BranchDifferFilterApplied" value="{9707060D-0A76-4063-96E0-7868E1CA2616}" />
   </Symbols>
 </CommandTable>

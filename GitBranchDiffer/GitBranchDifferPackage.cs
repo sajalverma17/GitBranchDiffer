@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using GitBranchDiffer.SolutionSelectionModels;
 using System.Runtime.CompilerServices;
 using Microsoft;
+using GitBranchDiffer.FileDiff.Commands;
 
 namespace GitBranchDiffer
 {
@@ -31,6 +32,7 @@ namespace GitBranchDiffer
         private EnvDTE.SelectionEvents selectionEvents;
         private IVsDifferenceService vsDifferenceService;
         private IVsUIShell vsUIShell;
+        private IVsMonitorSelection moniterSelectionService;
 
         public GitBranchDifferPackage()
         {
@@ -44,7 +46,8 @@ namespace GitBranchDiffer
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
             this.vsDifferenceService = await GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
             this.vsUIShell = await GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
-
+            this.moniterSelectionService = await GetServiceAsync(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
+             // OpenFileDiffCommand.Initialize(this);
             if (dte != null)
             {
                 // Filter will be initialized on package load.
@@ -53,6 +56,8 @@ namespace GitBranchDiffer
                 this.dte.Events.SolutionEvents.BeforeClosing += ResetSolutionInfo;
                 this.selectionEvents = dte.Events.SelectionEvents;
                 this.selectionEvents.OnChange += SelectionEvents_OnChange;
+                this.FilterApplied = OnFilterApplied;
+                this.FilterUnapplied = OnFilterUnapplied;
                 this.SetSolutionInfo();
             }
             else
@@ -74,6 +79,10 @@ namespace GitBranchDiffer
                 return options.BaseBranchName;
             }
         }
+
+        public Action FilterApplied { get; private set; }
+        
+        public Action FilterUnapplied { get; private set; }
 
         #endregion
 
@@ -204,6 +213,29 @@ namespace GitBranchDiffer
             }
 
             BranchDiffFilterProvider.CurrentSelectionInFilter = string.Empty;
+        }
+
+        private void OnFilterApplied()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            uint cmdUiContext;
+            var guid = BranchDiffFilterCommandGuids.guidFileDiffPackageCmdSet;
+            if (this.moniterSelectionService.GetCmdUIContextCookie(ref guid, out cmdUiContext) == VSConstants.S_OK)
+            {
+                this.moniterSelectionService.SetCmdUIContext(cmdUiContext, 1);
+            }
+        }
+
+        private void OnFilterUnapplied()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            uint cmdUiContext;
+            var guid = BranchDiffFilterCommandGuids.guidFileDiffPackageCmdSet;
+            if (this.moniterSelectionService.GetCmdUIContextCookie(ref guid, out cmdUiContext) == VSConstants.S_OK)
+            {
+                this.moniterSelectionService.SetCmdUIContext(cmdUiContext, 0);
+            }
         }
         #endregion
     }
