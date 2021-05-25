@@ -18,24 +18,25 @@ jobs:
     env:
       Publisher_Name: SajalVerma
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
-      VsixPublisherToolPath: 'Microsoft Visual Studio\2019\Professional\VSSDK\VisualStudioIntegration\Tools\Bin\'
+      Vs2019ToolsPath: 'Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       
       - name: Login to marketplace
         shell : powershell
+        # Access Program Files (x86) on Github runner via Powershell's $Env
         run: |
-          cd $Env:ProgramFiles
-          cd '${{ env.VsixPublisherToolPath }}'
-          VsixPublisher.exe login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
+          $programFiles = $Env:ProgramFiles+'\'          
+          $vsixPublisherTool = $programFiles + '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'         
+          & $vsixPublisher login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
           
       - name: Logout of marketplace
         shell : powershell
         run: |
-          cd $Env:ProgramFiles
-          cd '${{ env.VsixPublisherToolPath }}'
-          VsixPublisher.exe logout -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
+          $programFiles = $Env:ProgramFiles+'\'          
+          $vsixPublisherTool = $programFiles + '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
+          & $vsixPublisher logout -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
           
     
 
