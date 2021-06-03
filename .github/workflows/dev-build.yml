@@ -12,7 +12,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Build_Version: 1.0.999.${{ github.run_number }}           # Dummy version on PR artifact
+      Build_Version: 1.0.1000.${{ github.run_number }}           # Dummy version on PR artifact
       Solution_Name: GitBranchDiffer.sln                        
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
