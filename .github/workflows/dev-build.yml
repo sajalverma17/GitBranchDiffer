@@ -3,9 +3,6 @@ name: dev-build
 # Run this workflow on push to PRs and all branches except master.  
 on:
   pull_request:
-  push:
-    branches-ignore: 
-      - 'master'
   workflow_dispatch:
     
 jobs:
@@ -15,7 +12,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Build_Version: 1.0.999.${{ github.run_number }}           # Dummy versioning, breaks SemVer. Can't add "-dev" tag to VSIX version numbers
+      Build_Version: 1.0.999                                    # Dummy version on PR artifact
       Solution_Name: GitBranchDiffer.sln                        
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
@@ -55,5 +52,5 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: GitBranchDiffer-${{ env.Build_Version }}
+        name: GitBranchDiffer-${{ env.Build_Version }}-Test
         path: ${{ env.VSIX_Path }}
