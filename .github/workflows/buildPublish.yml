@@ -1,16 +1,68 @@
 name: buildPublish
 
+# Release steps: 
+# Create git tag, update version numbers in all .yml build definitions in 'master' branch
+# Push into 'origin:master', wait for CI build to finish and test the artifact from CI build
+# Merge branch 'master' into 'release', push into 'origin:release', which will trigger this pipeline
+
 on:
   push:
     branches: 
-      - 'release/**'      
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+      - 'release'
 
 jobs:
+
+  build:
+
+    runs-on: windows-latest
+
+    env:
+      Build_Version: 1.0.${{ github.run_number }}
+      Solution_Name: GitBranchDiffer.sln                        
+      Build_Configuration: Release
+      Build_Platform: 'Any CPU'
+      VSIX_Path: GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
+      Test_Project_Path: your-test-project-path                 # Replace with the path to your test project 
+      
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload, probably not needed
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.2
+      
+    # TODO: Also add a step to automatically create a Github Release from latest Tag in 'release' branch
+    # TODO: Powershell to update 'More Info' URL in extension manifest to the lastest Github Release
+    - name: Update VSIX version in extension manifest
+      shell: powershell
+      run: .\VersionUpdater.ps1 $env:Build_Version
+
+    # Restore the solution
+    - name: Restore GitBranchDiffer
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Build_Configuration /v:m
+
+    # Build the solution
+    - name: Build GitBranchDiffer
+      run: msbuild $env:Solution_Name /p:Configuration=$env:Build_Configuration /p:Platform=$env:Build_Platform /v:m
+
+    # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: GitBranchDiffer-${{ env.Build_Version }}
+        path: ${{ env.VSIX_Path }}
   
-  # TODO: Also add a step to automatically create a Github Release  
   publish:
     
     runs-on: windows-2019
