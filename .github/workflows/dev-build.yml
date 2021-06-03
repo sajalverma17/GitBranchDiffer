@@ -15,7 +15,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Build_Version: 1.0.0.${{ github.run_number }}-dev
+      Build_Version: 1.0.999.${{ github.run_number }}           # Dummy versioning, breaks SemVer. Can't add "-dev" tag to VSIX version numbers
       Solution_Name: GitBranchDiffer.sln                        
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
