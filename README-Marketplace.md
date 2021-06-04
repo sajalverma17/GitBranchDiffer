@@ -1,6 +1,8 @@
 # Git Branch Differ
 
-GitBranchDiffer is a Solution Explorer Filter which compares the working branch of your Git repo with the branch you choose to compare it with, and displays files that were Added/Modified/Renamed in the Solution Explorer Window. When the filter is applied on Solution Explorer, clicking a file will open a diff view of the file. 
+Git Branch Differ is a Solution Explorer Filter which compares the working branch of your Git repo with the branch you choose to compare it with, and displays files that were Added/Modified/Renamed in the Solution Explorer Window. 
+
+After the filter is applied, clicking a file in Solution Explorer will open a comparison between the version of the file in working branch Vs. the version of file in the branch you choose to compare against. 
 
 ## Features
 
@@ -14,6 +16,11 @@ GitBranchDiffer is a Solution Explorer Filter which compares the working branch 
 ![image](https://user-images.githubusercontent.com/25904133/118525755-d63bd480-b73f-11eb-884a-ddf86c63a70a.png)
 
 ![image](https://user-images.githubusercontent.com/25904133/118526577-ae00a580-b740-11eb-94a3-b3b3238c258e.png)
+
+![120868239-e3582080-c593-11eb-9c62-d68d1a17b05f](https://user-images.githubusercontent.com/25904133/120868781-118a3000-c595-11eb-85f1-bd93a0116a52.png)
+
+
+
 
 The plugin was written to make reviewing pull requests in .NET projects easier, as jumping/navigating code (of classes, methods, properties and their references inside the solution) is possible when the comparison view is "native" to Visual Studio, as opposed to text-based comparison of code.
 
