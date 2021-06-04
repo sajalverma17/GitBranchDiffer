@@ -5,7 +5,6 @@ name: buildPublish
 # To publish release: git push origin master v{Major}.{Minor}.{Path}
 
 on:
-  workflow_dispatch: # TODO Remove once testing is done  
   push:
     tags:
       - 'v*.*.*'
@@ -87,24 +86,17 @@ jobs:
         name: GitBranchDiffer
         path: ${{ env.VSIX_Path }}
 
-    - name: Show Release details
-      shell: powershell
-      run: 
-        |
-        echo ${{ steps.create_gh_release.outputs.upload_url }} 
-        echo ${{ steps.create_gh_release.outputs.url }}
-        echo ${{ steps.create_gh_release.outputs.id }}
-
-    # Add a step to upload artifact as asset to the Github Release created above
-    - name: Upload artifact as Github Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_gh_release.outputs.upload_url }} 
-        asset_path: ${{ env.VSIX_Path }}
-        asset_name: GitBranchDiffer.zip
-        asset_content_type: application/zip
+    # Upload artifact as asset to the Github Release created above. 
+    # TODO: upload_url output not yet supported by softprops/action-gh-release@v1
+    #- name: Upload artifact as Github Release Asset
+    #  uses: actions/upload-release-asset@v1
+    #  env:
+    #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #  with:
+    #    upload_url: ${{ steps.create_gh_release.outputs.upload_url }} 
+    #    asset_path: ${{ env.VSIX_Path }}
+    #    asset_name: GitBranchDiffer.zip
+    #    asset_content_type: application/zip
 
   
   publish:
