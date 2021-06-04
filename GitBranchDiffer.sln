@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		PublishManifest.json = PublishManifest.json
 		README-Marketplace.md = README-Marketplace.md
 		README.md = README.md
+		VersionParser.ps1 = VersionParser.ps1
 		VersionUpdater.ps1 = VersionUpdater.ps1
 	EndProjectSection
 EndProject
