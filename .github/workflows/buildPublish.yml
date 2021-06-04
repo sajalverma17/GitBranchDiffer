@@ -1,27 +1,125 @@
 name: buildPublish
 
+# Release steps: 
+# On 'master' branch, create git tag with pattern: v{Major}.{Minor}.{Path}
+# To publish release: git push origin master v{Major}.{Minor}.{Path}
+
 on:
+  workflow_dispatch: # TODO Remove once testing is done  
   push:
-    branches: 
-      - 'release/**'      
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
+    tags:
+      - 'v*.*.*'
 jobs:
+
+  build:
+
+    runs-on: windows-latest
+
+    env:
+      Build_Version: 0.0.0                                      # Must be updated by parsing version from tag name
+      Solution_Name: GitBranchDiffer.sln                        
+      Build_Configuration: Release
+      Build_Platform: 'Any CPU'
+      VSIX_Path: GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
+      Test_Project_Path: your-test-project-path                 # Replace with the path to your test project       
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload, probably not needed
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+
+    # Add  MSBuild to the PATH
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Determine version number
+      shell: powershell
+      run: 
+        |
+        $version = .\VersionParser.ps1
+        echo "Build_Version=$versionString" >> $GITHUB_ENV
+      
+    # Create a Github Release from latest Tag in 'release' branch.
+    - name: Create Github Release
+      id: create_gh_release
+      uses: softprops/action-gh-release@v1
+      with: 
+        prerelease: true    # TODO Remove once testing is done  
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # Powershell script to update 'More Info' URL in extension manifest to the lastest Github Release created above
+    - name: Update MoreInfo URL in extension manifest
+      shell: powershell
+      run: .\InfoURLUpdater.ps1 ${{ steps.create_gh_release.output.url }}
+
+    - name: Update VSIX version in extension manifest
+      shell: powershell
+      run: .\VersionUpdater.ps1 $env:Build_Version
+
+    # Restore the solution
+    - name: Restore GitBranchDiffer
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Build_Configuration /v:m
+
+    # Build the solution
+    - name: Build GitBranchDiffer
+      run: msbuild $env:Solution_Name /p:Configuration=$env:Build_Configuration /p:Platform=$env:Build_Platform /v:m
+
+    # Upload the VSIX package
+    - name: Upload artifact to workflow
+      uses: actions/upload-artifact@v2
+      with:
+        name: GitBranchDiffer
+        path: ${{ env.VSIX_Path }}
+
+    # Add a step to upload artifact as asset to the Github Release created above
+    - name: Upload artifact as Github Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_gh_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ${{ env.VSIX_Path }}
+        asset_name: GitBranchDiffer.zip
+        asset_content_type: application/zip
+
   
-  # TODO: Also add a step to automatically create a Github Release  
   publish:
     
     runs-on: windows-2019
+    needs: build
     
     env:
       Publisher_Name: SajalVerma
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
       Vs2019ToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'
+      Release_Directory: GitBranchDiffer\bin\Release\
 
     steps:
+
+        # Download the build artifact to artifacts folder in working directory
+      - name: Download the build artifact
+        uses: actions/download-artifact@v2
+        with:
+            name: GitBranchDiffer
+            path: .\artifacts
+
+      - name: View artifact directory
+        shell: powershell
+        run: dir .\artifacts
       
+      - name: View Release directory
+        shell: powershell
+        run: dir $env:Release_Directory
+
       - name: Login to marketplace
         shell : powershell
         run: |     
