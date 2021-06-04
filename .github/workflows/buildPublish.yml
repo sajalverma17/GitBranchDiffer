@@ -19,8 +19,7 @@ jobs:
       Solution_Name: GitBranchDiffer.sln                        
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
-      VSIX_Path: GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
-      Test_Project_Path: your-test-project-path                 # Replace with the path to your test project       
+      VSIX_Path: GitBranchDiffer\bin\Release\GitBranchDiffer.vsix      
 
     steps:
 
@@ -57,8 +56,6 @@ jobs:
     - name: Create Github Release
       id: create_gh_release
       uses: softprops/action-gh-release@v1
-      with: 
-        prerelease: true    # TODO Remove once testing is done  
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -112,30 +109,28 @@ jobs:
 
     steps:
 
-        # Download the build artifact to artifacts folder in working directory
+        # Download the build artifact to artifacts folder in 'artifacts' directory
       - name: Download the build artifact
         uses: actions/download-artifact@v2
         with:
             name: GitBranchDiffer
             path: .\artifacts
 
-      - name: View artifact directory
+      - name: View artifacts directory
         shell: powershell
         run: dir .\artifacts
-      
-      - name: View Release directory
-        shell: powershell
-        run: dir $env:Release_Directory
 
       - name: Login to marketplace
         shell : powershell
-        run: |     
+        run: |
           $vsixPublisherTool = '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
           & $vsixPublisherTool login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
       
       - name: Publish to marketplace
         shell: powershell
-        run: echo "TODO Publish to marketplace"
+        run: |
+             $vsixPublisherTool = '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
+             & $vsixPublisherTool publish -payload .\artifacts\GitBranchDiffer.vsix -publishManifest .\PublishManifest.json
           
       - name: Logout of marketplace
         shell : powershell

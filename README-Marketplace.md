@@ -18,3 +18,8 @@ GitBranchDiffer is a Solution Explorer Filter which compares the working branch 
 The plugin was written to make reviewing pull requests in .NET projects easier, as jumping/navigating code (of classes, methods, properties and their references inside the solution) is possible when the comparison view is "native" to Visual Studio, as opposed to text-based comparison of code.
 
 Note that GitBranchDiffer filter does not support displaying files that were deleted in the working branch.
+
+
+# Report Issue
+
+To report a bug, please use the [Issue Tracker](https://github.com/sajalverma17/GitBranchDiffer/issues/new?assignees=&labels=bug&template=bug-report.md&title=)

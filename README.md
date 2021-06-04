@@ -21,6 +21,11 @@ The plugin was written to make reviewing pull requests in .NET projects easier, 
 
 Note that GitBranchDiffer filter does not support displaying files that were deleted in the working branch.
 
+# Installation
+
+You can also install the latest [CI build](https://github.com/sajalverma17/GitBranchDiffer/actions/workflows/ci-build.yml).
+Open the latest CI run, download the artifact, unzip, run GitBranchDiffer.vsix.
+
 ## Contributions
 
 All contributions welcome. 
