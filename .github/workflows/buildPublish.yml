@@ -45,7 +45,7 @@ jobs:
       run: 
         |
         $version = .\VersionParser.ps1
-        echo "Build_Version=$versionString" >> $GITHUB_ENV
+        echo "Build_Version=$version" >> $GITHUB_ENV
       
     # Create a Github Release from latest Tag in 'release' branch.
     - name: Create Github Release
@@ -59,7 +59,7 @@ jobs:
     # Powershell script to update 'More Info' URL in extension manifest to the lastest Github Release created above
     - name: Update MoreInfo URL in extension manifest
       shell: powershell
-      run: .\InfoURLUpdater.ps1 ${{ steps.create_gh_release.output.url }}
+      run: .\VersionInfoURLUpdater.ps1 ${{ steps.create_gh_release.output.url }}
 
     - name: Update VSIX version in extension manifest
       shell: powershell
