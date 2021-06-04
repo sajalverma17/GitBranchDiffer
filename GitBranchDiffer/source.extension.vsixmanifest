@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="GitBranchDiffer.53f34d66-fcfb-4b1b-a864-c542da222902" Version="1.0.0.0" Language="en-US" Publisher="Sajal Verma" />
+        <Identity Id="GitBranchDiffer.53f34d66-fcfb-4b1b-a864-c542da222902" Version="0.0.0.0" Language="en-US" Publisher="Sajal Verma" />
         <DisplayName>GitBranchDiffer</DisplayName>
-        <Description xml:space="preserve">GitBranchDiffer is a Solution Explorer Filter which compares the working branch of your Git repo with the branch you choose to compare it with, and displays files that were Added/Modified/Renamed in the Solution Explorer Window. When the filter is applied on Solution Explorer, clicking a file will open a diff view of the file, allowing you to review .NET in a more "native" manner inside Visual Studio.</Description>
+        <Description xml:space="preserve">GitBranchDiffer is a Solution Explorer Filter which compares the working branch of your Git repo with the branch you choose to compare it with, and displays files that were Added/Modified/Renamed in the Solution Explorer Window.</Description>
         <MoreInfo>https://github.com/sajalverma17/GitBranchDiffer</MoreInfo>
         <License>LICENSE.txt</License>
         <Icon>Resources\GitBranchDifferPackage.ico</Icon>
