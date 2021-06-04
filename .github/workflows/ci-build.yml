@@ -12,7 +12,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Build_Version: 0.1.8.${{ github.run_number }}
+      Build_Version: 0.1.9.${{ github.run_number }}
       Solution_Name: GitBranchDiffer.sln                        
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
