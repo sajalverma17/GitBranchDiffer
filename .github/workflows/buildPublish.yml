@@ -108,7 +108,9 @@ jobs:
       Publisher_Name: SajalVerma
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
       Vs2019ToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'
-      Release_Directory: GitBranchDiffer\bin\Release\
+
+      # Github Actions pac´kages artifacts in directory structure as they were when uploading them, so vsix will be found here after download
+      VSIX_Path: GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
 
     steps:
 
@@ -133,7 +135,8 @@ jobs:
         shell: powershell
         run: |
              $vsixPublisherTool = '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
-             & $vsixPublisherTool publish -payload .\artifacts\GitBranchDiffer.vsix -publishManifest .\artifacts\PublishManifest.json
+             $payloadVSIX = '.\artifacts\' + '${{ env.VSIX_Path }}'
+             & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest .\artifacts\PublishManifest.json
           
       - name: Logout of marketplace
         shell : powershell
