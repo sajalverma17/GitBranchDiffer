@@ -45,7 +45,7 @@ jobs:
       run: 
         |
         $version = .\VersionParser.ps1
-        echo "Build_Version=$version" >> $GITHUB_ENV
+        echo "Build_Version=$version" >> $env:GITHUB_ENV
 
     - name: Verify Build_Version
       if: ${{ env.Build_Version == '0.0.0' }}
