@@ -66,7 +66,7 @@ jobs:
     # Powershell script to update 'More Info' URL in extension manifest to the lastest Github Release created above
     - name: Update MoreInfo URL in extension manifest
       shell: powershell
-      run: .\VersionInfoURLUpdater.ps1 ${{ steps.create_gh_release.output.url }}
+      run: .\VersionInfoURLUpdater.ps1 ${{ steps.create_gh_release.outputs.url }}
 
     - name: Update VSIX version in extension manifest
       shell: powershell
