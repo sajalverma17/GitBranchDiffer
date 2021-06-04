@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{855A4207-609F-4E68-B763-439FE6018E91}"
 	ProjectSection(SolutionItems) = preProject
 		azure-pipelines.yml = azure-pipelines.yml
+		InfoURLUpdater.ps1 = InfoURLUpdater.ps1
 		LICENSE.md = LICENSE.md
 		LICENSE.txt = LICENSE.txt
 		PublishManifest.json = PublishManifest.json
