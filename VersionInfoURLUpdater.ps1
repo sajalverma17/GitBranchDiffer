@@ -8,5 +8,5 @@ $manifestFileContent.PackageManifest.Metadata.ReleaseNotes = $releaseUrl
 
 $manifestFileContent.Save($manifestFile)
 
-Write-Host "Updated MoreInfo URL in VSIX manifest to "$releaseUrl
+Write-Host "Updated ReleaseNotes URL in VSIX manifest to "$releaseUrl
 
