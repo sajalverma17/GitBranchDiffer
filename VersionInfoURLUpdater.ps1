@@ -1,12 +1,12 @@
-﻿$infoUrl = $args[0]
+﻿$releaseUrl = $args[0]
 
 $manifestFile = Resolve-Path $PSScriptRoot\GitBranchDiffer\source.extension.vsixmanifest
 
 [xml]$manifestFileContent = Get-Content $manifestFile
 
-$manifestFileContent.PackageManifest.Metadata.MoreInfo = $infoUrl
+$manifestFileContent.PackageManifest.Metadata.ReleaseNotes = $releaseUrl
 
 $manifestFileContent.Save($manifestFile)
 
-Write-Host "Updated MoreInfo URL in VSIX manifest to "$infoUrl
+Write-Host "Updated MoreInfo URL in VSIX manifest to "$releaseUrl
 

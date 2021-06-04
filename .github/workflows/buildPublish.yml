@@ -59,7 +59,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # Powershell script to update 'More Info' URL in extension manifest to the lastest Github Release created above
+    # Powershell script to update 'Release Notes' URL in extension manifest to the Github Release created above
     - name: Update MoreInfo URL in extension manifest
       shell: powershell
       run: .\VersionInfoURLUpdater.ps1 ${{ steps.create_gh_release.outputs.url }}
@@ -130,7 +130,7 @@ jobs:
         shell: powershell
         run: |
              $vsixPublisherTool = '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
-             & $vsixPublisherTool publish -payload .\artifacts\GitBranchDiffer.vsix -publishManifest .\PublishManifest.json
+             & $vsixPublisherTool publish -payload .\artifacts\GitBranchDiffer.vsix -publishManifest PublishManifest.json
           
       - name: Logout of marketplace
         shell : powershell
