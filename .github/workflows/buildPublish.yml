@@ -16,7 +16,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Build_Version: 0.0.0                                      # Must be updated by parsing version from tag name
+      Build_Version: '0.0.0'                                      # Must be updated by parsing version from tag name
       Solution_Name: GitBranchDiffer.sln                        
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
@@ -46,7 +46,14 @@ jobs:
         |
         $version = .\VersionParser.ps1
         echo "Build_Version=$version" >> $GITHUB_ENV
-      
+
+    - name: Verify Build_Version
+      if: ${{ env.Build_Version == '0.0.0' }}
+      uses: actions/github-script@v3
+      with:
+        script: |
+                core.setFailed('Build_Version env variable not set')
+
     # Create a Github Release from latest Tag in 'release' branch.
     - name: Create Github Release
       id: create_gh_release
