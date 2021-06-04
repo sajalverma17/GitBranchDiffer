@@ -17,7 +17,6 @@ jobs:
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
       VSIX_Path: GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
-      Test_Project_Path: your-test-project-path                 # Replace with the path to your test project 
       
 
     steps:
