@@ -87,13 +87,21 @@ jobs:
         name: GitBranchDiffer
         path: ${{ env.VSIX_Path }}
 
+    - name: Show Release details
+      shell: powershell
+      run: 
+        |
+        echo ${{ steps.create_gh_release.outputs.upload_url }} 
+        echo ${{ steps.create_gh_release.outputs.url }}
+        echo ${{ steps.create_gh_release.outputs.id }}
+
     # Add a step to upload artifact as asset to the Github Release created above
     - name: Upload artifact as Github Release Asset
       uses: actions/upload-release-asset@v1
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_gh_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        upload_url: ${{ steps.create_gh_release.outputs.upload_url }} 
         asset_path: ${{ env.VSIX_Path }}
         asset_name: GitBranchDiffer.zip
         asset_content_type: application/zip
