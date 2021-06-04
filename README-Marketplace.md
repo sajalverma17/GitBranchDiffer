@@ -1,8 +1,8 @@
 # Git Branch Differ
 
-GitBranchDiffer is a Solution Explorer Filter which compares the working branch of your Git repo with the branch you choose to compare it with, and displays files that were Added/Modified/Renamed in the Solution Explorer Window. 
+Git Branch Differ is a Solution Explorer Filter which compares the working branch of your Git repo with the branch you choose to compare it with, and displays files that were Added/Modified/Renamed in the Solution Explorer Window. 
 
-After the filter is applied, clicking files in Solution Explorer will open a comparison between the version of the file in working branch Vs. the version of file in the branch you choose to compare against. 
+After the filter is applied, clicking a file in Solution Explorer will open a comparison between the version of the file in working branch Vs. the version of file in the branch you choose to compare against. 
 
 ## Features
 
