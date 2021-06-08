@@ -12,7 +12,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		azure-pipelines.yml = azure-pipelines.yml
 		LICENSE.md = LICENSE.md
 		LICENSE.txt = LICENSE.txt
+		PublishManifest.json = PublishManifest.json
+		README-Marketplace.md = README-Marketplace.md
 		README.md = README.md
+		VersionInfoURLUpdater.ps1 = VersionInfoURLUpdater.ps1
+		VersionParser.ps1 = VersionParser.ps1
 		VersionUpdater.ps1 = VersionUpdater.ps1
 	EndProjectSection
 EndProject
