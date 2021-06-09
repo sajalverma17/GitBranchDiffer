@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using GitBranchDiffer.SolutionSelectionModels;
 using System.Runtime.CompilerServices;
 using Microsoft;
+using GitBranchDiffer.FileDiff.Commands;
 
 namespace GitBranchDiffer
 {
@@ -19,20 +20,13 @@ namespace GitBranchDiffer
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [Guid(PackageGuidString)]
+    [Guid(GitBranchDifferPackageGuids.guidBranchDiffWindowPackage)]
     [ProvideOptionPage(typeof(GitBranchDifferPluginOptions),
     "Git Branch Differ", "Git Branch Differ Options", 0, 0, true)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class GitBranchDifferPackage : AsyncPackage
     {
-        public const string PackageGuidString = "156fcec6-25ac-4279-91cc-bbe2e4ea8c14";
-
         private EnvDTE.DTE dte;
-        private EnvDTE.SelectionEvents selectionEvents;
-        private IVsDifferenceService vsDifferenceService;
-        private IVsMonitorSelection moniterSelectionService;
-        private IVsUIShell vsUIShell;
-
 
         public GitBranchDifferPackage()
         {
@@ -44,9 +38,12 @@ namespace GitBranchDiffer
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
-            this.vsDifferenceService = await GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
-            this.vsUIShell = await GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
-            this.moniterSelectionService = await GetServiceAsync(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
+
+            // Init file diff commands, default invisilble
+            await OpenPhysicalFileDiffCommand.InitializeAsync(this);
+            await OpenProjectFileDiffCommand.InitializeAsync(this);
+            OpenPhysicalFileDiffCommand.Instance.Visible = false;
+            OpenProjectFileDiffCommand.Instance.Visible = false;
 
             if (dte != null)
             {
@@ -54,7 +51,6 @@ namespace GitBranchDiffer
                 // Also hook to all relevant events here so we can solution-info set on the Filter when they are fired
                 this.dte.Events.SolutionEvents.Opened += SetSolutionInfo;
                 this.dte.Events.SolutionEvents.BeforeClosing += ResetSolutionInfo;
-                this.selectionEvents = dte.Events.SelectionEvents;
                 this.SetSolutionInfo();
             }
             else
@@ -62,6 +58,7 @@ namespace GitBranchDiffer
                 ErrorPresenter.ShowError(this, "Unable to load Git Branch Differ plug-in. Failed to get Visual Studio services.");
             }
         }
+        
 
         #region Public Package Members   
 
@@ -154,25 +151,14 @@ namespace GitBranchDiffer
 
         public void OnFilterApplied()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            uint cmdUiContext;
-            var guid = BranchDiffFilterCommandGuids.UIContext_BranchDiffFilter;
-            if (this.moniterSelectionService.GetCmdUIContextCookie(ref guid, out cmdUiContext) == VSConstants.S_OK)
-            {
-                this.moniterSelectionService.SetCmdUIContext(cmdUiContext, 1);
-            }
+            OpenPhysicalFileDiffCommand.Instance.Visible = true;
+            OpenProjectFileDiffCommand.Instance.Visible = true;
         }
 
         public void OnFilterUnapplied()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            uint cmdUiContext;
-            var guid = BranchDiffFilterCommandGuids.UIContext_BranchDiffFilter;
-            if (this.moniterSelectionService.GetCmdUIContextCookie(ref guid, out cmdUiContext) == VSConstants.S_OK)
-            {
-                this.moniterSelectionService.SetCmdUIContext(cmdUiContext, 0);
-            }
+            OpenPhysicalFileDiffCommand.Instance.Visible = false;
+            OpenProjectFileDiffCommand.Instance.Visible = false;
         }
 
         #endregion
