@@ -30,7 +30,9 @@ namespace GitBranchDiffer
         private EnvDTE.DTE dte;
         private EnvDTE.SelectionEvents selectionEvents;
         private IVsDifferenceService vsDifferenceService;
+        private IVsMonitorSelection moniterSelectionService;
         private IVsUIShell vsUIShell;
+
 
         public GitBranchDifferPackage()
         {
@@ -44,6 +46,7 @@ namespace GitBranchDiffer
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
             this.vsDifferenceService = await GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
             this.vsUIShell = await GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
+            this.moniterSelectionService = await GetServiceAsync(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
 
             if (dte != null)
             {
@@ -52,7 +55,6 @@ namespace GitBranchDiffer
                 this.dte.Events.SolutionEvents.Opened += SetSolutionInfo;
                 this.dte.Events.SolutionEvents.BeforeClosing += ResetSolutionInfo;
                 this.selectionEvents = dte.Events.SelectionEvents;
-                this.selectionEvents.OnChange += SelectionEvents_OnChange;
                 this.SetSolutionInfo();
             }
             else
@@ -77,7 +79,6 @@ namespace GitBranchDiffer
 
         #endregion
 
-        #region VS Events
         /// <summary>
         /// Sets the Solution directory and name info on Branch Diff Filter.
         /// </summary> 
@@ -98,62 +99,7 @@ namespace GitBranchDiffer
             BranchDiffFilterProvider.SetSolutionInfo(string.Empty, string.Empty);
         }
 
-        private void SelectionEvents_OnChange()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (BranchDiffFilterProvider.IsFilterApplied)
-            {
-                var selectionContainer = this.GetCurrentSelectionInSolutionExplorer();
-
-                if (selectionContainer.Item != null && selectionContainer.IsSupported() && this.IsSelectionChangeInSolutionExplorer(selectionContainer))
-                {
-                    // Only open diff window for item if no diff window already associated
-                    if (selectionContainer.HasNoAssociatedDiffWindow(this.vsUIShell) && this.IsVisibleInSolutionExplorer(selectionContainer))
-                    {
-                        this.ShowFileDiffWindow(selectionContainer);
-                    }
-                    else
-                    {
-                        // else, just bring existing diff window of this item to front, don't open a new one
-                        selectionContainer.FocusAssociatedDiffWindow(this.vsUIShell);
-                    }
-                }
-
-                this.UpdateCurrentSelectionFromSolutionExplorer(selectionContainer);
-            }
-        }
-
-        private void ShowFileDiffWindow(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (!string.IsNullOrEmpty(solutionSelectionContainer.FullName))
-            {
-                var absoluteSoltuionPath = this.dte.Solution.FullName;
-                var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSoltuionPath);
-                var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, solutionSelectionContainer);
-                fileDiffProvider.ShowFileDiffWithBaseBranch(this.BranchToDiffAgainst);
-            }
-        }
-        #endregion
-
         #region Private methods - Solution Explorer inspection
-        private bool IsVisibleInSolutionExplorer(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var uih = (EnvDTE.UIHierarchy)this.dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Object;
-            EnvDTE.UIHierarchyItem uiHierarchyItem = uih?.FindHierarchyItem(solutionSelectionContainer);
-
-            // If the item is null in the UI (after our filter is applied), we must NOT generate comparison view for this file.
-            return uiHierarchyItem != null;
-        }
-
-        // We are only interested in change in solution Explorer items. This detects if the Selection_Change event was due to change there. 
-        private bool IsSelectionChangeInSolutionExplorer(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var thisItemName = solutionSelectionContainer.FullName;
-            return thisItemName != BranchDiffFilterProvider.CurrentSelectionInFilter;
-        }
 
         private SolutionSelectionContainer<ISolutionSelection> GetCurrentSelectionInSolutionExplorer()
         {
@@ -205,6 +151,30 @@ namespace GitBranchDiffer
 
             BranchDiffFilterProvider.CurrentSelectionInFilter = string.Empty;
         }
+
+        public void OnFilterApplied()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            uint cmdUiContext;
+            var guid = BranchDiffFilterCommandGuids.UIContext_BranchDiffFilter;
+            if (this.moniterSelectionService.GetCmdUIContextCookie(ref guid, out cmdUiContext) == VSConstants.S_OK)
+            {
+                this.moniterSelectionService.SetCmdUIContext(cmdUiContext, 1);
+            }
+        }
+
+        public void OnFilterUnapplied()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            uint cmdUiContext;
+            var guid = BranchDiffFilterCommandGuids.UIContext_BranchDiffFilter;
+            if (this.moniterSelectionService.GetCmdUIContextCookie(ref guid, out cmdUiContext) == VSConstants.S_OK)
+            {
+                this.moniterSelectionService.SetCmdUIContext(cmdUiContext, 0);
+            }
+        }
+
         #endregion
     }
 }

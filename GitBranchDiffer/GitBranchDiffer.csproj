@@ -54,6 +54,7 @@
     <Compile Include="DIContainer.cs" />
     <Compile Include="ErrorPresenter.cs" />
     <Compile Include="FileDiff\ItemTagManager.cs" />
+    <Compile Include="FileDiff\OpenFilteDiffCommand.cs" />
     <Compile Include="FileDiff\RenamedPathTable.cs" />
     <Compile Include="FileDiff\SolutionSelectionExtensions.cs" />
     <Compile Include="FileDiff\UIHierarchyExtensions.cs" />
