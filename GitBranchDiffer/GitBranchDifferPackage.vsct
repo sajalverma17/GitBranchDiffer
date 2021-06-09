@@ -94,9 +94,11 @@
   </Commands>
 
   <VisibilityConstraints>
-      <VisibilityItem guid="guidBranchDiffPackageCmdSet" id="cmdidBranchDiffAndFilter" context="UICONTEXT_SolutionExists"/>
+    <VisibilityItem guid="guidBranchDiffPackageCmdSet" id="cmdidBranchDiffAndFilter" context="UICONTEXT_SolutionExists"/>
+    <!--
     <VisibilityItem guid="guidFileDiffPackageCmdSet" id="cmdidPhysicalFileDiffMenuCommand" context="UICONTEXT_BranchDifferFilterApplied" />
     <VisibilityItem guid="guidFileDiffPackageCmdSet" id="cmdidProjectFileDiffMenuCommand" context="UICONTEXT_BranchDifferFilterApplied" />
+    -->
   </VisibilityConstraints>
 
   <Symbols>
@@ -118,7 +120,9 @@
       <IDSymbol name="GitBranchDifferDiffIcon16" value="1"/>
     </GuidSymbol>
 
+    <!--
     <GuidSymbol name="UICONTEXT_BranchDifferFilterApplied" value="{9707060D-0A76-4063-96E0-7868E1CA2616}" />
-    
+    -->
+  
   </Symbols>
 </CommandTable>
