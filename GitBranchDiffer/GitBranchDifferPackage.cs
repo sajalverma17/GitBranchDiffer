@@ -42,8 +42,8 @@ namespace GitBranchDiffer
             // Init file diff commands, default invisilble
             await OpenPhysicalFileDiffCommand.InitializeAsync(this);
             await OpenProjectFileDiffCommand.InitializeAsync(this);
-            OpenPhysicalFileDiffCommand.Instance.Visible = false;
-            OpenProjectFileDiffCommand.Instance.Visible = false;
+            OpenPhysicalFileDiffCommand.Instance.IsVisible = false;
+            OpenProjectFileDiffCommand.Instance.IsVisible = false;
 
             if (dte != null)
             {
@@ -93,8 +93,8 @@ namespace GitBranchDiffer
 
         public void OnFilterApplied()
         {
-            OpenPhysicalFileDiffCommand.Instance.Visible = true;
-            OpenProjectFileDiffCommand.Instance.Visible = true;
+            OpenPhysicalFileDiffCommand.Instance.IsVisible = true;
+            OpenProjectFileDiffCommand.Instance.IsVisible = true;
         }
 
         public void OnFilterUnapplied()
@@ -102,11 +102,11 @@ namespace GitBranchDiffer
             // When plugin isn't constructed, UI state of filter button can still be toggled, and user might un-apply before initialization
             if (OpenPhysicalFileDiffCommand.Instance != null)
             {
-                OpenPhysicalFileDiffCommand.Instance.Visible = false;
+                OpenPhysicalFileDiffCommand.Instance.IsVisible = false;
             }
             if (OpenProjectFileDiffCommand.Instance != null)
             {
-                OpenProjectFileDiffCommand.Instance.Visible = false;
+                OpenProjectFileDiffCommand.Instance.IsVisible = false;
             }
         }
     }

@@ -14,11 +14,16 @@ namespace GitBranchDiffer.FileDiff.Commands
 {
     internal sealed class OpenProjectFileDiffCommand : OpenDiffCommand
     {
-        private readonly AsyncPackage package;
-
-        private OpenProjectFileDiffCommand(GitBranchDifferPackage package, DTE dte, OleMenuCommandService commandService)
+        private OpenProjectFileDiffCommand(
+            GitBranchDifferPackage package,
+            DTE dte, 
+            IVsDifferenceService vsDifferenceService,
+            IVsUIShell vsUIShell,
+            OleMenuCommandService commandService)
             : base(package,
                  dte,
+                 vsDifferenceService,
+                 vsUIShell,
                  commandService,
                  new CommandID(
                      GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet,
@@ -26,7 +31,10 @@ namespace GitBranchDiffer.FileDiff.Commands
         {
         }
 
-        public static OleMenuCommand Instance => OpenDiffCommand.OleCommandInstance;
+
+        public static OpenProjectFileDiffCommand Instance { get; private set; }
+
+        public bool IsVisible { get => OleCommandInstance.Visible; set => OleCommandInstance.Visible = value; }
 
         /// <summary>
         /// Initializes the singleton instance of the command.
@@ -35,9 +43,11 @@ namespace GitBranchDiffer.FileDiff.Commands
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
-            OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
             DTE dte = await package.GetServiceAsync(typeof(DTE)) as DTE;
-            new OpenProjectFileDiffCommand(package, dte, commandService);
+            OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
+            IVsDifferenceService vsDifferenceService = await package.GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
+            IVsUIShell vsUIShell = await package.GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
+            Instance = new OpenProjectFileDiffCommand(package, dte, vsDifferenceService, vsUIShell, commandService);
         }
     }
 }
