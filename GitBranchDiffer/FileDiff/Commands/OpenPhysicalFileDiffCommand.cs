@@ -9,9 +9,16 @@ namespace GitBranchDiffer.FileDiff.Commands
 {
     internal sealed class OpenPhysicalFileDiffCommand : OpenDiffCommand
     {
-        private OpenPhysicalFileDiffCommand(GitBranchDifferPackage package, DTE dte, OleMenuCommandService commandService)
+        private OpenPhysicalFileDiffCommand(
+            GitBranchDifferPackage package,
+            DTE dte,
+            IVsDifferenceService vsDifferenceService,
+            IVsUIShell vsUIShell,
+            OleMenuCommandService commandService)
             :base(package,
                  dte,
+                 vsDifferenceService,
+                 vsUIShell,
                  commandService,
                  new CommandID(
                      GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, 
@@ -19,7 +26,9 @@ namespace GitBranchDiffer.FileDiff.Commands
         {
         }
 
-        public static OleMenuCommand Instance => OpenDiffCommand.OleCommandInstance;
+        public static OpenPhysicalFileDiffCommand Instance { get; private set; }
+
+        public bool IsVisible { get => OleCommandInstance.Visible; set => OleCommandInstance.Visible = value; }
 
         /// <summary>
         /// Initializes the singleton instance of the command.
@@ -28,9 +37,11 @@ namespace GitBranchDiffer.FileDiff.Commands
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
-            OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
             DTE dte = await package.GetServiceAsync(typeof(DTE)) as DTE;
-            new OpenPhysicalFileDiffCommand(package, dte, commandService);
+            OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
+            IVsDifferenceService vsDifferenceService = await package.GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
+            IVsUIShell vsUIShell = await package.GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
+            Instance = new OpenPhysicalFileDiffCommand(package, dte, vsDifferenceService, vsUIShell, commandService);
         }
     }
 }

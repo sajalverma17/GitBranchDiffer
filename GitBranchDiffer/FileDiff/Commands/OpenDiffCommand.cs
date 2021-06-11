@@ -4,11 +4,7 @@ using GitBranchDiffer.SolutionSelectionModels;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GitBranchDiffer.FileDiff.Commands
 {
@@ -17,13 +13,21 @@ namespace GitBranchDiffer.FileDiff.Commands
         private readonly GitBranchDifferPackage package;
         private readonly DTE dte;
         private readonly IVsDifferenceService vsDifferenceService;
+        private readonly IVsUIShell vsUIShell;
 
-        public OpenDiffCommand(GitBranchDifferPackage package, DTE dte, OleMenuCommandService commandService, CommandID menuCommandId)
+        public OpenDiffCommand(
+            GitBranchDifferPackage package, 
+            DTE dte, 
+            IVsDifferenceService vsDifferenceService,
+            IVsUIShell vsUIShell,
+            OleMenuCommandService commandService, 
+            CommandID menuCommandId)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             this.dte = dte ?? throw new ArgumentNullException(nameof(dte));
-            this.vsDifferenceService = this.package.GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
+            this.vsDifferenceService = vsDifferenceService ?? throw new ArgumentNullException(nameof(vsDifferenceService));
+            this.vsUIShell = vsUIShell ?? throw new ArgumentNullException(nameof(vsUIShell));
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
             var menuCommand = new OleMenuCommand(this.Execute, menuCommandId);
@@ -31,7 +35,7 @@ namespace GitBranchDiffer.FileDiff.Commands
             commandService.AddCommand(menuCommand);
         }
 
-        protected static OleMenuCommand OleCommandInstance { get; private set; }
+        protected OleMenuCommand OleCommandInstance { get; private set; }
 
         protected virtual void Execute(object sender, EventArgs e)
         {
@@ -76,10 +80,19 @@ namespace GitBranchDiffer.FileDiff.Commands
             ThreadHelper.ThrowIfNotOnUIThread();
             if (!string.IsNullOrEmpty(solutionSelectionContainer.FullName))
             {
-                var absoluteSoltuionPath = this.dte.Solution.FullName;
-                var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSoltuionPath);
-                var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, solutionSelectionContainer);
-                fileDiffProvider.ShowFileDiffWithBaseBranch(package.BranchToDiffAgainst);
+                if (solutionSelectionContainer.HasNoAssociatedDiffWindow(this.vsUIShell))
+                {
+                    // Create a new diff window if none already open
+                    var absoluteSoltuionPath = this.dte.Solution.FullName;
+                    var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSoltuionPath);
+                    var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, solutionSelectionContainer);
+                    fileDiffProvider.ShowFileDiffWithBaseBranch(package.BranchToDiffAgainst);
+                }
+                else
+                {
+                    // Activate already open window
+                    solutionSelectionContainer.FocusAssociatedDiffWindow(this.vsUIShell);
+                }
             }
         }
     }
