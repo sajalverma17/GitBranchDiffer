@@ -32,8 +32,6 @@ namespace GitBranchDiffer.Filter
         }
 
         internal static ItemTagManager TagManager { get; private set; }
-        
-        internal static string CurrentSelectionInFilter { get; set; }
 
         /// <summary>
         /// One time initialization of the Solution Explorer filter, happens once per-Visual-Studio-startup.

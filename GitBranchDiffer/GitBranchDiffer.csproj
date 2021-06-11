@@ -54,6 +54,7 @@
     <Compile Include="DIContainer.cs" />
     <Compile Include="ErrorPresenter.cs" />
     <Compile Include="FileDiff\Commands\OpenDiffCommand.cs" />
+    <Compile Include="FileDiff\Commands\OpenDiffEventArgs.cs" />
     <Compile Include="FileDiff\Commands\OpenProjectFileDiffCommand.cs" />
     <Compile Include="FileDiff\ItemTagManager.cs" />
     <Compile Include="FileDiff\Commands\OpenPhysicalFileDiffCommand.cs" />
