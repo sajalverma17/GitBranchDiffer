@@ -59,9 +59,6 @@ namespace GitBranchDiffer
             }
         }
         
-
-        #region Public Package Members   
-
         /// <summary>
         /// The branch against which active branch will be diffed.
         /// </summary>
@@ -73,8 +70,6 @@ namespace GitBranchDiffer
                 return options.BaseBranchName;
             }
         }
-
-        #endregion
 
         /// <summary>
         /// Sets the Solution directory and name info on Branch Diff Filter.
@@ -96,59 +91,6 @@ namespace GitBranchDiffer
             BranchDiffFilterProvider.SetSolutionInfo(string.Empty, string.Empty);
         }
 
-        #region Private methods - Solution Explorer inspection
-
-        private SolutionSelectionContainer<ISolutionSelection> GetCurrentSelectionInSolutionExplorer()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var uih = (EnvDTE.UIHierarchy)this.dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Object;
-            Array selectedItems = (Array)uih.SelectedItems;
-            if (selectedItems != null && selectedItems.Length == 1)
-            {
-                var selectedHierarchyItem = selectedItems.GetValue(0) as EnvDTE.UIHierarchyItem;
-                var selectedObject = selectedHierarchyItem?.Object;
-
-                if (selectedObject != null)
-                {
-                    if (selectedObject is EnvDTE.Project selectedProject)
-                    {
-                        var oldPath = BranchDiffFilterProvider.TagManager.GetOldFilePathFromRenamed(selectedProject);
-                        return new SolutionSelectionContainer<ISolutionSelection>
-                        {
-                            Item = new SelectedProject { Native = selectedProject, OldFullPath = oldPath }
-                        };
-                    }
-
-                    if (selectedObject is EnvDTE.ProjectItem selectedProjectItem)
-                    {
-                        var oldPath = BranchDiffFilterProvider.TagManager.GetOldFilePathFromRenamed(selectedProjectItem);
-                        return new SolutionSelectionContainer<ISolutionSelection>
-                        {
-                            Item = new SelectedProjectItem { Native = selectedProjectItem, OldFullPath = oldPath }
-                        };
-                    }
-                }
-            }
-
-            return new SolutionSelectionContainer<ISolutionSelection>
-            {
-                Item = null
-            }; 
-        }
-
-        private void UpdateCurrentSelectionFromSolutionExplorer(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (solutionSelectionContainer.Item != null)
-            {
-                var itemCanonicalName = solutionSelectionContainer.FullName;
-                BranchDiffFilterProvider.CurrentSelectionInFilter = itemCanonicalName;
-                return;
-            }
-
-            BranchDiffFilterProvider.CurrentSelectionInFilter = string.Empty;
-        }
-
         public void OnFilterApplied()
         {
             OpenPhysicalFileDiffCommand.Instance.Visible = true;
@@ -157,10 +99,15 @@ namespace GitBranchDiffer
 
         public void OnFilterUnapplied()
         {
-            OpenPhysicalFileDiffCommand.Instance.Visible = false;
-            OpenProjectFileDiffCommand.Instance.Visible = false;
+            // When plugin isn't constructed, UI state of filter button can still be toggled, and user might un-apply before initialization
+            if (OpenPhysicalFileDiffCommand.Instance != null)
+            {
+                OpenPhysicalFileDiffCommand.Instance.Visible = false;
+            }
+            if (OpenProjectFileDiffCommand.Instance != null)
+            {
+                OpenProjectFileDiffCommand.Instance.Visible = false;
+            }
         }
-
-        #endregion
     }
 }
