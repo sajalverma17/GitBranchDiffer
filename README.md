@@ -4,6 +4,11 @@ Git Branch Differ is a Solution Explorer Filter which compares the working branc
 
 After the filter is applied, clicking a file in Solution Explorer will open a comparison between the version of the file in working branch Vs. the version of file in the branch you choose to compare against. 
 
+### Installation
+Install the plugin from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=SajalVerma.GitBranchDiffer), or grab it from within Visual Studio's Manage Extensions window by searching "Git Branch Differ". 
+You can also try the latest [CI build](https://github.com/sajalverma17/GitBranchDiffer/actions/workflows/ci-build.yml).
+Open the latest CI run, download the artifact, unzip and run GitBranchDiffer.vsix.
+
 [![Build_Status](https://github.com/sajalverma17/GitBranchDiffer/actions/workflows/ci-build.yml/badge.svg)](https://github.com/sajalverma17/GitBranchDiffer/actions/workflows/ci-build.yml)
 
 ## Features
@@ -24,11 +29,6 @@ After the filter is applied, clicking a file in Solution Explorer will open a co
 The plugin was written to make reviewing pull requests in .NET projects easier, as jumping/navigating code (of classes, methods, properties and their references inside the solution) is possible when the comparison view is "native" to Visual Studio, as opposed to text-based comparison of code.
 
 Note that GitBranchDiffer filter does not support displaying files that were deleted in the working branch.
-
-# Installation
-
-You can also install the latest [CI build](https://github.com/sajalverma17/GitBranchDiffer/actions/workflows/ci-build.yml).
-Open the latest CI run, download the artifact, unzip, run GitBranchDiffer.vsix.
 
 ## Contributions
 
