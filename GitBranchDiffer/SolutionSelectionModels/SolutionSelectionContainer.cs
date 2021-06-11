@@ -9,22 +9,6 @@ namespace GitBranchDiffer.SolutionSelectionModels
     public class SolutionSelectionContainer<T>
         where T : ISolutionSelection
     {
-        public bool IsProject
-        {
-            get
-            {
-                return this.Item is SelectedProject;
-            }
-        }
-
-        public bool IsProjectItem
-        {
-            get
-            {
-                return this.Item is SelectedProjectItem;
-            }
-        }
-
         public string FullName
         {
             get

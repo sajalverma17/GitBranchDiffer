@@ -37,6 +37,7 @@ namespace GitBranchDiffer.FileDiff.Commands
 
         protected OleMenuCommand OleCommandInstance { get; private set; }
 
+        // TODO: We don't need to get selected items if there is a way to capture menu button's target item and it's info
         protected virtual void Execute(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -90,7 +91,7 @@ namespace GitBranchDiffer.FileDiff.Commands
                 }
                 else
                 {
-                    // Activate already open window
+                    // Activate already open diff window
                     solutionSelectionContainer.FocusAssociatedDiffWindow(this.vsUIShell);
                 }
             }
