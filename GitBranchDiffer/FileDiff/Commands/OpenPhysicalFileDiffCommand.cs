@@ -21,7 +21,7 @@ namespace GitBranchDiffer.FileDiff.Commands
                  vsUIShell,
                  commandService,
                  new CommandID(
-                     GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, 
+                     GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet,
                      GitBranchDifferPackageGuids.CommandIdPhysicalFileDiffMenuCommand))
         {
         }

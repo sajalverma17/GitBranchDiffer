@@ -18,7 +18,7 @@ namespace GitBranchDiffer.SolutionSelectionModels
         string Kind { get; }
 
         /// <summary>
-        /// Document related to the selection item. Will be null for EnvDTe.Project
+        /// Document related to the selection item. Will be null for EnvDTE.Project
         /// </summary>
         EnvDTE.Document Document { get; }
     }
