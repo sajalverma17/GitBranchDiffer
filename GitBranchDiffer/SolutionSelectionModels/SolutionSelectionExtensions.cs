@@ -26,7 +26,7 @@ namespace GitBranchDiffer.FileDiff
             ThreadHelper.ThrowIfNotOnUIThread();
 
             // Specific checks for EnvDTE.ProjectItem so it becomes easy to return early
-            if (selectedItem.IsProjectItem)
+            if (selectedItem.Item is SelectedProjectItem)
             {
                 if (selectedItem.Item.Document == null)
                 {
@@ -74,19 +74,6 @@ namespace GitBranchDiffer.FileDiff
                     break;
                 }
             }
-        }
-
-        /// <summary>
-        /// Only show diff for these ProjectItems and Projects as of now.
-        /// </summary>
-        /// <param name="projectItem"></param>
-        /// <returns></returns>
-        public static bool IsSupported(this SolutionSelectionContainer<ISolutionSelection> selectedItemContainer)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            return selectedItemContainer.IsProject
-                || selectedItemContainer.VsItemKind == EnvDTE.Constants.vsProjectItemKindPhysicalFile;
         }
 
         private static List<IVsWindowFrame> GetAllWindowFramesFromShell(IVsUIShell vsUIShell)

@@ -6,6 +6,9 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace GitBranchDiffer.FileDiff
 {
+    /// <summary>
+    /// TODO: Make injectible
+    /// </summary>
     public class VsFileDiffProvider
     {
         private readonly IVsDifferenceService vsDifferenceService;
