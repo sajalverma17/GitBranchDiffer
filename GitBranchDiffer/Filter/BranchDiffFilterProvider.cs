@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace GitBranchDiffer.Filter
 {
-    [SolutionTreeFilterProvider(BranchDiffFilterCommandGuids.guidGitBranchDifferPackageCmdSet, (uint)(BranchDiffFilterCommandGuids.CommandIdGenerateDiffAndFilter))]    
+    [SolutionTreeFilterProvider(GitBranchDifferPackageGuids.guidGitBranchDifferPackageCmdSet, (uint)(GitBranchDifferPackageGuids.CommandIdGenerateDiffAndFilter))]    
     public class BranchDiffFilterProvider : HierarchyTreeFilterProvider
     {
         private readonly SVsServiceProvider serviceProvider;
@@ -30,16 +30,8 @@ namespace GitBranchDiffer.Filter
             this.serviceProvider = serviceProvider;
             this.vsHierarchyItemCollectionProvider = hierarchyCollectionProvider;
         }
-        
-        /// <summary>
-        /// True if the BranchDiffFilter is applied on the Solution Explorer.
-        /// False otherwise.
-        /// </summary>
-        internal static bool IsFilterApplied { get; private set; }
 
         internal static ItemTagManager TagManager { get; private set; }
-        
-        internal static string CurrentSelectionInFilter { get; set; }
 
         /// <summary>
         /// One time initialization of the Solution Explorer filter, happens once per-Visual-Studio-startup.
@@ -177,15 +169,14 @@ namespace GitBranchDiffer.Filter
 
             private void BranchDiffFilter_Initialized(object sender, EventArgs e)
             {
-                BranchDiffFilterProvider.IsFilterApplied = true;
+                Package.OnFilterApplied();
             }
 
             // We override this method to use it as a life-cycle hook to mark that our filter was un-applied
             protected override void DisposeManagedResources()
             {
                 base.DisposeManagedResources();
-                BranchDiffFilterProvider.IsFilterApplied = false;
-                BranchDiffFilterProvider.CurrentSelectionInFilter = string.Empty;
+                Package?.OnFilterUnapplied();
             }
         }
     }

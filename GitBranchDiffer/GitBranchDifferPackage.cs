@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using GitBranchDiffer.SolutionSelectionModels;
 using System.Runtime.CompilerServices;
 using Microsoft;
+using GitBranchDiffer.FileDiff.Commands;
 
 namespace GitBranchDiffer
 {
@@ -19,18 +20,13 @@ namespace GitBranchDiffer
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [Guid(PackageGuidString)]
+    [Guid(GitBranchDifferPackageGuids.guidBranchDiffWindowPackage)]
     [ProvideOptionPage(typeof(GitBranchDifferPluginOptions),
     "Git Branch Differ", "Git Branch Differ Options", 0, 0, true)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class GitBranchDifferPackage : AsyncPackage
     {
-        public const string PackageGuidString = "156fcec6-25ac-4279-91cc-bbe2e4ea8c14";
-
         private EnvDTE.DTE dte;
-        private EnvDTE.SelectionEvents selectionEvents;
-        private IVsDifferenceService vsDifferenceService;
-        private IVsUIShell vsUIShell;
 
         public GitBranchDifferPackage()
         {
@@ -42,8 +38,12 @@ namespace GitBranchDiffer
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
-            this.vsDifferenceService = await GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
-            this.vsUIShell = await GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
+
+            // Init file diff commands, default invisilble
+            await OpenPhysicalFileDiffCommand.InitializeAsync(this);
+            await OpenProjectFileDiffCommand.InitializeAsync(this);
+            OpenPhysicalFileDiffCommand.Instance.IsVisible = false;
+            OpenProjectFileDiffCommand.Instance.IsVisible = false;
 
             if (dte != null)
             {
@@ -51,8 +51,6 @@ namespace GitBranchDiffer
                 // Also hook to all relevant events here so we can solution-info set on the Filter when they are fired
                 this.dte.Events.SolutionEvents.Opened += SetSolutionInfo;
                 this.dte.Events.SolutionEvents.BeforeClosing += ResetSolutionInfo;
-                this.selectionEvents = dte.Events.SelectionEvents;
-                this.selectionEvents.OnChange += SelectionEvents_OnChange;
                 this.SetSolutionInfo();
             }
             else
@@ -60,9 +58,7 @@ namespace GitBranchDiffer
                 ErrorPresenter.ShowError(this, "Unable to load Git Branch Differ plug-in. Failed to get Visual Studio services.");
             }
         }
-
-        #region Public Package Members   
-
+        
         /// <summary>
         /// The branch against which active branch will be diffed.
         /// </summary>
@@ -75,9 +71,6 @@ namespace GitBranchDiffer
             }
         }
 
-        #endregion
-
-        #region VS Events
         /// <summary>
         /// Sets the Solution directory and name info on Branch Diff Filter.
         /// </summary> 
@@ -98,113 +91,23 @@ namespace GitBranchDiffer
             BranchDiffFilterProvider.SetSolutionInfo(string.Empty, string.Empty);
         }
 
-        private void SelectionEvents_OnChange()
+        public void OnFilterApplied()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (BranchDiffFilterProvider.IsFilterApplied)
+            OpenPhysicalFileDiffCommand.Instance.IsVisible = true;
+            OpenProjectFileDiffCommand.Instance.IsVisible = true;
+        }
+
+        public void OnFilterUnapplied()
+        {
+            // When plugin isn't constructed, UI state of filter button can still be toggled, and user might un-apply before initialization
+            if (OpenPhysicalFileDiffCommand.Instance != null)
             {
-                var selectionContainer = this.GetCurrentSelectionInSolutionExplorer();
-
-                if (selectionContainer.Item != null && selectionContainer.IsSupported() && this.IsSelectionChangeInSolutionExplorer(selectionContainer))
-                {
-                    // Only open diff window for item if no diff window already associated
-                    if (selectionContainer.HasNoAssociatedDiffWindow(this.vsUIShell) && this.IsVisibleInSolutionExplorer(selectionContainer))
-                    {
-                        this.ShowFileDiffWindow(selectionContainer);
-                    }
-                    else
-                    {
-                        // else, just bring existing diff window of this item to front, don't open a new one
-                        selectionContainer.FocusAssociatedDiffWindow(this.vsUIShell);
-                    }
-                }
-
-                this.UpdateCurrentSelectionFromSolutionExplorer(selectionContainer);
+                OpenPhysicalFileDiffCommand.Instance.IsVisible = false;
+            }
+            if (OpenProjectFileDiffCommand.Instance != null)
+            {
+                OpenProjectFileDiffCommand.Instance.IsVisible = false;
             }
         }
-
-        private void ShowFileDiffWindow(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (!string.IsNullOrEmpty(solutionSelectionContainer.FullName))
-            {
-                var absoluteSoltuionPath = this.dte.Solution.FullName;
-                var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSoltuionPath);
-                var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, solutionSelectionContainer);
-                fileDiffProvider.ShowFileDiffWithBaseBranch(this.BranchToDiffAgainst);
-            }
-        }
-        #endregion
-
-        #region Private methods - Solution Explorer inspection
-        private bool IsVisibleInSolutionExplorer(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var uih = (EnvDTE.UIHierarchy)this.dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Object;
-            EnvDTE.UIHierarchyItem uiHierarchyItem = uih?.FindHierarchyItem(solutionSelectionContainer);
-
-            // If the item is null in the UI (after our filter is applied), we must NOT generate comparison view for this file.
-            return uiHierarchyItem != null;
-        }
-
-        // We are only interested in change in solution Explorer items. This detects if the Selection_Change event was due to change there. 
-        private bool IsSelectionChangeInSolutionExplorer(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var thisItemName = solutionSelectionContainer.FullName;
-            return thisItemName != BranchDiffFilterProvider.CurrentSelectionInFilter;
-        }
-
-        private SolutionSelectionContainer<ISolutionSelection> GetCurrentSelectionInSolutionExplorer()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var uih = (EnvDTE.UIHierarchy)this.dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Object;
-            Array selectedItems = (Array)uih.SelectedItems;
-            if (selectedItems != null && selectedItems.Length == 1)
-            {
-                var selectedHierarchyItem = selectedItems.GetValue(0) as EnvDTE.UIHierarchyItem;
-                var selectedObject = selectedHierarchyItem?.Object;
-
-                if (selectedObject != null)
-                {
-                    if (selectedObject is EnvDTE.Project selectedProject)
-                    {
-                        var oldPath = BranchDiffFilterProvider.TagManager.GetOldFilePathFromRenamed(selectedProject);
-                        return new SolutionSelectionContainer<ISolutionSelection>
-                        {
-                            Item = new SelectedProject { Native = selectedProject, OldFullPath = oldPath }
-                        };
-                    }
-
-                    if (selectedObject is EnvDTE.ProjectItem selectedProjectItem)
-                    {
-                        var oldPath = BranchDiffFilterProvider.TagManager.GetOldFilePathFromRenamed(selectedProjectItem);
-                        return new SolutionSelectionContainer<ISolutionSelection>
-                        {
-                            Item = new SelectedProjectItem { Native = selectedProjectItem, OldFullPath = oldPath }
-                        };
-                    }
-                }
-            }
-
-            return new SolutionSelectionContainer<ISolutionSelection>
-            {
-                Item = null
-            }; 
-        }
-
-        private void UpdateCurrentSelectionFromSolutionExplorer(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (solutionSelectionContainer.Item != null)
-            {
-                var itemCanonicalName = solutionSelectionContainer.FullName;
-                BranchDiffFilterProvider.CurrentSelectionInFilter = itemCanonicalName;
-                return;
-            }
-
-            BranchDiffFilterProvider.CurrentSelectionInFilter = string.Empty;
-        }
-        #endregion
     }
 }
