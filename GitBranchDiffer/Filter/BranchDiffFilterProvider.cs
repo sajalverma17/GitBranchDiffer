@@ -176,7 +176,7 @@ namespace GitBranchDiffer.Filter
             protected override void DisposeManagedResources()
             {
                 base.DisposeManagedResources();
-                Package.OnFilterUnapplied();
+                Package?.OnFilterUnapplied();
             }
         }
     }
