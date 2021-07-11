@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace GitBranchDiffer.FileDiff
+namespace BranchDiffer.VS.FileDiff
 {
     /// <summary>
     /// TKey can be either ProjectItem or Project

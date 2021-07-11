@@ -1,12 +1,6 @@
 ﻿using Microsoft.VisualStudio.Shell.Interop;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace GitBranchDiffer.FileDiff
+namespace BranchDiffer.VS.FileDiff
 {
     /// <summary>
     /// Tags an item in the SolutionExplorer hierarchy with the old path (the path it has in the branch against which we diff working branch)

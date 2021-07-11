@@ -1,6 +1,7 @@
 ﻿using BranchDiffer.Git.Core;
 using BranchDiffer.Git.DiffModels;
-using GitBranchDiffer.FileDiff;
+using BranchDiffer.VS.FileDiff;
+using BranchDiffer.VS.Utils;
 using Microsoft;
 using Microsoft.Internal.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio;
@@ -11,14 +12,14 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 
-namespace GitBranchDiffer.Filter
+namespace BranchDiffer.VS.BranchDiff
 {
     [SolutionTreeFilterProvider(GitBranchDifferPackageGuids.guidGitBranchDifferPackageCmdSet, (uint)(GitBranchDifferPackageGuids.CommandIdGenerateDiffAndFilter))]    
     public class BranchDiffFilterProvider : HierarchyTreeFilterProvider
     {
         private readonly SVsServiceProvider serviceProvider;
         private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;
-        private static GitBranchDifferPackage Package;
+        private static IGitBranchDifferPackage Package;
         private static string SolutionDirectory;
         private static string SolutionFile;
 
@@ -39,7 +40,7 @@ namespace GitBranchDiffer.Filter
         /// <param name="package">
         /// The package becomes a static dependency of this filter,
         /// and is required in order to get the plugin option <see cref="GitBranchDifferPackage.BranchToDiffAgainst"/> set by user.</param>
-        internal static void Initialize(GitBranchDifferPackage package)
+        public static void Initialize(IGitBranchDifferPackage package)
         {
             Package = package;
             BranchDiffFilterProvider.TagManager = new ItemTagManager();
@@ -48,7 +49,7 @@ namespace GitBranchDiffer.Filter
         /// <summary>
         /// Initalizes the Solution Explorer filter with Solution info once per-solution-load in Visual Studio
         /// </summary>
-        internal static void SetSolutionInfo(string solutionDirectory, string solutionFile)
+        public static void SetSolutionInfo(string solutionDirectory, string solutionFile)
         {
             SolutionDirectory = solutionDirectory;
             SolutionFile = solutionFile;
@@ -63,7 +64,7 @@ namespace GitBranchDiffer.Filter
         {
             private readonly SVsServiceProvider serviceProvider;
             private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;            
-            private readonly GitBranchDifferPackage package;
+            private readonly IGitBranchDifferPackage package;
             private readonly string solutionDirectory;
             private readonly string solutionFile;
 
@@ -71,7 +72,7 @@ namespace GitBranchDiffer.Filter
             private HashSet<DiffResultItem> changeSet;
 
             public BranchDiffFilter(
-                GitBranchDifferPackage package,
+                IGitBranchDifferPackage package,
                 string solutionPath,
                 string solutionName,
                 SVsServiceProvider serviceProvider, 
@@ -89,13 +90,13 @@ namespace GitBranchDiffer.Filter
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
             {
-                if (BranchDiffFilterValidator.ValidatePackage(this.package))
+                if (BranchDiffFilterValidator.ValidateBranch(this.package))
                 {
                     // Create new tag tables everytime the filter is applied 
                     BranchDiffFilterProvider.TagManager.CreateTagTables();
                     IVsHierarchyItem root = HierarchyUtilities.FindCommonAncestor(rootItems);
 
-                    if (BranchDiffFilterValidator.ValidateSolution(this.solutionDirectory, this.solutionFile, this.package))
+                    if (BranchDiffFilterValidator.ValidateSolution(this.solutionDirectory, this.solutionFile))
                     {
                         var setupOk = this.branchDiffWorker.SetupRepository(this.solutionDirectory, this.package.BranchToDiffAgainst, out var repo, out var error);
                         if (setupOk)
@@ -115,7 +116,7 @@ namespace GitBranchDiffer.Filter
                         }
                         else
                         {
-                            ErrorPresenter.ShowError(this.package, error);
+                            ErrorPresenter.ShowError(error);
                         }
                     }
                 }

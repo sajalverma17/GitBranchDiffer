@@ -1,26 +1,26 @@
-﻿using EnvDTE;
-using GitBranchDiffer.Filter;
-using GitBranchDiffer.SolutionSelectionModels;
+﻿using BranchDiffer.VS.BranchDiff;
+using BranchDiffer.VS.SolutionSelectionModels;
+using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.ComponentModel.Design;
 
-namespace GitBranchDiffer.FileDiff.Commands
+namespace BranchDiffer.VS.FileDiff.Commands
 {
     public abstract class OpenDiffCommand
     {
-        private readonly GitBranchDifferPackage package;
+        private readonly IGitBranchDifferPackage package;
         private readonly DTE dte;
         private readonly IVsDifferenceService vsDifferenceService;
         private readonly IVsUIShell vsUIShell;
 
         public OpenDiffCommand(
-            GitBranchDifferPackage package, 
+            IGitBranchDifferPackage package,
             DTE dte, 
             IVsDifferenceService vsDifferenceService,
             IVsUIShell vsUIShell,
-            OleMenuCommandService commandService, 
+            OleMenuCommandService commandService,
             CommandID menuCommandId)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
