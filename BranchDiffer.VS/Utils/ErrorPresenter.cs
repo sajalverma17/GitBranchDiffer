@@ -7,18 +7,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace GitBranchDiffer
+namespace BranchDiffer.VS.Utils
 {
     public static class ErrorPresenter
     {
-        public static string PackageNameToDisplay = "Git Branch Differ";
+        private static string PackageNameToDisplay = "Git Branch Differ";
 
         public static void ShowError(string error)
         {
             ShowError(null, error);
         }
 
-        public static void ShowError(GitBranchDifferPackage package, string errorMsg)
+        public static void ShowError(IServiceProvider package, string errorMsg)
         {
             if (package != null)
             {

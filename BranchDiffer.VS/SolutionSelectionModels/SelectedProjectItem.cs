@@ -1,17 +1,12 @@
 ﻿using EnvDTE;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace GitBranchDiffer.SolutionSelectionModels
+namespace BranchDiffer.VS.SolutionSelectionModels
 {
     public class SelectedProjectItem : ISolutionSelection
     {
-        public EnvDTE.ProjectItem Native { get; set; }
+        public ProjectItem Native { get; set; }
 
-        public EnvDTE.Document Document
+        public Document Document
         {
             get 
             {

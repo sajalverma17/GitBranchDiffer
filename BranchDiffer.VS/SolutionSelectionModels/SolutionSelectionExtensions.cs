@@ -1,5 +1,4 @@
-﻿using GitBranchDiffer.SolutionSelectionModels;
-using Microsoft.VisualStudio;
+﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Platform.WindowManagement;
 using Microsoft.VisualStudio.Shell;
@@ -8,7 +7,7 @@ using Microsoft.VisualStudio.Text.Differencing;
 using System;
 using System.Collections.Generic;
 
-namespace GitBranchDiffer.FileDiff
+namespace BranchDiffer.VS.SolutionSelectionModels
 {
     internal static class SolutionSelectionExtensions
     {

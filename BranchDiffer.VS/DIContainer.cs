@@ -1,10 +1,10 @@
 ﻿using System;
 using BranchDiffer.Git.Core;
 using BranchDiffer.Git.DiffServices;
-using GitBranchDiffer.FileDiff;
+using BranchDiffer.VS.FileDiff;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GitBranchDiffer
+namespace BranchDiffer.VS
 {
     /// <summary>
     /// Singleton DI container of the plugin project.
