@@ -6,14 +6,14 @@
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.10.31321.278" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.10.1055">
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.10.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,6 +23,8 @@
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.Platform.WindowManagement">
       <HintPath>..\..\..\Tools\GitBranchDiffer\libs\Microsoft.VisualStudio.Platform.WindowManagement.dll</HintPath>
-    </Reference>    
+    </Reference>
+    <Reference Include="System.Design" />
+    <Reference Include="System.Windows.Forms" />    
   </ItemGroup>
 </Project>
