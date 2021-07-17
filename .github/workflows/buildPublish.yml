@@ -8,7 +8,6 @@ on:
   push:
     tags:
       - 'v*.*.*'
-  workflow_dispatch:
   
 jobs:
 
@@ -107,8 +106,8 @@ jobs:
       Publisher_Name: SajalVerma
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
       Vs2019ToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'      
-      VSIX_Path: .\artifacts\deploy\GitBranchDiffer.vsix
-      PublishManifest_Path: .\artifacts\deploy\PublishManifest.json
+      VSIX_Path: .\artifacts\GitBranchDiffer.vsix
+      PublishManifest_Path: .\artifacts\PublishManifest.json
 
     steps:
 
