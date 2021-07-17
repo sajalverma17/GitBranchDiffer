@@ -1,6 +1,6 @@
 ﻿using System;
 using BranchDiffer.Git.Core;
-using BranchDiffer.Git.DiffServices;
+using BranchDiffer.Git.Services;
 using BranchDiffer.VS.FileDiff;
 using Microsoft.Extensions.DependencyInjection;
 

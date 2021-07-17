@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.Text.Differencing;
 using System;
 using System.Collections.Generic;
 
-namespace BranchDiffer.VS.SolutionSelectionModels
+namespace BranchDiffer.VS.Models
 {
     internal static class SolutionSelectionExtensions
     {

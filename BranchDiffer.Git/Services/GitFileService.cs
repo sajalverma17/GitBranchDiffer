@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BranchDiffer.Git.DiffServices
+namespace BranchDiffer.Git.Services
 {
     public interface IGitFileService
     {

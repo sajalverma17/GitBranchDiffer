@@ -3,7 +3,7 @@ using LibGit2Sharp;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BranchDiffer.Git.DiffServices
+namespace BranchDiffer.Git.Services
 {
     public interface IGitDiffService
     {

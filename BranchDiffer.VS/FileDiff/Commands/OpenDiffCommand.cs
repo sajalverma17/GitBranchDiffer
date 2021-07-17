@@ -1,5 +1,5 @@
 ﻿using BranchDiffer.VS.BranchDiff;
-using BranchDiffer.VS.SolutionSelectionModels;
+using BranchDiffer.VS.Models;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;

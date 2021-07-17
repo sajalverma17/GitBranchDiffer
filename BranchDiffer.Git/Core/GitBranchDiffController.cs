@@ -1,5 +1,5 @@
 ﻿using BranchDiffer.Git.Models;
-using BranchDiffer.Git.DiffServices;
+using BranchDiffer.Git.Services;
 using System;
 using System.Collections.Generic;
 using LibGit2Sharp;
