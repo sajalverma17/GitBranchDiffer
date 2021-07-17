@@ -1,5 +1,5 @@
 ﻿using BranchDiffer.Git.Core;
-using BranchDiffer.Git.DiffModels;
+using BranchDiffer.Git.Models;
 using BranchDiffer.VS.SolutionSelectionModels;
 using BranchDiffer.VS.Utils;
 using Microsoft;

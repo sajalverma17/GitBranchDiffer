@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LibGit2Sharp;
 
-namespace BranchDiffer.Git.DiffModels
+namespace BranchDiffer.Git.Models
 {
     public class DiffBranchPair
     {

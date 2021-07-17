@@ -1,4 +1,4 @@
-﻿using BranchDiffer.Git.DiffModels;
+﻿using BranchDiffer.Git.Models;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;

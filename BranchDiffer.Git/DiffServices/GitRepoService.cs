@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BranchDiffer.Git.DiffModels;
+using BranchDiffer.Git.Models;
 using LibGit2Sharp;
 
 namespace BranchDiffer.Git.DiffServices
