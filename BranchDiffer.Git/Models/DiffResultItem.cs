@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BranchDiffer.Git.DiffModels
+namespace BranchDiffer.Git.Models
 {
     public class DiffResultItem
     {
