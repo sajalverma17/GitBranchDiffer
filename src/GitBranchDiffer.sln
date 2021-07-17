@@ -8,19 +8,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BranchDiffer.Git", "BranchDiffer.Git\BranchDiffer.Git.csproj", "{CBCFD494-A7AB-485D-B24B-67C09EC21758}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{855A4207-609F-4E68-B763-439FE6018E91}"
-	ProjectSection(SolutionItems) = preProject
-		azure-pipelines.yml = azure-pipelines.yml
-		LICENSE.md = LICENSE.md
-		LICENSE.txt = LICENSE.txt
-		PublishManifest.json = PublishManifest.json
-		README-Marketplace.md = README-Marketplace.md
-		README.md = README.md
-		VersionInfoURLUpdater.ps1 = VersionInfoURLUpdater.ps1
-		VersionParser.ps1 = VersionParser.ps1
-		VersionUpdater.ps1 = VersionUpdater.ps1
-	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BranchDiffer.VS", "BranchDiffer.VS\BranchDiffer.VS.csproj", "{AF8A3E27-6693-4C94-A470-33C464DDE91A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BranchDiffer.VS", "BranchDiffer.VS\BranchDiffer.VS.csproj", "{AF8A3E27-6693-4C94-A470-33C464DDE91A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

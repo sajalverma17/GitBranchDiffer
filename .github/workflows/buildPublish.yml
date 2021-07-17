@@ -16,12 +16,12 @@ jobs:
 
     env:
       Build_Version: '0.0.0'                                      # Must be updated by parsing version from tag name
-      Solution_Name: GitBranchDiffer.sln                        
+      Solution_Name: src\GitBranchDiffer.sln                        
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
-      VSIX_Path: GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
-      PublishManifest_Path: PublishManifest.json
-      MarketplaceREADME_Path: README-Marketplace.md
+      VSIX_Path: src\GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
+      PublishManifest_Path: deploy\PublishManifest.json
+      MarketplaceREADME_Path: deploy\README-Marketplace.md
 
     steps:
 
@@ -44,7 +44,7 @@ jobs:
       shell: powershell
       run: 
         |
-        $version = .\VersionParser.ps1
+        $version = .\build\VersionParser.ps1
         echo "Build_Version=$version" >> $env:GITHUB_ENV
 
     - name: Verify Build_Version
@@ -64,11 +64,11 @@ jobs:
     # Powershell script to update 'Release Notes' URL in extension manifest to the Github Release created above
     - name: Update Release Notes URL in extension manifest
       shell: powershell
-      run: .\VersionInfoURLUpdater.ps1 ${{ steps.create_gh_release.outputs.url }}
+      run: .\build\VersionInfoURLUpdater.ps1 ${{ steps.create_gh_release.outputs.url }}
 
     - name: Update VSIX version in extension manifest
       shell: powershell
-      run: .\VersionUpdater.ps1 $env:Build_Version
+      run: .\build\VersionUpdater.ps1 $env:Build_Version
 
     # Restore the solution
     - name: Restore GitBranchDiffer
@@ -111,8 +111,8 @@ jobs:
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
       Vs2019ToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'
 
-      # Github Actions pac´kages artifacts in directory structure as they were when uploading them, so vsix will be found here after download
-      VSIX_Path: GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
+      # Github Actions packages artifacts in directory structure as they were when uploading them, so vsix will be found here after download
+      VSIX_Path: src\GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
 
     steps:
 
