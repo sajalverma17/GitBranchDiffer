@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.Platform.WindowManagement">
-      <HintPath>..\..\..\Tools\GitBranchDiffer\libs\Microsoft.VisualStudio.Platform.WindowManagement.dll</HintPath>
+      <HintPath>..\libs\Microsoft.VisualStudio.Platform.WindowManagement.dll</HintPath>
     </Reference>
     <Reference Include="System.Design" />
     <Reference Include="System.Windows.Forms" />    
