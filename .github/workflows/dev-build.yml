@@ -16,8 +16,7 @@ jobs:
       Solution_Name: src\GitBranchDiffer.sln                        
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
-      VSIX_Path: src\GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
-      
+      VSIX_Path: deploy\GitBranchDiffer.vsix      
 
     steps:
     - name: Checkout
