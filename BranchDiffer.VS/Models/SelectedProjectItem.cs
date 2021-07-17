@@ -1,6 +1,6 @@
 ﻿using EnvDTE;
 
-namespace BranchDiffer.VS.SolutionSelectionModels
+namespace BranchDiffer.VS.Models
 {
     public class SelectedProjectItem : ISolutionSelection
     {

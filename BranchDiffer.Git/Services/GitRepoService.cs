@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using BranchDiffer.Git.Models;
 using LibGit2Sharp;
 
-namespace BranchDiffer.Git.DiffServices
+namespace BranchDiffer.Git.Services
 {
     public interface IGitRepoService
     {
