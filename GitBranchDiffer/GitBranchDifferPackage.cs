@@ -52,7 +52,7 @@ namespace GitBranchDiffer
             }
             else
             {
-                ErrorPresenter.ShowError(this, "Unable to load Git Branch Differ plug-in. Failed to get Visual Studio services.");
+                ErrorPresenter.ShowError("Unable to load Git Branch Differ plug-in. Failed to get Visual Studio services.");
             }
         }
 
