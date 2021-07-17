@@ -103,6 +103,8 @@
     <ProjectReference Include="..\BranchDiffer.VS\BranchDiffer.VS.csproj">
       <Project>{af8a3e27-6693-4c94-a470-33c464dde91a}</Project>
       <Name>BranchDiffer.VS</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

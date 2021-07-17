@@ -15,27 +15,9 @@ namespace BranchDiffer.VS.Utils
 
         public static void ShowError(string error)
         {
-            ShowError(null, error);
-        }
-
-        public static void ShowError(IServiceProvider package, string errorMsg)
-        {
-            if (package != null)
-            {
-                VsShellUtilities.ShowMessageBox(
-                        package,
-                        errorMsg,
-                        PackageNameToDisplay,
-                        OLEMSGICON.OLEMSGICON_CRITICAL,
-                        OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                        OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-            }
-            else
-            {
-                MessageBox.Show(
-                    errorMsg,
-                    PackageNameToDisplay);
-            }
+            MessageBox.Show(
+                error,
+                PackageNameToDisplay);
         }
     }
 }
