@@ -1,6 +1,6 @@
 ﻿$releaseUrl = $args[0]
 
-$manifestFile = Resolve-Path $PSScriptRoot\GitBranchDiffer\source.extension.vsixmanifest
+$manifestFile = Resolve-Path $PSScriptRoot\..\src\GitBranchDiffer\source.extension.vsixmanifest
 
 [xml]$manifestFileContent = Get-Content $manifestFile
 

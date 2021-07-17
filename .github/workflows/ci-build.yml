@@ -13,10 +13,10 @@ jobs:
 
     env:
       Build_Version: 1.0.0.${{ github.run_number }}
-      Solution_Name: GitBranchDiffer.sln                        
+      Solution_Name: src\GitBranchDiffer.sln                        
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
-      VSIX_Path: GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
+      VSIX_Path: src\GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
       
 
     steps:
