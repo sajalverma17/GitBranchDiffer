@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GitBranchDiffer.SolutionSelectionModels
+﻿namespace BranchDiffer.VS.Models
 {
     public class SolutionSelectionContainer<T>
         where T : ISolutionSelection

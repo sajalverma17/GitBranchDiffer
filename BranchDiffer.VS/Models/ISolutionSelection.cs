@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using EnvDTE;
 
-namespace GitBranchDiffer.SolutionSelectionModels
+namespace BranchDiffer.VS.Models
 {
     public interface ISolutionSelection
     {
@@ -20,6 +16,6 @@ namespace GitBranchDiffer.SolutionSelectionModels
         /// <summary>
         /// Document related to the selection item. Will be null for EnvDTE.Project
         /// </summary>
-        EnvDTE.Document Document { get; }
+        Document Document { get; }
     }
 }

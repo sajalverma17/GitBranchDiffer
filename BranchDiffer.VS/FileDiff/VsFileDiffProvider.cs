@@ -1,10 +1,11 @@
 ﻿using BranchDiffer.Git.Core;
-using BranchDiffer.Git.DiffModels;
-using GitBranchDiffer.SolutionSelectionModels;
+using BranchDiffer.Git.Models;
+using BranchDiffer.VS.Models;
+using BranchDiffer.VS.Utils;
 using Microsoft;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace GitBranchDiffer.FileDiff
+namespace BranchDiffer.VS.FileDiff
 {
     /// <summary>
     /// TODO: Make injectible

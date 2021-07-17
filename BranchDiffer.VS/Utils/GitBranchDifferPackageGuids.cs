@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GitBranchDiffer.Filter
+namespace BranchDiffer.VS.Utils
 {
-    internal static class GitBranchDifferPackageGuids
+    public static class GitBranchDifferPackageGuids
     {
         // GUID of package. For registration with VS
         public const string guidBranchDiffWindowPackage = "156fcec6-25ac-4279-91cc-bbe2e4ea8c14";

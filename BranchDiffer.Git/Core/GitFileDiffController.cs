@@ -1,11 +1,6 @@
-﻿using BranchDiffer.Git.DiffModels;
-using BranchDiffer.Git.DiffServices;
+﻿using BranchDiffer.Git.Models;
+using BranchDiffer.Git.Services;
 using LibGit2Sharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BranchDiffer.Git.Core
 {
