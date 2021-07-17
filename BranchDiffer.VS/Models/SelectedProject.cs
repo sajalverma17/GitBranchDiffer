@@ -1,15 +1,10 @@
 ﻿using EnvDTE;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace GitBranchDiffer.SolutionSelectionModels
+namespace BranchDiffer.VS.Models
 {
     public class SelectedProject : ISolutionSelection
     {
-        public EnvDTE.Project Native { get; set; }
+        public Project Native { get; set; }
 
         public string FullPath
         {
@@ -31,6 +26,6 @@ namespace GitBranchDiffer.SolutionSelectionModels
             }
         }
 
-        public EnvDTE.Document Document => null;
+        public Document Document => null;
     }
 }

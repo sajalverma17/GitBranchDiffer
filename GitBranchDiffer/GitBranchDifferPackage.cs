@@ -1,16 +1,13 @@
-﻿using GitBranchDiffer.Filter;
-using GitBranchDiffer.FileDiff;
+﻿using BranchDiffer.VS;
+using BranchDiffer.VS.BranchDiff;
+using BranchDiffer.VS.FileDiff.Commands;
+using BranchDiffer.VS.Utils;
 using Microsoft.VisualStudio.Shell;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
 using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell.Interop;
-using GitBranchDiffer.SolutionSelectionModels;
-using System.Runtime.CompilerServices;
-using Microsoft;
-using GitBranchDiffer.FileDiff.Commands;
 
 namespace GitBranchDiffer
 {
@@ -24,7 +21,7 @@ namespace GitBranchDiffer
     [ProvideOptionPage(typeof(GitBranchDifferPluginOptions),
     "Git Branch Differ", "Git Branch Differ Options", 0, 0, true)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
-    public sealed class GitBranchDifferPackage : AsyncPackage
+    public sealed class GitBranchDifferPackage : AsyncPackage, IGitBranchDifferPackage
     {
         private EnvDTE.DTE dte;
 
@@ -55,10 +52,10 @@ namespace GitBranchDiffer
             }
             else
             {
-                ErrorPresenter.ShowError(this, "Unable to load Git Branch Differ plug-in. Failed to get Visual Studio services.");
+                ErrorPresenter.ShowError("Unable to load Git Branch Differ plug-in. Failed to get Visual Studio services.");
             }
         }
-        
+
         /// <summary>
         /// The branch against which active branch will be diffed.
         /// </summary>
@@ -70,6 +67,8 @@ namespace GitBranchDiffer
                 return options.BaseBranchName;
             }
         }
+
+        public CancellationToken CancellationToken => this.DisposalToken;
 
         /// <summary>
         /// Sets the Solution directory and name info on Branch Diff Filter.

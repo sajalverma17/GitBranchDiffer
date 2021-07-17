@@ -1,4 +1,4 @@
-﻿using BranchDiffer.Git.DiffModels;
+﻿using BranchDiffer.Git.Models;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BranchDiffer.Git.DiffServices
+namespace BranchDiffer.Git.Services
 {
     public interface IGitFileService
     {
