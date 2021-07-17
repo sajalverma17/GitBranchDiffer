@@ -8,6 +8,8 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+  
 jobs:
 
   build:
@@ -19,9 +21,6 @@ jobs:
       Solution_Name: src\GitBranchDiffer.sln                        
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
-      VSIX_Path: src\GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
-      PublishManifest_Path: deploy\PublishManifest.json
-      MarketplaceREADME_Path: deploy\README-Marketplace.md
 
     steps:
 
@@ -78,15 +77,13 @@ jobs:
     - name: Build GitBranchDiffer
       run: msbuild $env:Solution_Name /p:Configuration=$env:Build_Configuration /p:Platform=$env:Build_Platform /v:m
 
-    # Upload the VSIX package and PublishManifest as artifacts to use in publish job
+    # Upload the deploy folder as artifact. This contains the built VSIX package, PublishManifest and Marketplace readme needed in publish job
     - name: Upload artifacts to workflow
       uses: actions/upload-artifact@v2
       with:
         name: PublishArtifacts
-        path: |
-              ${{ env.VSIX_Path }}
-              ${{ env.PublishManifest_Path }}
-              ${{ env.MarketplaceREADME_Path }}
+        path: deploy
+        if-no-files-found: error
 
     # Upload artifact as asset to the Github Release created above. 
     # TODO: upload_url output not yet supported by softprops/action-gh-release@v1
@@ -109,10 +106,9 @@ jobs:
     env:
       Publisher_Name: SajalVerma
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
-      Vs2019ToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'
-
-      # Github Actions packages artifacts in directory structure as they were when uploading them, so vsix will be found here after download
-      VSIX_Path: src\GitBranchDiffer\bin\Release\GitBranchDiffer.vsix
+      Vs2019ToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'      
+      VSIX_Path: .\artifacts\deploy\GitBranchDiffer.vsix
+      PublishManifest_Path: .\artifacts\deploy\PublishManifest.json
 
     steps:
 
@@ -137,8 +133,9 @@ jobs:
         shell: powershell
         run: |
              $vsixPublisherTool = '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
-             $payloadVSIX = '.\artifacts\' + '${{ env.VSIX_Path }}'
-             & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest .\artifacts\PublishManifest.json
+             $payloadVSIX = '${{ env.VSIX_Path }}'
+             $publishManifest = '${{ env.PublishManifest_Path }}'
+             & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
           
       - name: Logout of marketplace
         shell : powershell
