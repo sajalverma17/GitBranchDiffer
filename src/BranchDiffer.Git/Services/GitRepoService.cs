@@ -10,56 +10,35 @@ namespace BranchDiffer.Git.Services
 {
     public interface IGitRepoService
     {
-        bool CreateGitRepository(string directoryPath, out Repository repository, out Exception exception);
-
-        bool IsRepoStateValid(Repository repo, string branchToDiffAgainst, out InvalidOperationException exception);
+        bool IsRepoStateValid(Repository repo, string branchToDiffAgainst, out string message);
 
         DiffBranchPair GetBranchesToDiffFromRepo(Repository repository, string branchNameToDiffAgainst);
     }
 
     public class GitRepoService : IGitRepoService
     {
-        public bool CreateGitRepository(string directoryPath, out Repository repository, out Exception exception)
-        {
-            Repository createdRepository;
-            try
-            {
-                createdRepository = new Repository(directoryPath);
-            }
-            catch (RepositoryNotFoundException repoNotFoundException)
-            {
-                exception = repoNotFoundException;
-                repository = null;
-                return false;
-            }
-
-            repository = createdRepository;
-            exception = null;
-            return true;
-        }
-
-        public bool IsRepoStateValid(Repository repo, string branchToDiffAgainst, out InvalidOperationException exception)
+        public bool IsRepoStateValid(Repository repo, string branchToDiffAgainst, out string message)
         {
             var branchesInRepo = repo.Branches.Select(branch => branch.FriendlyName);
             var activeBranch = repo.Head?.FriendlyName;
 
             if (!branchesInRepo.Contains(branchToDiffAgainst))
             {
-                exception = new InvalidOperationException("The Branch To Diff Against set in plugin options is not found in this repo.");
+                message = "The Branch To Diff Against set in plugin options is not found in this repo.";
                 return false;
             }
             else if (string.IsNullOrEmpty(activeBranch) || !branchesInRepo.Contains(activeBranch))
             {
-                exception = new InvalidOperationException("There is no HEAD set in this repo.");
+                message = "There is no HEAD set in this repo.";
                 return false;
             }
             else if (activeBranch.Equals(branchToDiffAgainst))
             {
-                exception = new InvalidOperationException("The Branch To Diff Against cannot be the same as the working branch of the repo.");
+                message = "The Branch To Diff Against cannot be the same as the working branch of the repo.";
                 return false;
             }
 
-            exception = null;
+            message = null;
             return true;
         }
 

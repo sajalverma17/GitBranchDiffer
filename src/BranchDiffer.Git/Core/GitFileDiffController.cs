@@ -1,4 +1,5 @@
-﻿using BranchDiffer.Git.Models;
+﻿using BranchDiffer.Git.Exceptions;
+using BranchDiffer.Git.Models;
 using BranchDiffer.Git.Services;
 using LibGit2Sharp;
 
@@ -7,57 +8,34 @@ namespace BranchDiffer.Git.Core
     /// <summary>
     /// Worker class that composes Git-services to generate a file diff of the provided document opened in VS.
     /// </summary>
-    public class GitFileDiffController
+    public class GitFileDiffController : ControllerBase
     {
-        private readonly IGitDiffService gitDiffService;
         private readonly IGitRepoService gitRepoService;
         private readonly IGitFileService gitFileService;
 
         public GitFileDiffController(
-            IGitDiffService gitDiffService,
             IGitRepoService gitRepoService,
             IGitFileService gitFileService)
         {
-            this.gitDiffService = gitDiffService;
             this.gitRepoService = gitRepoService;
             this.gitFileService = gitFileService;
         }
 
-        public bool SetupRepository(string solutionPath, string branchToDiffAgainst, out Repository repository, out string errorMsg)
+        public DiffBranchPair GetDiffBranchPair(string solutionPath, string branchToDiffAgainst)
         {
-            if (gitRepoService.CreateGitRepository(solutionPath, out var repo, out var repoCreationException))
+            using (var repository = this.SetupRepository(solutionPath))
             {
-                if (gitRepoService.IsRepoStateValid(repo, branchToDiffAgainst, out var repoStateException))
-                {
-                    errorMsg = string.Empty;
-                    repository = repo;
-                    return true;
-                }
-
-                // Return error
-                repository = null;
-                repo.Dispose();
-                errorMsg = repoStateException.Message;
-                return false;
+                return this.gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
             }
-
-            // Return error
-            repository = null;
-            repo.Dispose();
-            errorMsg = repoCreationException.Message;
-            return false;
-        }
-
-        public DiffBranchPair GetDiffBranchPair(Repository repository, string branchNameToDiffAgainst)
-        {
-            return this.gitRepoService.GetBranchesToDiffFromRepo(repository, branchNameToDiffAgainst);
         }
 
         // Creates and returns a temp file on disk. Contents of this temp file are the contents of the VS active document file under Base Branch tree.
-        public string GetBaseBranchRevisionOfFile(Repository repository, string branchToDiffAgainst, string activeVsDocumentPath)
+        public string GetBaseBranchRevisionOfFile(string solutionPath, string branchToDiffAgainst, string activeVsDocumentPath)
         {
-            var tempFilePath = this.gitFileService.GetBaseBranchRevisionOfFile(repository, branchToDiffAgainst, activeVsDocumentPath);            
-            return tempFilePath;
+            using (var repository = this.SetupRepository(solutionPath))
+            {
+                return this.gitFileService.GetBaseBranchRevisionOfFile(repository, branchToDiffAgainst, activeVsDocumentPath);
+            }
         }
     }
 }

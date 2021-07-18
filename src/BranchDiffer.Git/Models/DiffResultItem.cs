@@ -28,7 +28,7 @@ namespace BranchDiffer.Git.Models
         public object DiffedObject { get; set; }
 
         /// <summary>
-        /// The uniquness of a DiffResultItem is determined by the hashcode of it's absolute path.
+        /// The unique-ness of a DiffResultItem is determined by the hashcode of it's absolute path.
         /// </summary>
         public override int GetHashCode()
         {
