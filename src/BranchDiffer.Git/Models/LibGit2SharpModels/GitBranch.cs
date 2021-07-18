@@ -18,7 +18,7 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
 
         public GitBranch(Branch branch)
         {
-            this.branch = branch;
+            this.branch = branch ?? throw new ArgumentNullException(nameof(branch));
         }
 
         public string Name => this.branch.FriendlyName;
