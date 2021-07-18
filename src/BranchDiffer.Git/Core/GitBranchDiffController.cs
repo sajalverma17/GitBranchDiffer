@@ -3,13 +3,14 @@ using BranchDiffer.Git.Services;
 using System;
 using System.Collections.Generic;
 using LibGit2Sharp;
+using BranchDiffer.Git.Exceptions;
 
 namespace BranchDiffer.Git.Core
 {
     /// <summary>
     /// Worker class that composes all other Git services and performs branch diff with the solution path and branch to diff against provided.
     /// </summary>
-    public class GitBranchDiffController
+    public class GitBranchDiffController : ControllerBase
     {
         private readonly IGitDiffService gitBranchDiffService;
         private readonly IGitFileService itemIdentityService;
@@ -25,42 +26,23 @@ namespace BranchDiffer.Git.Core
             this.gitRepoService = gitRepoService;
         }
 
-        public bool SetupRepository(string solutionPath, string branchToDiffAgainst, out Repository repository, out string errorMsg)
+        public HashSet<DiffResultItem> GenerateDiff(string solutionPath, string branchToDiffAgainst)
         {
-            if (gitRepoService.CreateGitRepository(solutionPath, out var repo, out var repoCreationException))
+            using (var repository = this.SetupRepository(solutionPath))
             {
-                if (gitRepoService.IsRepoStateValid(repo, branchToDiffAgainst, out var repoStateException))
+                if (!gitRepoService.IsRepoStateValid(repository, branchToDiffAgainst, out string userError))
                 {
-                    errorMsg = string.Empty;
-                    repository = repo;
-                    return true;
+                    throw new GitBranchException(userError);
                 }
 
-                // Return error
-                repository = null;
-                repo.Dispose();
-                errorMsg = repoStateException.Message;
-                return false;
+                var diffBranchPair = gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
+                return this.gitBranchDiffService.GetDiffedChangeSet(repository, diffBranchPair);
             }
-
-            // Return error
-            repository = null;
-            repo.Dispose();
-            errorMsg = repoCreationException.Message;
-            return false;
         }
 
-        public HashSet<DiffResultItem> GenerateDiff(Repository repository, string branchToDiffAgainst)
+        public DiffResultItem GetItemFromChangeSet(HashSet<DiffResultItem> changeSet, string vsItemAbsolutePath)
         {
-            var diffBranchPair = gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
-            var changeset = this.gitBranchDiffService.GetDiffedChangeSet(repository, diffBranchPair);
-            repository.Dispose();
-            return changeset;
-        }
-
-        public bool HasItemInChangeSet(HashSet<DiffResultItem> changeSet, string vsItemAbsolutePath, out DiffResultItem diffResultItem)
-        {
-            return itemIdentityService.HasFileInChangeSet(changeSet, vsItemAbsolutePath, out diffResultItem);
+            return itemIdentityService.GetFileFromChangeSet(changeSet, vsItemAbsolutePath);
         }
     }
 }

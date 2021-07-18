@@ -1,4 +1,5 @@
 ﻿using BranchDiffer.Git.Core;
+using BranchDiffer.Git.Exceptions;
 using BranchDiffer.Git.Models;
 using BranchDiffer.VS.FileDiff;
 using BranchDiffer.VS.Utils;
@@ -98,26 +99,26 @@ namespace BranchDiffer.VS.BranchDiff
 
                     if (BranchDiffFilterValidator.ValidateSolution(this.solutionDirectory, this.solutionFile))
                     {
-                        var setupOk = this.branchDiffWorker.SetupRepository(this.solutionDirectory, this.package.BranchToDiffAgainst, out var repo, out var error);
-                        if (setupOk)
+                        try
                         {
-                            this.changeSet = this.branchDiffWorker.GenerateDiff(repo, this.package.BranchToDiffAgainst);
-
-                            IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
-                                                root.HierarchyIdentity.NestedHierarchy,
-                                                CancellationToken);
-
-                            IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
-                                sourceItems,
-                                ShouldIncludeInFilter,
-                                CancellationToken);
-
-                            return includedItems;
+                            this.changeSet = this.branchDiffWorker.GenerateDiff(this.solutionDirectory, this.package.BranchToDiffAgainst);
                         }
-                        else
+                        catch (GitBranchException e)
                         {
-                            ErrorPresenter.ShowError(error);
+                            ErrorPresenter.ShowError(e.Message);
+                            return null;
                         }
+
+                        IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
+                                            root.HierarchyIdentity.NestedHierarchy,
+                                            CancellationToken);
+
+                        IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
+                            sourceItems,
+                            ShouldIncludeInFilter,
+                            CancellationToken);
+
+                        return includedItems;
                     }
                 }
 
@@ -148,20 +149,24 @@ namespace BranchDiffer.VS.BranchDiff
                             absoluteFilePath = project.FullName;
                         }
                     }
-                    
-                    if (!string.IsNullOrEmpty(absoluteFilePath) 
-                        && this.branchDiffWorker.HasItemInChangeSet(this.changeSet, hierarchyItem.CanonicalName, out var diffResultItem))
-                    {
-                        // Tag the old path so we find the Base branch version of file using the Old Path (for files renamed in the working branch)
-                        if (!string.IsNullOrEmpty(diffResultItem.OldAbsoluteFilePath))
-                        {
-                            BranchDiffFilterProvider.TagManager.SetOldFilePathOnRenamedItem(
-                                hierarchyItem.HierarchyIdentity.Hierarchy,
-                                hierarchyItem.CanonicalName,
-                                diffResultItem.OldAbsoluteFilePath);
-                        }
 
-                        return true;
+                    if (!string.IsNullOrEmpty(absoluteFilePath))
+                    {
+                        DiffResultItem diffResultItem = this.branchDiffWorker.GetItemFromChangeSet(this.changeSet, hierarchyItem.CanonicalName);
+
+                        if (diffResultItem != null)
+                        {
+                            // Tag the old path so we find the Base branch version of file using the Old Path (for files renamed in the working branch)
+                            if (!string.IsNullOrEmpty(diffResultItem.OldAbsoluteFilePath))
+                            {
+                                BranchDiffFilterProvider.TagManager.SetOldFilePathOnRenamedItem(
+                                    hierarchyItem.HierarchyIdentity.Hierarchy,
+                                    hierarchyItem.CanonicalName,
+                                    diffResultItem.OldAbsoluteFilePath);
+                            }
+
+                            return true;
+                        }
                     }
                 }
 
