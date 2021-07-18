@@ -11,7 +11,7 @@ namespace BranchDiffer.Git.Services
 {
     public interface IGitFileService
     {
-        bool HasFileInChangeSet(HashSet<DiffResultItem> gitChangeSet, string absoluteItemPath, out DiffResultItem diffResultItem);
+        DiffResultItem GetFileFromChangeSet(HashSet<DiffResultItem> gitChangeSet, string absoluteItemPath);
 
         string GetBaseBranchRevisionOfFile(Repository repository, string baseBranchName, string filePath);
     }
@@ -62,14 +62,19 @@ namespace BranchDiffer.Git.Services
         }
 
         /// <summary>
-        /// This method searches for item in the git change set by it's path. 
+        /// Finds the file from the given changeset, note that the changeset contains paths of solution items of vs which are always lowercase.
         /// </summary>
         /// <param name="gitChangeSet"></param>
         /// <param name="vsSolutionItemPath"></param>
-        public bool HasFileInChangeSet(HashSet<DiffResultItem> gitChangeSet, string vsSolutionItemPath, out DiffResultItem diffResultItem)
+        /// <returns>The DiffResultItem from the change set, or null if nothing found.</returns>
+        public DiffResultItem GetFileFromChangeSet(HashSet<DiffResultItem> gitChangeSet, string vsSolutionItemPath)
         {
-            var vsItem = new DiffResultItem { AbsoluteFilePath = vsSolutionItemPath.ToLowerInvariant() };
-            return gitChangeSet.TryGetValue(vsItem, out diffResultItem);
+            var searchItemByAbsolutePath = new DiffResultItem { AbsoluteFilePath = vsSolutionItemPath.ToLowerInvariant() };
+            if (gitChangeSet.TryGetValue(searchItemByAbsolutePath, out DiffResultItem resultItem))
+            {
+                return resultItem;
+            }
+            return null;
         }
 
         private static Encoding GetEncoding(string file)
