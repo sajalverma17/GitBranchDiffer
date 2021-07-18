@@ -1,8 +1,6 @@
 ﻿using BranchDiffer.Git.Models;
 using BranchDiffer.Git.Services;
-using System;
 using System.Collections.Generic;
-using LibGit2Sharp;
 using BranchDiffer.Git.Exceptions;
 
 namespace BranchDiffer.Git.Core
@@ -10,13 +8,15 @@ namespace BranchDiffer.Git.Core
     /// <summary>
     /// Worker class that composes all other Git services and performs branch diff with the solution path and branch to diff against provided.
     /// </summary>
-    public class GitBranchDiffController : ControllerBase
+    public class GitBranchDiffController : GitRepositoryFactory
     {
         private readonly IGitDiffService gitBranchDiffService;
         private readonly IGitFileService itemIdentityService;
         private readonly IGitRepoService gitRepoService;
+        private readonly IGitRepositoryFactory gitRepositoryFactory;
 
         public GitBranchDiffController(
+            IGitRepositoryFactory gitRepositoryFactory,
             IGitDiffService gitBranchDiffService,
             IGitFileService itemIdentityService,
             IGitRepoService gitRepoService)
@@ -24,11 +24,12 @@ namespace BranchDiffer.Git.Core
             this.gitBranchDiffService = gitBranchDiffService;
             this.itemIdentityService = itemIdentityService;
             this.gitRepoService = gitRepoService;
+            this.gitRepositoryFactory = gitRepositoryFactory;
         }
 
         public HashSet<DiffResultItem> GenerateDiff(string solutionPath, string branchToDiffAgainst)
         {
-            using (var repository = this.SetupRepository(solutionPath))
+            using (var repository = this.gitRepositoryFactory.Create(solutionPath))
             {
                 if (!gitRepoService.IsRepoStateValid(repository, branchToDiffAgainst, out string userError))
                 {
