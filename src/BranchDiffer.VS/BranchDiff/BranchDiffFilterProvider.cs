@@ -103,7 +103,7 @@ namespace BranchDiffer.VS.BranchDiff
                         {
                             this.changeSet = this.branchDiffWorker.GenerateDiff(this.solutionDirectory, this.package.BranchToDiffAgainst);
                         }
-                        catch (GitBranchException e)
+                        catch (GitOperationException e)
                         {
                             ErrorPresenter.ShowError(e.Message);
                             return null;

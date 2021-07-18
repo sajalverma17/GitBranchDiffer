@@ -14,7 +14,7 @@ namespace BranchDiffer.Git.Core
             }
             catch (RepositoryNotFoundException repoNotFoundException)
             {
-                throw new GitBranchException(repoNotFoundException.Message);
+                throw new GitOperationException(repoNotFoundException.Message);
             }
 
             return createdRepository;

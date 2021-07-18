@@ -42,7 +42,7 @@ namespace BranchDiffer.VS.FileDiff
 
                 this.PresentComparisonWindow(branchPairs, leftFileMoniker, rightFileMoniker);
             }
-            catch (GitBranchException e)
+            catch (GitOperationException e)
             {
                 ErrorPresenter.ShowError(e.Message);
             }
