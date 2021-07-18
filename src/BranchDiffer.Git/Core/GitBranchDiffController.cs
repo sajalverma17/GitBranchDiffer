@@ -32,7 +32,7 @@ namespace BranchDiffer.Git.Core
             {
                 if (!gitRepoService.IsRepoStateValid(repository, branchToDiffAgainst, out string userError))
                 {
-                    throw new GitBranchException(userError);
+                    throw new GitOperationException(userError);
                 }
 
                 var diffBranchPair = gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
