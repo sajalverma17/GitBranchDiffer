@@ -15,13 +15,13 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
 
     internal sealed class GitRepository : IGitRepository
     {
-        private readonly Repository repository;
+        private readonly IRepository repository;
         private readonly GitBranch head;
         private readonly GitBranchCollection gitBranches;
 
-        public GitRepository(Repository repository)
+        public GitRepository(IRepository repository)
         {
-            this.repository = repository;
+            this.repository = repository ?? throw new ArgumentNullException(nameof(repository));
             this.head = new GitBranch(this.repository.Head);
             this.gitBranches = new GitBranchCollection();
             repository.Branches.ToList().ForEach(x => this.gitBranches.Add(new GitBranch(x)));

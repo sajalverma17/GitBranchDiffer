@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using BranchDiffer.Git.Models.LibGit2SharpModels;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace BranchDiffer.Git.Models.LibGit2SharpModels
+namespace BranchDiffer.Git.Models
 {
     public class GitBranchCollection : KeyedCollection<string, GitBranch>
     {
