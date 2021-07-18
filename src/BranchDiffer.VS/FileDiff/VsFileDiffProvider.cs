@@ -1,4 +1,5 @@
 ﻿using BranchDiffer.Git.Core;
+using BranchDiffer.Git.Exceptions;
 using BranchDiffer.Git.Models;
 using BranchDiffer.VS.Models;
 using BranchDiffer.VS.Utils;
@@ -28,23 +29,22 @@ namespace BranchDiffer.VS.FileDiff
         public void ShowFileDiffWithBaseBranch(string baseBranchToDiffAgainst)
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
-            var fileDiffService = DIContainer.Instance.GetService(typeof(GitFileDiffController)) as GitFileDiffController;
-            Assumes.Present(fileDiffService);
+            var fileDiffController = DIContainer.Instance.GetService(typeof(GitFileDiffController)) as GitFileDiffController;
+            Assumes.Present(fileDiffController);
 
-            if (fileDiffService.SetupRepository(this.solutionPath, baseBranchToDiffAgainst, out var repo, out string error))
+            // Get branch pairs to diff and Get the revision of file in the branch-to-diff-against
+            try
             {
-                var branchPairs = fileDiffService.GetDiffBranchPair(repo, baseBranchToDiffAgainst);
+                var branchPairs = fileDiffController.GetDiffBranchPair(this.solutionPath, baseBranchToDiffAgainst);
                 var baseBranchFilePath = string.IsNullOrEmpty(this.OldDocumentPath) ? this.DocumentPath : this.OldDocumentPath;
-
-                var leftFileMoniker = fileDiffService.GetBaseBranchRevisionOfFile(repo, baseBranchToDiffAgainst, baseBranchFilePath);
+                var leftFileMoniker = fileDiffController.GetBaseBranchRevisionOfFile(this.solutionPath, baseBranchToDiffAgainst, baseBranchFilePath);
                 var rightFileMoniker = this.DocumentPath;
-                repo.Dispose();
 
                 this.PresentComparisonWindow(branchPairs, leftFileMoniker, rightFileMoniker);
             }
-            else
+            catch (GitBranchException e)
             {
-                ErrorPresenter.ShowError(error);
+                ErrorPresenter.ShowError(e.Message);
             }
         }
 
