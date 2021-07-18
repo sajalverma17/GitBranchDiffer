@@ -8,9 +8,6 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace BranchDiffer.VS.FileDiff
 {
-    /// <summary>
-    /// TODO: Make injectible
-    /// </summary>
     public class VsFileDiffProvider
     {
         private readonly IVsDifferenceService vsDifferenceService;
@@ -52,8 +49,8 @@ namespace BranchDiffer.VS.FileDiff
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();            
             var filename = System.IO.Path.GetFileName(this.DocumentPath);
-            string leftLabel = $"{filename}@{branchDiffPair.BranchToDiffAgainst.FriendlyName}";
-            string rightLabel = $"{filename}@{branchDiffPair.WorkingBranch.FriendlyName}";
+            string leftLabel = $"{filename}@{branchDiffPair.BranchToDiffAgainst.Name}";
+            string rightLabel = $"{filename}@{branchDiffPair.WorkingBranch.Name}";
             string caption = $"{System.IO.Path.GetFileName(leftFileMoniker)} Vs. {System.IO.Path.GetFileName(rightFileMoniker)}";
             string tooltip = string.Empty;
             string inlineLabel = string.Empty;

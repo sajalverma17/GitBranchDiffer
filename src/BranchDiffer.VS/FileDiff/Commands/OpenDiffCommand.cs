@@ -37,7 +37,7 @@ namespace BranchDiffer.VS.FileDiff.Commands
 
         protected OleMenuCommand OleCommandInstance { get; private set; }
 
-        // TODO: We don't need to get selected items if there is a way to capture menu button's target item and it's info
+        // TODO: We don't need to get selected items if there is a way to capture menu button's target item and it's info in VS API
         protected virtual void Execute(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
