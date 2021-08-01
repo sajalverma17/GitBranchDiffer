@@ -8,15 +8,21 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
     {
         GitBranchCollection Branches { get; }
 
-        GitBranch Head { get; }
+        IGitBranch Head { get; }
 
         string WorkingDirectory { get; }
+
+        /// <summary>
+        /// TODO:
+        /// Makes the code untestable...
+        /// </summary>
+        Diff Diff { get; }
     }
 
     internal sealed class GitRepository : IGitRepository
     {
         private readonly IRepository repository;
-        private readonly GitBranch head;
+        private readonly IGitBranch head;
         private readonly GitBranchCollection gitBranches;
 
         public GitRepository(IRepository repository)
@@ -29,7 +35,9 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
 
         public GitBranchCollection Branches => this.gitBranches;
 
-        public GitBranch Head => this.head;
+        public IGitBranch Head => this.head;
+
+        public Diff Diff => this.repository.Diff;
 
         public string WorkingDirectory => this.repository.Info.WorkingDirectory;
 
