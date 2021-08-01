@@ -13,6 +13,7 @@ namespace BranchDiffer.Git.Services
 
     public class GitRepoService : IGitRepoService
     {
+        // TODO: A better idea is to have repository validate itself by checking below conditions as properties...
         public bool IsRepoStateValid(IGitRepository repo, string branchToDiffAgainst, out string message)
         {
             var branchesInRepo = repo.Branches.Select(branch => branch.Name);

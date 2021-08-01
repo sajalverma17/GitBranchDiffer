@@ -10,6 +10,12 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
     public interface IGitBranch
     {
         string Name { get; }
+
+        /// <summary>
+        /// TODO:
+        /// Makes the code untestable...
+        /// </summary>
+        Commit Tip { get; }
     }
 
     public class GitBranch : IGitBranch
@@ -22,5 +28,7 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
         }
 
         public string Name => this.branch.FriendlyName;
+
+        public Commit Tip => this.branch.Tip;
     }
 }
