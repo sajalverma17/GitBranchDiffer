@@ -1,6 +1,3 @@
-[submodule "C:\\Github\\GitBranchDiffer\\tests\\BranchDiffer.Git.Tests\\Assets\\GitBranchDiffer-TestAsset"]
-	path = C:\\Github\\GitBranchDiffer\\tests\\BranchDiffer.Git.Tests\\Assets\\GitBranchDiffer-TestAsset
-	url = https://github.com/sajalverma17/GitBranchDiffer-TestAsset.git
 [submodule "tests/BranchDiffer.Git.Tests/Assets/GitBranchDiffer-TestAsset"]
 	path = tests/BranchDiffer.Git.Tests/Assets/GitBranchDiffer-TestAsset
 	url = https://github.com/sajalverma17/GitBranchDiffer-TestAsset.git
