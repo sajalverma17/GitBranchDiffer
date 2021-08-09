@@ -8,7 +8,7 @@ namespace BranchDiffer.Git.Core
     /// <summary>
     /// Worker class that composes all other Git services and performs branch diff with the solution path and branch to diff against provided.
     /// </summary>
-    public class GitBranchDiffController : GitRepositoryFactory
+    public class GitBranchDiffController
     {
         private readonly IGitDiffService gitBranchDiffService;
         private readonly IGitFileService itemIdentityService;
@@ -27,9 +27,9 @@ namespace BranchDiffer.Git.Core
             this.gitRepositoryFactory = gitRepositoryFactory;
         }
 
-        public HashSet<DiffResultItem> GenerateDiff(string solutionPath, string branchToDiffAgainst)
+        public HashSet<DiffResultItem> GenerateDiff(string repoPath, string branchToDiffAgainst)
         {
-            using (var repository = this.gitRepositoryFactory.Create(solutionPath))
+            using (var repository = this.gitRepositoryFactory.Create(repoPath))
             {
                 if (!gitRepoService.IsRepoStateValid(repository, branchToDiffAgainst, out string userError))
                 {

@@ -21,7 +21,7 @@ namespace BranchDiffer.Git.Services
                 IncludeUnmodified = false,
             };
 
-            // TODO: Hard to make this "Diff" property and following code testable...
+            // TODO: Hard to make this "Diff" property and following code unit-testable...
             var branchDiffResult = gitRepo.Diff.Compare<TreeChanges>(
                 diffBranchPair.BranchToDiffAgainst.Tip.Tree,
                 diffBranchPair.WorkingBranch.Tip.Tree,
