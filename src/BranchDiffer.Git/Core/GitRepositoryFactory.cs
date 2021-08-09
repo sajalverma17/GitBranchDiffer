@@ -24,9 +24,9 @@ namespace BranchDiffer.Git.Core
                 Repository native = new Repository(directoryPath);
                 createdRepository = new GitRepository(native);
             }
-            catch (RepositoryNotFoundException repoNotFoundException)
+            catch (RepositoryNotFoundException nativeException)
             {
-                throw new GitOperationException(repoNotFoundException.Message);
+                throw new GitRepoNotFoundException(nativeException.Message);
             }
 
             return createdRepository;

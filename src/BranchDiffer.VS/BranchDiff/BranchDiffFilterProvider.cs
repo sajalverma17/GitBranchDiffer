@@ -1,4 +1,5 @@
-﻿using BranchDiffer.Git.Core;
+﻿using BranchDiffer.Git.Configuration;
+using BranchDiffer.Git.Core;
 using BranchDiffer.Git.Exceptions;
 using BranchDiffer.Git.Models;
 using BranchDiffer.VS.FileDiff;

@@ -6,7 +6,7 @@ namespace BranchDiffer.Git.Core
     /// <summary>
     /// Worker class that composes Git-services to generate a file diff of the provided document opened in VS.
     /// </summary>
-    public class GitFileDiffController : GitRepositoryFactory
+    public class GitFileDiffController
     {
         private readonly IGitRepoService gitRepoService;
         private readonly IGitFileService gitFileService;
