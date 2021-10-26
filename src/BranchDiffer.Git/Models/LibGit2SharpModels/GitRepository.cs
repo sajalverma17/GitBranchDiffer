@@ -12,10 +12,6 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
 
         string WorkingDirectory { get; }
 
-        /// <summary>
-        /// TODO:
-        /// Makes the code untestable...
-        /// </summary>
         Diff Diff { get; }
     }
 

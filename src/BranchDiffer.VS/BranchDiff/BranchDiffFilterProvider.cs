@@ -102,6 +102,8 @@ namespace BranchDiffer.VS.BranchDiff
                     {
                         try
                         {
+                            // TODO: The solution directory path may not always be the Git repo path!
+                            // Git repo could be setup higher up. Write a service to find the Git repo upwards in the heirarchy and pass that here.
                             this.changeSet = this.branchDiffWorker.GenerateDiff(this.solutionDirectory, this.package.BranchToDiffAgainst);
                         }
                         catch (GitOperationException e)
