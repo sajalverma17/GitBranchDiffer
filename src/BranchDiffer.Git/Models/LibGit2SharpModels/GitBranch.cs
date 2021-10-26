@@ -11,10 +11,6 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
     {
         string Name { get; }
 
-        /// <summary>
-        /// TODO:
-        /// Makes the code untestable...
-        /// </summary>
         Commit Tip { get; }
     }
 
