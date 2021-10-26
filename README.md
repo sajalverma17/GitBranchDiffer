@@ -41,11 +41,20 @@ To report a bug, please use the [bug template](https://github.com/sajalverma17/G
 ### Build 
 
 ```txt
-git clone https://github.com/sajalverma17/GitBranchDiffer.git
+git clone --recurse-submodule https://github.com/sajalverma17/GitBranchDiffer.git
 cd GitBranchDiffer
 ```
 
 Open the `GitBranchDiffer.sln`, build and then run.
+
+### Test
+To test, use the `dotnet test` command on project inside the `\tests` directory. A [test repository](https://github.com/sajalverma17/GitBranchDiffer-TestAsset) is used to run tests on, and is added as a submodule to this repository.
+
+Remember to pull and update submodule everytime you fetch latest code from `master` branch.  
+
+```txt
+git pull --recurse-submodule origin master
+```
 
 ## Roadmap
 * Currently, GitBranchDiffer is not supported on versions older than Visual Studio 2019 (highly reducing the target audience of the plugin). This is mostly because I do not have the ability to test on older versions, and no experience developing Visual Studio plug-ins prior to this. Any contributions in this direction are highly appreciated!
