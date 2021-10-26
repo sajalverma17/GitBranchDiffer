@@ -1,4 +1,5 @@
 ﻿using BranchDiffer.Git.Models;
+using BranchDiffer.Git.Models.LibGit2SharpModels;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace BranchDiffer.Git.Services
     {
         DiffResultItem GetFileFromChangeSet(HashSet<DiffResultItem> gitChangeSet, string absoluteItemPath);
 
-        string GetBaseBranchRevisionOfFile(Repository repository, string baseBranchName, string filePath);
+        string GetBaseBranchRevisionOfFile(IGitRepository repository, string baseBranchName, string filePath);
     }
 
     public class GitFileService : IGitFileService
@@ -24,10 +25,10 @@ namespace BranchDiffer.Git.Services
         /// <param name="repository"></param>
         /// <param name="filePath"></param>
         /// <returns>Path to a temp file, which is the Base-branch version of this file</returns>
-        public string GetBaseBranchRevisionOfFile(Repository repository, string branchToDiffAgainst, string filePath)
+        public string GetBaseBranchRevisionOfFile(IGitRepository repository, string branchToDiffAgainst, string filePath)
         {
             // Get the file path relative to repo 
-            string workingDirectory = repository.Info.WorkingDirectory;
+            string workingDirectory = repository.WorkingDirectory;
             string relativePathInRepo = filePath;
             if (relativePathInRepo.StartsWith(workingDirectory, StringComparison.OrdinalIgnoreCase))
                 relativePathInRepo = relativePathInRepo.Substring(workingDirectory.Length);

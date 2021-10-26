@@ -1,26 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using BranchDiffer.Git.Models;
-using LibGit2Sharp;
+using BranchDiffer.Git.Models.LibGit2SharpModels;
 
 namespace BranchDiffer.Git.Services
 {
     public interface IGitRepoService
     {
-        bool IsRepoStateValid(Repository repo, string branchToDiffAgainst, out string message);
+        bool IsRepoStateValid(IGitRepository repo, string branchToDiffAgainst, out string message);
 
-        DiffBranchPair GetBranchesToDiffFromRepo(Repository repository, string branchNameToDiffAgainst);
+        DiffBranchPair GetBranchesToDiffFromRepo(IGitRepository repository, string branchNameToDiffAgainst);
     }
 
     public class GitRepoService : IGitRepoService
     {
-        public bool IsRepoStateValid(Repository repo, string branchToDiffAgainst, out string message)
+        public bool IsRepoStateValid(IGitRepository repo, string branchToDiffAgainst, out string message)
         {
-            var branchesInRepo = repo.Branches.Select(branch => branch.FriendlyName);
-            var activeBranch = repo.Head?.FriendlyName;
+            var branchesInRepo = repo.Branches.Select(branch => branch.Name);
+            var activeBranch = repo.Head?.Name;
 
             if (!branchesInRepo.Contains(branchToDiffAgainst))
             {
@@ -42,9 +38,10 @@ namespace BranchDiffer.Git.Services
             return true;
         }
 
-        public DiffBranchPair GetBranchesToDiffFromRepo(Repository repository, string branchNameToDiffAgainst)
+        public DiffBranchPair GetBranchesToDiffFromRepo(IGitRepository repository, string branchNameToDiffAgainst)
         {
-            var branchToDiffAgainst = repository.Branches[branchNameToDiffAgainst];            
+            // Git branches are case-insensitive, you can't create a new branch named "MASTER" if "master" is already present.
+            var branchToDiffAgainst = repository.Branches[branchNameToDiffAgainst];
             return new DiffBranchPair { WorkingBranch = repository.Head, BranchToDiffAgainst = branchToDiffAgainst };
         }
     }
