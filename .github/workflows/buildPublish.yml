@@ -26,6 +26,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
+        submodules: true
         fetch-depth: 0
 
     # Install the .NET Core workload, probably not needed
@@ -52,7 +53,7 @@ jobs:
         script: |
                 core.setFailed('Build_Version env variable not set')
 
-    # Create a Github Release from latest Tag in 'release' branch.
+    # Create a Github Release from latest Tag in 'master' branch.
     - name: Create Github Release
       id: create_gh_release
       uses: softprops/action-gh-release@v1
@@ -76,6 +77,10 @@ jobs:
     - name: Build GitBranchDiffer
       run: msbuild $env:Solution_Name /p:Configuration=$env:Build_Configuration /p:Platform=$env:Build_Platform /v:m
 
+      # Run tests
+    - name: Test GitBranchDiffer
+      run: dotnet test tests\BranchDiffer.Git.Tests\BranchDiffer.Git.Tests.csproj
+
     # Upload the deploy folder as artifact. This contains the built VSIX package, PublishManifest and Marketplace readme needed in publish job
     - name: Upload artifacts to workflow
       uses: actions/upload-artifact@v2
@@ -85,16 +90,15 @@ jobs:
         if-no-files-found: error
 
     # Upload artifact as asset to the Github Release created above. 
-    # TODO: upload_url output not yet supported by softprops/action-gh-release@v1
-    #- name: Upload artifact as Github Release Asset
-    #  uses: actions/upload-release-asset@v1
-    #  env:
-    #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #  with:
-    #    upload_url: ${{ steps.create_gh_release.outputs.upload_url }} 
-    #    asset_path: ${{ env.VSIX_Path }}
-    #    asset_name: GitBranchDiffer.zip
-    #    asset_content_type: application/zip
+    - name: Upload artifact as Github Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_gh_release.outputs.upload_url }} 
+        asset_path: ${{ env.VSIX_Path }}
+        asset_name: GitBranchDiffer.zip
+        asset_content_type: application/zip
 
   
   publish:
