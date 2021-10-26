@@ -1,4 +1,5 @@
 ﻿using BranchDiffer.Git.Models;
+using BranchDiffer.Git.Models.LibGit2SharpModels;
 using LibGit2Sharp;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +8,12 @@ namespace BranchDiffer.Git.Services
 {
     public interface IGitDiffService
     {
-        HashSet<DiffResultItem> GetDiffedChangeSet(Repository gitRepo, DiffBranchPair diffBranchPair);
+        HashSet<DiffResultItem> GetDiffedChangeSet(IGitRepository gitRepo, DiffBranchPair diffBranchPair);
     }
 
     public class GitDiffService : IGitDiffService
     {
-        public HashSet<DiffResultItem> GetDiffedChangeSet(Repository gitRepo, DiffBranchPair diffBranchPair)
+        public HashSet<DiffResultItem> GetDiffedChangeSet(IGitRepository gitRepo, DiffBranchPair diffBranchPair)
         {
             var compareOptions = new CompareOptions
             {
@@ -20,6 +21,7 @@ namespace BranchDiffer.Git.Services
                 IncludeUnmodified = false,
             };
 
+            // NB! Hard to make this "Diff" property and following code unit-testable...
             var branchDiffResult = gitRepo.Diff.Compare<TreeChanges>(
                 diffBranchPair.BranchToDiffAgainst.Tip.Tree,
                 diffBranchPair.WorkingBranch.Tip.Tree,
@@ -39,7 +41,7 @@ namespace BranchDiffer.Git.Services
             {
                 // Issue with LibGit2Sharp: Paths returned are *-nix format, not windows directory format.
                 var itemPathWithCorrectSeparator = treeEntryChange.Path.Replace("/", Constants.DirectorySeperator);
-                var repoPathWithCorrectSeperator = gitRepo.Info.WorkingDirectory.Replace("/", Constants.DirectorySeperator);
+                var repoPathWithCorrectSeperator = gitRepo.WorkingDirectory.Replace("/", Constants.DirectorySeperator);
 
                 var diffedObject = new DiffResultItem
                 {

@@ -23,6 +23,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
+        submodules: true
         fetch-depth: 0
 
     # Install the .NET Core workload, probably not needed
@@ -46,6 +47,10 @@ jobs:
     # Build the solution
     - name: Build GitBranchDiffer
       run: msbuild $env:Solution_Name /p:Configuration=$env:Build_Configuration /p:Platform=$env:Build_Platform /v:m
+      
+    # Run tests
+    - name: Test GitBranchDiffer
+      run: dotnet test tests\BranchDiffer.Git.Tests\BranchDiffer.Git.Tests.csproj
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts

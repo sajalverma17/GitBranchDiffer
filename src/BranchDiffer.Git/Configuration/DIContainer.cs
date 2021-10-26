@@ -1,20 +1,19 @@
 ﻿using System;
 using BranchDiffer.Git.Core;
 using BranchDiffer.Git.Services;
-using BranchDiffer.VS.FileDiff;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BranchDiffer.VS
+namespace BranchDiffer.Git.Configuration
 {
     /// <summary>
-    /// Singleton DI container of the plugin project.
+    /// Singleton DI container of the Git project.
     /// Not thread safe, not sure if async working of plugin could cause problems here.
     /// </summary>
     public static class DIContainer
     {
         private static IServiceProvider instance;
 
-        internal static IServiceProvider Instance
+        public static IServiceProvider Instance
         {
             get
             {
@@ -32,10 +31,10 @@ namespace BranchDiffer.VS
             var container = new ServiceCollection();
             container.AddScoped<GitBranchDiffController>();
             container.AddScoped<GitFileDiffController>();
+            container.AddScoped<IGitRepositoryFactory, GitRepositoryFactory>();
             container.AddScoped<IGitDiffService, GitDiffService>();
             container.AddScoped<IGitFileService, GitFileService>();
             container.AddScoped<IGitRepoService, GitRepoService>();
-            container.AddSingleton<ItemTagManager>();
             return container.BuildServiceProvider();
         }
     }
