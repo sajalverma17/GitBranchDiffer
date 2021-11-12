@@ -19,6 +19,7 @@ namespace BranchDiffer.VS.Models
         {
             get
             {
+                // BUG: Null Ref Exception when opening Diff for Solution Items, Properties is null, implement a different way to get their FullPath
                 Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
                 return Native.Properties.Item("FullPath")?.Value.ToString();
             }

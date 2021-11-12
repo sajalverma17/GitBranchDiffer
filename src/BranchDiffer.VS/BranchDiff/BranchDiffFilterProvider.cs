@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 namespace BranchDiffer.VS.BranchDiff
 {
+    // BUG: The REALLY large solutions take a long time before our VSPackage is registered and intializes this filter, find a way to hide filter in UI untill solution loaded (ProvideAutoLoad)
     [SolutionTreeFilterProvider(GitBranchDifferPackageGuids.guidGitBranchDifferPackageCmdSet, (uint)(GitBranchDifferPackageGuids.CommandIdGenerateDiffAndFilter))]    
     public class BranchDiffFilterProvider : HierarchyTreeFilterProvider
     {
@@ -102,7 +103,7 @@ namespace BranchDiffer.VS.BranchDiff
                     {
                         try
                         {
-                            // TODO: The solution directory path may not always be the Git repo path! Solution can be in a subdirectory of the Git-Repo directory.
+                            // BUG: The solution directory path may not always be the Git repo path! Solution can be in a subdirectory of the Git-Repo directory.
                             // Git repo could be setup higher up. Write a service to find the Git repo upwards in the heirarchy and pass that here.
                             this.changeSet = this.branchDiffWorker.GenerateDiff(this.solutionDirectory, this.package.BranchToDiffAgainst);
                         }
