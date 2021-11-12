@@ -18,8 +18,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{F68A200A-0E17-4351-9766-7A10E94DAC71}</ProjectGuid>
-	<OutputType>Library</OutputType>
-	<AppDesignerFolder>Properties</AppDesignerFolder>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GitBranchDiffer</RootNamespace>
     <AssemblyName>GitBranchDiffer</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -27,7 +27,7 @@
     <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
     <IncludeDebugSymbolsInVSIXContainer>true</IncludeDebugSymbolsInVSIXContainer>
     <IncludeDebugSymbolsInLocalVSIXDeployment>true</IncludeDebugSymbolsInLocalVSIXDeployment>
-	<TargetVsixContainerName>GitDiffMargin.vsix</TargetVsixContainerName>
+    <TargetVsixContainerName>GitDiffMargin.vsix</TargetVsixContainerName>
     <StartAction>Program</StartAction>
     <StartProgram Condition="'$(DevEnvDir)' != ''">$(DevEnvDir)devenv.exe</StartProgram>
     <StartArguments>/rootsuffix Exp</StartArguments>
@@ -72,10 +72,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BranchDiffer.VS\BranchDiffer.VS.csproj">
-      <Project>{af8a3e27-6693-4c94-a470-33c464dde91a}</Project>
+      <Project>{fc515414-836c-4799-bb0f-cfcb892d52b9}</Project>
       <Name>BranchDiffer.VS</Name>
-      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
-      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+	  <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup;BuiltProjectOutputGroupDependencies;GetCopyToOutputDirectoryItems;SatelliteDllsProjectOutputGroup;PkgDefProjectOutputGroup</IncludeOutputGroupsInVSIX>
+	  <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="..\..\build\GitBranchDiffer.targets" />
