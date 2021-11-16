@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <ReleaseFile Include="bin\Release\GitBranchDiffer2019.vsix"/>
+    <DeployFile Include="..\..\deploy\GitBranchDiffer2019.vsix" />
+  </ItemGroup>
+	<!--After building in Release, copy the VSIX to deploy folder-->
+	<Target Name="CopyReleaseToDeploy" AfterTargets="AfterBuild" Condition="'$(Configuration)' == 'Release'">
+		<Copy SourceFiles="@(ReleaseFile)" DestinationFolder="..\..\deploy"></Copy>
+	</Target>
+
+  <!--When cleaning, remove VSIX in deploy folder-->
+  <Target Name="CleanRelease" AfterTargets="AfterClean">
+    <Delete Files="@(DeployFile)" ContinueOnError="true"></Delete>
+  </Target>
+</Project>

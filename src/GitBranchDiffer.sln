@@ -17,6 +17,8 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BranchDiffer.VS.Shared", "B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BranchDiffer.VS2019", "BranchDiffer.VS2019\BranchDiffer.VS2019.csproj", "{0FCAB287-7149-4760-8C9E-D344E3524139}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitBranchDiffer2019", "GitBranchDiffer2019\GitBranchDiffer2019.csproj", "{FB791815-F339-4EC7-8724-7A2965BFF2D0}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		BranchDiffer.VS.Shared\BranchDiffer.VS.Shared.projitems*{0fcab287-7149-4760-8c9e-d344e3524139}*SharedItemsImports = 4
@@ -70,6 +72,14 @@ Global
 		{0FCAB287-7149-4760-8C9E-D344E3524139}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0FCAB287-7149-4760-8C9E-D344E3524139}.Release|x86.ActiveCfg = Release|x86
 		{0FCAB287-7149-4760-8C9E-D344E3524139}.Release|x86.Build.0 = Release|x86
+		{FB791815-F339-4EC7-8724-7A2965BFF2D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB791815-F339-4EC7-8724-7A2965BFF2D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB791815-F339-4EC7-8724-7A2965BFF2D0}.Debug|x86.ActiveCfg = Debug|x86
+		{FB791815-F339-4EC7-8724-7A2965BFF2D0}.Debug|x86.Build.0 = Debug|x86
+		{FB791815-F339-4EC7-8724-7A2965BFF2D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB791815-F339-4EC7-8724-7A2965BFF2D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB791815-F339-4EC7-8724-7A2965BFF2D0}.Release|x86.ActiveCfg = Release|x86
+		{FB791815-F339-4EC7-8724-7A2965BFF2D0}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
