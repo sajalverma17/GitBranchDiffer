@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31729.503
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31815.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitBranchDiffer", "GitBranchDiffer\GitBranchDiffer.csproj", "{F68A200A-0E17-4351-9766-7A10E94DAC71}"
 EndProject
@@ -13,7 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BranchDiffer.Git.Tests", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BranchDiffer.VS", "BranchDiffer.VS\BranchDiffer.VS.csproj", "{FC515414-836C-4799-BB0F-CFCB892D52B9}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BranchDiffer.VS.Shared", "BranchDiffer.VS.Shared\BranchDiffer.VS.Shared.shproj", "{CB3DECFA-EF89-454B-AE44-5590C64EE3CC}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		BranchDiffer.VS.Shared\BranchDiffer.VS.Shared.projitems*{cb3decfa-ef89-454b-ae44-5590c64ee3cc}*SharedItemsImports = 13
+		BranchDiffer.VS.Shared\BranchDiffer.VS.Shared.projitems*{fc515414-836c-4799-bb0f-cfcb892d52b9}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
