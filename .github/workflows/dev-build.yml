@@ -12,7 +12,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Build_Version: 99.9.9.999                                    # Dummy version on PR artifact
+      Build_Version: 999.99.9.${{ github.run_number }}       # Dummy version on PR artifact
       Solution_Name: src\GitBranchDiffer.sln
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
@@ -33,7 +33,7 @@ jobs:
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v1.1
       
     - name: Update VSIX version in both extension manifests
       shell: powershell
