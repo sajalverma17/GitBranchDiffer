@@ -9,10 +9,10 @@ jobs:
 
   build:
 
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     env:
-      Build_Version: 999.99.9.${{ github.run_number }}       # Dummy version on PR artifact
+      Build_Version: 999.99.9.0       # Dummy version on PR artifact
       Solution_Name: src\GitBranchDiffer.sln
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
