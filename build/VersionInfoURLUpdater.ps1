@@ -1,5 +1,6 @@
 ﻿$releaseUrl = $args[0]
 
+
 function UpdateLinkInReleaseNotes() {
 	param([string]$manifestFilePath)
 

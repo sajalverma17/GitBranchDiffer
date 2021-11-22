@@ -11,6 +11,7 @@ $manifestFileContent.PackageManifest.Metadata.Identity.Version = $version
 
 $manifestFileContent.Save($manifestFile)
 
+
 Write-Host "Updated version in $manifestFile to $version"
 }
 
@@ -22,3 +23,5 @@ catch{
     Write-Host $_.ScriptStackTrace
     ExitWithExitCode 1   
 }
+
+Write-Host "Updated version in VSIX Manifest to "$version
