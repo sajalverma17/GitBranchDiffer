@@ -9,10 +9,10 @@ jobs:
 
   build:
 
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     env:
-      Build_Version: 1.0.1.${{ github.run_number }}
+      Build_Version: 1.0.3.${{ github.run_number }}
       Solution_Name: src\GitBranchDiffer.sln                        
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
