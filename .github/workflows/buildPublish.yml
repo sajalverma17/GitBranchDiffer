@@ -132,7 +132,7 @@ jobs:
              $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
              $payloadVSIX = '${{ env.VSIX_Path }}'
              $publishManifest = '${{ env.PublishManifest_Path }}'
-             & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
+             # & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
           
       - name: Logout of marketplace
         shell : powershell
@@ -177,7 +177,7 @@ jobs:
              $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
              $payloadVSIX = '${{ env.VSIX_Path }}'
              $publishManifest = '${{ env.PublishManifest_Path }}'
-             & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
+             # & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
           
       - name: Logout of marketplace
         shell : powershell

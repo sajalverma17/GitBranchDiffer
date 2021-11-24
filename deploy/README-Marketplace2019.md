@@ -4,9 +4,9 @@ Git Branch Differ is a Solution Explorer Filter which compares the working branc
 
 After the filter is applied, you can open a comparison between the version of the file in working branch Vs. the version of file in the branch you choose to compare it with. 
 
-Supports VS2019 and VS2022
+Supports VS2019 and VS2022.
 
-To download for VS2019, go to https://marketplace.visualstudio.com/items?itemName=SajalVerma.GitBranchDiffer
+To download for VS2022, go to https://marketplace.visualstudio.com/items?itemName=SajalVerma.GitBranchDifferDev17
 
 ## Usage
 
