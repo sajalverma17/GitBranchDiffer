@@ -15,6 +15,8 @@
         </InstallationTarget>
         <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[16.0,17.0)">
         </InstallationTarget>
+		<InstallationTarget Id="Microsoft.VisualStudio.Enterprise" Version="[16.0,17.0)">
+		</InstallationTarget>
     </Installation>
     <Prerequisites>
         <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[16.0,17.0)" DisplayName="Visual Studio core editor" />
