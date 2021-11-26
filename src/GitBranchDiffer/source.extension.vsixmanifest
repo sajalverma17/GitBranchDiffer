@@ -1,28 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
-	<Metadata>
-		<Identity Id="GitBranchDiffer.53f34d66-fcfb-4b1b-a864-c542da222902" Version="99.0.0.0" Language="en-US" Publisher="Sajal Verma" />
-		<DisplayName>Git Branch Differ</DisplayName>
-		<Description xml:space="preserve">Git Branch Differ is a Solution Explorer Filter which compares the working branch of your Git repo with the branch you choose to compare it with, and displays files that were Added/Modified/Renamed.</Description>
-		<MoreInfo>https://github.com/sajalverma17/GitBranchDiffer</MoreInfo>
-		<License>LICENSE.txt</License>
-		<ReleaseNotes>https://github.com/sajalverma17/GitBranchDiffer/releases/tag/v0.1.6</ReleaseNotes>
-		<Icon>GitBranchDifferPackage.ico</Icon>
-		<PreviewImage>GitBranchDifferPackage.ico</PreviewImage>
-	</Metadata>
-	<Installation>
-		<InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">
-			<ProductArchitecture>amd64</ProductArchitecture>
-		</InstallationTarget>
-		<InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[17.0,18.0)">
-			<ProductArchitecture>amd64</ProductArchitecture>
-		</InstallationTarget>
-	</Installation>
-	<Prerequisites>
-		<Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,18.0)" DisplayName="Visual Studio core editor" />
-	</Prerequisites>
-	<Assets>
-		<Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="BranchDiffer.VS" Path="|BranchDiffer.VS;PkgdefProjectOutputGroup|" />
-		<Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="BranchDiffer.VS" Path="|BranchDiffer.VS|" />
-	</Assets>
+    <Metadata>
+        <Identity Id="GitBranchDiffer.53f34d66-fcfb-4b1b-a864-c542da222902" Version="99.0.0.0" Language="en-US" Publisher="Sajal Verma" />
+        <DisplayName>Git Branch Differ</DisplayName>
+        <Description xml:space="preserve">Git Branch Differ is a Solution Explorer Filter which compares the working branch of your Git repo with the branch you choose to compare it with, and displays files that were Added/Modified/Renamed.</Description>
+        <MoreInfo>https://github.com/sajalverma17/GitBranchDiffer</MoreInfo>
+        <License>LICENSE.txt</License>
+        <ReleaseNotes>https://github.com/sajalverma17/GitBranchDiffer/releases/tag/v0.1.6</ReleaseNotes>
+        <Icon>GitBranchDifferPackage.ico</Icon>
+        <PreviewImage>GitBranchDifferPackage.ico</PreviewImage>
+    </Metadata>
+    <Installation>
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">
+            <ProductArchitecture>amd64</ProductArchitecture>
+        </InstallationTarget>
+        <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[17.0,18.0)">
+            <ProductArchitecture>amd64</ProductArchitecture>
+        </InstallationTarget>
+        <InstallationTarget Version="[17.0,18.0)" Id="Microsoft.VisualStudio.Enterprise">
+            <ProductArchitecture>amd64</ProductArchitecture>
+        </InstallationTarget>
+    </Installation>
+    <Prerequisites>
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,18.0)" DisplayName="Visual Studio core editor" />
+    </Prerequisites>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="BranchDiffer.VS" Path="|BranchDiffer.VS;PkgdefProjectOutputGroup|" />
+        <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="BranchDiffer.VS" Path="|BranchDiffer.VS|" />
+    </Assets>
 </PackageManifest>
