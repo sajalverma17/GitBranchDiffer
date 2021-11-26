@@ -5,7 +5,8 @@ name: buildPublish
 # To publish release: git push origin master v{Major}.{Minor}.{Path}
 
 on:
-  push:
+  workflow_dispatch:  
+  push:    
     tags:
       - 'v*.*.*'
   
@@ -13,13 +14,14 @@ jobs:
 
   build:
 
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     env:
       Build_Version: '0.0.0'                                      # Must be updated by parsing version from tag name
       Solution_Name: src\GitBranchDiffer.sln                        
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
+      VSIX_Path: deploy\*.vsix
 
     steps:
 
@@ -37,7 +39,7 @@ jobs:
 
     # Add  MSBuild to the PATH
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v1.1
 
     - name: Determine version number
       shell: powershell
@@ -52,13 +54,6 @@ jobs:
       with:
         script: |
                 core.setFailed('Build_Version env variable not set')
-
-    # Create a Github Release from latest Tag in 'master' branch.
-    - name: Create Github Release
-      id: create_gh_release
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # Powershell script to update 'Release Notes' URL in extension manifest to the Github Release created above
     - name: Update Release Notes URL in extension manifest
@@ -80,8 +75,18 @@ jobs:
       # Run tests
     - name: Test GitBranchDiffer
       run: dotnet test tests\BranchDiffer.Git.Tests\BranchDiffer.Git.Tests.csproj
+      
+    # Create a Github Release from latest Tag in 'master' branch. Upload both VSIXs in deploy folder
+    - name: Create Github Release
+      id: create_gh_release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ env.VSIX_Path }}
+            
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # Upload the deploy folder as artifact. This contains the built VSIX package, PublishManifest and Marketplace readme needed in publish job
+    # Upload the deploy folder as artifact. This contains the built VSIX packages, PublishManifest and Marketplace readme needed in publish job
     - name: Upload artifacts to workflow
       uses: actions/upload-artifact@v2
       with:
@@ -89,27 +94,61 @@ jobs:
         path: deploy
         if-no-files-found: error
 
-    # Upload artifact as asset to the Github Release created above. 
-    - name: Upload artifact as Github Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_gh_release.outputs.upload_url }} 
-        asset_path: ${{ env.VSIX_Path }}
-        asset_name: GitBranchDiffer.zip
-        asset_content_type: application/zip
-
   
-  publish:
+  publish-2019:
     
-    runs-on: windows-2019
+    runs-on: windows-2022
     needs: build
     
     env:
       Publisher_Name: SajalVerma
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
-      Vs2019ToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'      
+      VsToolsPath: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'      
+      VSIX_Path: .\artifacts\GitBranchDiffer2019.vsix
+      PublishManifest_Path: .\artifacts\PublishManifest2019.json
+
+    steps:
+
+        # Download the build artifact to artifacts folder in 'artifacts' directory
+      - name: Download the build artifact
+        uses: actions/download-artifact@v2
+        with:
+            name: PublishArtifacts
+            path: .\artifacts
+
+      - name: View artifacts directory
+        shell: powershell
+        run: dir .\artifacts
+
+      - name: Login to marketplace
+        shell : powershell
+        run: |
+          $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
+          & $vsixPublisherTool login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
+      
+      - name: Publish to marketplace
+        shell: powershell
+        run: |
+             $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
+             $payloadVSIX = '${{ env.VSIX_Path }}'
+             $publishManifest = '${{ env.PublishManifest_Path }}'
+             # & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
+          
+      - name: Logout of marketplace
+        shell : powershell
+        run: |
+          $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
+          & $vsixPublisherTool logout -publisherName $env:Publisher_Name -ignoreMissingPublisher
+
+  publish:
+    
+    runs-on: windows-2022
+    needs: build
+    
+    env:
+      Publisher_Name: SajalVerma
+      PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
+      VsToolsPath: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'      
       VSIX_Path: .\artifacts\GitBranchDiffer.vsix
       PublishManifest_Path: .\artifacts\PublishManifest.json
 
@@ -129,21 +168,21 @@ jobs:
       - name: Login to marketplace
         shell : powershell
         run: |
-          $vsixPublisherTool = '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
+          $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
           & $vsixPublisherTool login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
       
       - name: Publish to marketplace
         shell: powershell
         run: |
-             $vsixPublisherTool = '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
+             $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
              $payloadVSIX = '${{ env.VSIX_Path }}'
              $publishManifest = '${{ env.PublishManifest_Path }}'
-             & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
+             # & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
           
       - name: Logout of marketplace
         shell : powershell
         run: |
-          $vsixPublisherTool = '${{ env.Vs2019ToolsPath }}' + 'VsixPublisher.exe'
+          $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
           & $vsixPublisherTool logout -publisherName $env:Publisher_Name -ignoreMissingPublisher
           
     
