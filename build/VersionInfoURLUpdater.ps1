@@ -12,14 +12,14 @@ $manifestFileContent.PackageManifest.Metadata.ReleaseNotes = $releaseUrl
 
 $manifestFileContent.Save($manifestFile)
 
-Write-Host "Updated ReleaseNotes URL in VSIX manifests to $releaseUrl"
+Write-Host "Updated ReleaseNotes URL in $manifestFile to $releaseUrl"
 }
 
 try {
 	UpdateLinkInReleaseNotes($PSScriptRoot + '\..\src\GitBranchDiffer\source.extension.vsixmanifest')
-	UpdateLinkInReleaseNotes($PSScriptRoot + '\..\src\GitBranchDiffer\source.extension.vsixmanifest')
+	UpdateLinkInReleaseNotes($PSScriptRoot + '\..\src\GitBranchDiffer2019\source.extension.vsixmanifest')
 }
-catch() {
+catch {
 	Write-Host $_.ScriptStackTrace
     ExitWithExitCode 1 
 }

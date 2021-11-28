@@ -4,8 +4,7 @@ name: buildPublish
 # On 'master' branch, create git tag with pattern: v{Major}.{Minor}.{Path}
 # To publish release: git push origin master v{Major}.{Minor}.{Path}
 
-on:
-  workflow_dispatch:  
+on: 
   push:    
     tags:
       - 'v*.*.*'
@@ -184,6 +183,3 @@ jobs:
         run: |
           $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
           & $vsixPublisherTool logout -publisherName $env:Publisher_Name -ignoreMissingPublisher
-          
-    
-
