@@ -21,7 +21,5 @@ try {
 }
 catch{
     Write-Host $_.ScriptStackTrace
-    ExitWithExitCode 1   
+    Exit 1
 }
-
-Write-Host "Updated version in VSIX Manifest to "$version

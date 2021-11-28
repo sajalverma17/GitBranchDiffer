@@ -54,15 +54,6 @@ jobs:
         script: |
                 core.setFailed('Build_Version env variable not set')
 
-    # Powershell script to update 'Release Notes' URL in extension manifest to the Github Release created above
-    - name: Update Release Notes URL in extension manifest
-      shell: powershell
-      run: .\build\VersionInfoURLUpdater.ps1 ${{ steps.create_gh_release.outputs.url }}
-
-    - name: Update VSIX version in extension manifest
-      shell: powershell
-      run: .\build\VersionUpdater.ps1 $env:Build_Version
-
     # Restore the solution
     - name: Restore GitBranchDiffer
       run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Build_Configuration /v:m
@@ -74,16 +65,24 @@ jobs:
       # Run tests
     - name: Test GitBranchDiffer
       run: dotnet test tests\BranchDiffer.Git.Tests\BranchDiffer.Git.Tests.csproj
-      
-    # Create a Github Release from latest Tag in 'master' branch. Upload both VSIXs in deploy folder
+                
+    # Create a Github Release from latest Tag in 'master' branch. Upload both VSIXs in deploy folder to GithubRelease Asset
     - name: Create Github Release
       id: create_gh_release
       uses: softprops/action-gh-release@v1
       with:
         files: ${{ env.VSIX_Path }}
-            
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # Powershell script to update 'Release Notes' URL in extension manifest to the Github Release created above
+    - name: Update Release Notes URL in extension manifest
+      shell: powershell
+      run: .\build\VersionInfoURLUpdater.ps1 ${{ steps.create_gh_release.outputs.url }}
+
+    - name: Update VSIX version in extension manifest
+      shell: powershell
+      run: .\build\VersionUpdater.ps1 $env:Build_Version
 
     # Upload the deploy folder as artifact. This contains the built VSIX packages, PublishManifest and Marketplace readme needed in publish job
     - name: Upload artifacts to workflow

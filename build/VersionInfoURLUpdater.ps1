@@ -21,7 +21,7 @@ try {
 }
 catch {
 	Write-Host $_.ScriptStackTrace
-    ExitWithExitCode 1 
+    Exit 1 
 }
 
 
