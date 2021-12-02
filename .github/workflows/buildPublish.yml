@@ -54,7 +54,24 @@ jobs:
       uses: actions/github-script@v3
       with:
         script: |
-                core.setFailed('Build_Version env variable not set')
+                core.setFailed('Build_Version env variable not set')    
+                
+    # Create a Github Release from latest Tag in 'master' branch. 
+    - name: Create Github Release
+      id: create_gh_release
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # Update 'Release Notes' URL in extension manifests to Github Release URL
+    - name: Update Release Notes URL in extension manifests
+      shell: powershell
+      run: .\build\VersionInfoURLUpdater.ps1 ${{ steps.create_gh_release.outputs.url }}
+
+    # Update product version in extension manifests
+    - name: Update Version Number in extension manifests
+      shell: powershell
+      run: .\build\VersionUpdater.ps1 $env:Build_Version
 
     # Restore the solution
     - name: Restore GitBranchDiffer
@@ -64,29 +81,12 @@ jobs:
     - name: Build GitBranchDiffer
       run: msbuild $env:Solution_Name /p:Configuration=$env:Build_Configuration /p:Platform=$env:Build_Platform /v:m
 
-      # Run tests
+    # Run tests
     - name: Test GitBranchDiffer
       run: dotnet test tests\BranchDiffer.Git.Tests\BranchDiffer.Git.Tests.csproj
-                
-    # Create a Github Release from latest Tag in 'master' branch. Upload both VSIXs in deploy folder to GithubRelease Asset
-    - name: Create Github Release
-      id: create_gh_release
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    # Update 'Release Notes' URL in extension manifest by setting it to the Github Release created above
-    - name: Update Release Notes URL in extension manifest
-      shell: powershell
-      run: .\build\VersionInfoURLUpdater.ps1 ${{ steps.create_gh_release.outputs.url }}
-
-    # Update product version in extension manifests
-    - name: Update VSIX version in extension manifest
-      shell: powershell
-      run: .\build\VersionUpdater.ps1 $env:Build_Version
 
     # Zip VSIXs to upload them as artifact in Github Release
-    - name: Zip Release Artifacts
+    - name: Zip VSIXs for Github Release
       shell: powershell
       run: Compress-Archive -Path $env:VSIX_Path -DestinationPath $env:GhRelease_VSIX_Path
 
