@@ -111,13 +111,13 @@ jobs:
   
   publish-2019:
     
-    runs-on: windows-2022
+    runs-on: windows-2019
     needs: build
     
     env:
       Publisher_Name: SajalVerma
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
-      VsToolsPath: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'      
+      VsToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'         
       VSIX_Path: .\artifacts\GitBranchDiffer2019.vsix
       PublishManifest_Path: .\artifacts\PublishManifest2019.json
 
@@ -140,13 +140,13 @@ jobs:
           $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
           & $vsixPublisherTool login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
       
-      - name: Publish to marketplace
-        shell: powershell
-        run: |
-             $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
-             $payloadVSIX = '${{ env.VSIX_Path }}'
-             $publishManifest = '${{ env.PublishManifest_Path }}'
-             # & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
+      # - name: Publish to marketplace
+      #  shell: powershell
+      #  run: |
+      #       $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
+      #       $payloadVSIX = '${{ env.VSIX_Path }}'
+      #       $publishManifest = '${{ env.PublishManifest_Path }}'
+      # & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
           
       - name: Logout of marketplace
         shell : powershell
@@ -156,13 +156,13 @@ jobs:
 
   publish:
     
-    runs-on: windows-2022
+    runs-on: windows-2019
     needs: build
     
     env:
       Publisher_Name: SajalVerma
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
-      VsToolsPath: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'      
+      VsToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'
       VSIX_Path: .\artifacts\GitBranchDiffer.vsix
       PublishManifest_Path: .\artifacts\PublishManifest.json
 
@@ -183,15 +183,15 @@ jobs:
         shell : powershell
         run: |
           $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
-          & $vsixPublisherTool login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
+          & $vsixPublisherTool login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT      
       
-      - name: Publish to marketplace
-        shell: powershell
-        run: |
-             $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
-             $payloadVSIX = '${{ env.VSIX_Path }}'
-             $publishManifest = '${{ env.PublishManifest_Path }}'
-             # & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
+      # - name: Publish to marketplace
+      #  shell: powershell
+      #  run: |
+      #       $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
+      #       $payloadVSIX = '${{ env.VSIX_Path }}'
+      #       $publishManifest = '${{ env.PublishManifest_Path }}'
+      # & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
           
       - name: Logout of marketplace
         shell : powershell
