@@ -70,19 +70,29 @@ jobs:
     - name: Create Github Release
       id: create_gh_release
       uses: softprops/action-gh-release@v1
-      with:
-        files: ${{ env.VSIX_Path }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # Powershell script to update 'Release Notes' URL in extension manifest to the Github Release created above
+    # Update 'Release Notes' URL in extension manifest by setting it to the Github Release created above
     - name: Update Release Notes URL in extension manifest
       shell: powershell
       run: .\build\VersionInfoURLUpdater.ps1 ${{ steps.create_gh_release.outputs.url }}
 
+    # Update product version in extension manifests
     - name: Update VSIX version in extension manifest
       shell: powershell
       run: .\build\VersionUpdater.ps1 $env:Build_Version
+
+    # Upload VSIXs as assets to the Github Release created.
+    - name: Upload artifact as Github Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_gh_release.outputs.upload_url }} 
+        asset_path: ${{ env.VSIX_Path }}
+        asset_name: GitBranchDiffer.zip
+        asset_content_type: application/zip
 
     # Upload the deploy folder as artifact. This contains the built VSIX packages, PublishManifest and Marketplace readme needed in publish job
     - name: Upload artifacts to workflow
