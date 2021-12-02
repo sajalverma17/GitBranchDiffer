@@ -1,8 +1,8 @@
 name: buildPublish
 
 # Release steps: 
-# On 'master' branch, create git tag with pattern: v{Major}.{Minor}.{Path}
-# To publish release: git push origin master v{Major}.{Minor}.{Path}
+# On 'master' branch, create git tag with pattern: v{Major}.{Minor}.{Patch}
+# To publish release: git push origin master v{Major}.{Minor}.{Patch}
 
 on: 
   push:    
@@ -21,6 +21,7 @@ jobs:
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
       VSIX_Path: deploy\*.vsix
+      GhRelease_VSIX_Path: deploy\GithubRelease.zip               # Archive containing VSIXs zipped into it, only for upload to Github Release
 
     steps:
 
@@ -40,6 +41,7 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.1
 
+    # Determine build version, then write to Github Actions Environment
     - name: Determine version number
       shell: powershell
       run: 
@@ -83,14 +85,19 @@ jobs:
       shell: powershell
       run: .\build\VersionUpdater.ps1 $env:Build_Version
 
-    # Upload VSIXs as assets to the Github Release created.
+    # Zip VSIXs to upload them as artifact in Github Release
+    - name: Zip Release Artifacts
+      shell: powershell
+      run: Compress-Archive -Path $env:VSIX_Path -DestinationPath $env:GhRelease_VSIX_Path
+
+    # Upload VSIXs ZIP to the Github Release
     - name: Upload artifact as Github Release Asset
       uses: actions/upload-release-asset@v1
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_gh_release.outputs.upload_url }} 
-        asset_path: ${{ env.VSIX_Path }}
+        asset_path: ${{ env.GhRelease_VSIX_Path }}
         asset_name: GitBranchDiffer.zip
         asset_content_type: application/zip
 
@@ -101,7 +108,6 @@ jobs:
         name: PublishArtifacts
         path: deploy
         if-no-files-found: error
-
   
   publish-2019:
     
