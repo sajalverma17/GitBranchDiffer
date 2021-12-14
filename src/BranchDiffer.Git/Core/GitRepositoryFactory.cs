@@ -24,9 +24,9 @@ namespace BranchDiffer.Git.Core
             {
                 // locate .git repo upwards
                 while(!Directory.Exists(Path.Combine(directoryPath, ".git")) && !File.Exists(Path.Combine(directoryPath, ".git")) && Path.GetPathRoot(directoryPath) != directoryPath)
-				{
+                {
                     directoryPath = Path.GetDirectoryName(directoryPath);
-				}
+                }
                 Repository native = new Repository(directoryPath);
                 createdRepository = new GitRepository(native);
             }
