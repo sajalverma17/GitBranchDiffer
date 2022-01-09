@@ -20,6 +20,7 @@ namespace BranchDiffer.Git.Core
         private IGitRepository DoCreate(string directoryPath)
         {
             GitRepository createdRepository;
+            string solutionPath = directoryPath;
             try
             {
                 // locate .git repo upwards
@@ -30,9 +31,9 @@ namespace BranchDiffer.Git.Core
                 Repository native = new Repository(directoryPath);
                 createdRepository = new GitRepository(native);
             }
-            catch (RepositoryNotFoundException nativeException)
+            catch (RepositoryNotFoundException)
             {
-                throw new GitRepoNotFoundException(nativeException.Message);
+                throw new GitRepoNotFoundException($"Unable to find a Git repository at this solution's directory ({solutionPath}) or it's parent directories.");
             }
 
             return createdRepository;
