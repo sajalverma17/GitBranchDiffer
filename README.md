@@ -55,14 +55,17 @@ Remember to pull and update submodule everytime you fetch latest code from `mast
 ```txt
 git pull --recurse-submodule origin master
 ```
+
 ### Run
 
 If you want to run and debug the extension in VS2019, set `GitBranchDiffer2019` as the Startup Project. For VS2022, choose the `GitBranchDiffer` project.
 A common issue I face everytime I run the plugin in debug mode (Experimental Instance of VS) after freshly cloning it on my disk is the [TypeInitializationException](https://stackoverflow.com/questions/59926253/libgit2sharp-dllnotfoundexception-unable-to-load-dll-git2-106a5f2) from the `LibGit2Sharp` dependency. If you run into this, try again after deleting the `Extensions` folder found under this directory: `%LocalAppData%\Microsoft\VisualStudio\16.0_XXXXXXXXExp`. If you are debugging Experimental Instance of VS2022, the path would be `%LocalAppData%\Microsoft\VisualStudio\17.0_XXXXXXXXExp`. 
 
+## Credits
+
+Thanks to Thomas Koch [@tommes](https://github.com/tommes) for the bugfix
+
 ## Roadmap
-* Currently, GitBranchDiffer is not supported on versions older than Visual Studio 2019 (highly reducing the target audience of the plugin). This is mostly because I do not have the ability to test on older versions, and no experience developing Visual Studio plug-ins prior to this. Any contributions in this direction are highly appreciated!
-* The plugin is designed for code reviews on .NET, and further improvements are expected to be in that direction.
-* Ubiquitous dev-tasks (for example, git-pull before applying GitBranchDiffer filter) are expected to be done by users via existing tools in VS/CLI and are to be kept out of this plugin.
-* General improvements in code quality, eg. test coverage of BranchDiffer.Git library.
+* The plugin was designed for easier code reviews in Visual Studio, by comparing Git branches (a feature Visual Studio didn't have) and listing the changes in a Solution Explorer view. However, Microsoft added the [Git Branch Compare feature](https://devblogs.microsoft.com/visualstudio/visual-studio-17-1-preview-2-is-now-available/#be-more-productive-with-git) in Visual Studio 2022 (Version 17.2), so this plugin might not add much value for those who can upgrade to VS2022. With that said, I will continue to maintain it, fixing bugs and accepting PRs.
+* Currently, GitBranchDiffer is not supported on versions older than Visual Studio 2019, highly reducing the target audience of the plugin since Git Branch Comparison is lacking in those versions. I don't have the ability to use older versions, and no experience developing Visual Studio plug-ins prior to this. Any contributions in this direction are highly appreciated!
 
