@@ -18,7 +18,7 @@ Open the latest CI run, download the artifact, unzip and run GitBranchDiffer.vsi
 
 * Once the filter is applied, right-click on a file in Solution Explorer, click "Open Diff With Base" to open a comparison of the file's content in the working branch with that of the "Base Branch".
 
-* Supports Visual Studio 2019
+* Supports Visual Studio 2019 and Visual Studio 2022
 
 ![image](https://user-images.githubusercontent.com/25904133/118525755-d63bd480-b73f-11eb-884a-ddf86c63a70a.png)
 
@@ -34,7 +34,7 @@ Note that GitBranchDiffer filter does not support displaying files that were del
 
 ## Contributions
 
-All contributions welcome. 
+All contributions welcome.
 Any suggestions/ideas can be discussed, and possibly assigned freely to whomever interested in contributing.
 To report a bug, please use the [bug template](https://github.com/sajalverma17/GitBranchDiffer/issues/new?assignees=&labels=bug&template=bug-report.md&title=)
 
@@ -55,6 +55,10 @@ Remember to pull and update submodule everytime you fetch latest code from `mast
 ```txt
 git pull --recurse-submodule origin master
 ```
+### Run
+
+If you want to run and debug the extension in VS2019, set `GitBranchDiffer2019` as the Startup Project. For VS2022, choose the `GitBranchDiffer` project.
+A common issue I face everytime I run the plugin in debug mode (Experimental Instance of VS) after freshly cloning it on my disk is the [TypeInitializationException](https://stackoverflow.com/questions/59926253/libgit2sharp-dllnotfoundexception-unable-to-load-dll-git2-106a5f2) from the `LibGit2Sharp` dependency. If you run into this, try again after deleting the `Extensions` folder found under this directory: `%LocalAppData%\Microsoft\VisualStudio\16.0_XXXXXXXXExp`. If you are debugging Experimental Instance of VS2022, the path would be `%LocalAppData%\Microsoft\VisualStudio\17.0_XXXXXXXXExp`. 
 
 ## Roadmap
 * Currently, GitBranchDiffer is not supported on versions older than Visual Studio 2019 (highly reducing the target audience of the plugin). This is mostly because I do not have the ability to test on older versions, and no experience developing Visual Studio plug-ins prior to this. Any contributions in this direction are highly appreciated!

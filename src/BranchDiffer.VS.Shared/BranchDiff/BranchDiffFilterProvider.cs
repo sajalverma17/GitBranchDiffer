@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 
 namespace BranchDiffer.VS.BranchDiff
 {
-    // BUG: The REALLY large solutions take a long time before our VSPackage is registered and intializes this filter, find a way to hide filter in UI untill solution loaded (ProvideAutoLoad)
     [SolutionTreeFilterProvider(GitBranchDifferPackageGuids.guidGitBranchDifferPackageCmdSet, (uint)(GitBranchDifferPackageGuids.CommandIdGenerateDiffAndFilter))]    
     public class BranchDiffFilterProvider : HierarchyTreeFilterProvider
     {
