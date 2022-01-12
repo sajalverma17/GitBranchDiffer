@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace BranchDiffer.VS.FileDiff
 {
+    // TODO: Try to setup DI in VS project and resolve IVSServices using IGitBranchDifferPackage.GetServiceAsyn
     public class VsFileDiffProvider
     {
         private readonly IVsDifferenceService vsDifferenceService;

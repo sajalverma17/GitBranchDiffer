@@ -128,42 +128,33 @@ namespace BranchDiffer.VS.BranchDiff
 
             private bool ShouldIncludeInFilter(IVsHierarchyItem hierarchyItem)
             {
-                ThreadHelper.ThrowIfNotOnUIThread();
                 if (hierarchyItem == null)
                 {
                     return false;
                 }
-               
+
                 if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity)
                     || HierarchyUtilities.IsProject(hierarchyItem.HierarchyIdentity))
                 {
-                    var absoluteFilePath = string.Empty;
-                    if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity))
-                    {
-                        absoluteFilePath = hierarchyItem.CanonicalName;
-                    }
-                    else if (HierarchyUtilities.IsProject(hierarchyItem.HierarchyIdentity))
-                    {
-                        hierarchyItem.HierarchyIdentity.Hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ExtObject, out var prjObject);
-                        if (prjObject is EnvDTE.Project project)
-                        {
-                            absoluteFilePath = project.FullName;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(absoluteFilePath))
+                    if (!string.IsNullOrEmpty(hierarchyItem.CanonicalName))
                     {
                         DiffResultItem diffResultItem = this.branchDiffWorker.GetItemFromChangeSet(this.changeSet, hierarchyItem.CanonicalName);
 
                         if (diffResultItem != null)
                         {
-                            // Tag the old path so we find the Base branch version of file using the Old Path (for files renamed in the working branch)
+                            // *WIP* - If the changed physical file shows up under "External Dependencies" folder of a C++ project, always ignore
+                            if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity) && IsCPPExternalDependencyFile(hierarchyItem))
+                            {
+                                return false;
+                            }
+
+                            // If files renamed in working branch, Tag the old path so we find the Base branch version of file using the Old Path
                             if (!string.IsNullOrEmpty(diffResultItem.OldAbsoluteFilePath))
                             {
-                                BranchDiffFilterProvider.TagManager.SetOldFilePathOnRenamedItem(
-                                    hierarchyItem.HierarchyIdentity.Hierarchy,
-                                    hierarchyItem.CanonicalName,
-                                    diffResultItem.OldAbsoluteFilePath);
+                                    BranchDiffFilterProvider.TagManager.SetOldFilePathOnRenamedItem(
+                                        hierarchyItem.HierarchyIdentity.Hierarchy,
+                                        hierarchyItem.CanonicalName,
+                                        diffResultItem.OldAbsoluteFilePath);
                             }
 
                             return true;
@@ -177,6 +168,25 @@ namespace BranchDiffer.VS.BranchDiff
             private void BranchDiffFilter_Initialized(object sender, EventArgs e)
             {
                 Package.OnFilterApplied();
+            }
+
+            private bool IsCPPExternalDependencyFile(IVsHierarchyItem hierarchyItem)
+            {
+                ThreadHelper.ThrowIfNotOnUIThread();
+                hierarchyItem.HierarchyIdentity.Hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ExtObject, out var prjObject);
+                if (prjObject is EnvDTE.Project containingProject)
+                {
+                    if (containingProject.Kind == "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}")
+                    {
+                        // Check if is leaf node AND parent is a named "External Dependencies" AND parent is NOT a VSX filter added to vcsx project
+                        if (hierarchyItem.Parent.Text.Equals("External Dependencies"))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return true;
             }
 
             // We override this method to use it as a life-cycle hook to mark that our filter was un-applied
