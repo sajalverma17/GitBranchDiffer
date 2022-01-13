@@ -15,54 +15,64 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
     public abstract class OpenDiffCommand
     {
-        private readonly IGitBranchDifferPackage package;
-        private readonly DTE dte;
-        private readonly IVsDifferenceService vsDifferenceService;
-        private readonly IVsUIShell vsUIShell;
-        private readonly ErrorPresenter errorPresenter;
-        private readonly IMenuCommandService commandService;
-        private readonly GitFileDiffController gitFileDiffController;
+        private IGitBranchDifferPackage package;
+        private DTE dte;
+        private IVsDifferenceService vsDifferenceService;
+        private IVsUIShell vsUIShell;
+        private ErrorPresenter errorPresenter;
+        private IMenuCommandService commandService;
+        private GitFileDiffController gitFileDiffController;
 
-        public OpenDiffCommand(IGitBranchDifferPackage package, CommandID menuCommandId)
+        protected OpenDiffCommand()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            this.package = package ?? throw new ArgumentNullException(nameof(package));
-            this.vsDifferenceService = package.GetService(typeof(SVsDifferenceService)) as IVsDifferenceService ?? throw new ArgumentNullException(nameof(vsDifferenceService));
-            this.commandService = package.GetService(typeof(IMenuCommandService)) as IMenuCommandService ?? throw new ArgumentNullException(nameof(commandService));
-            this.dte = package.GetService(typeof(DTE)) as DTE ?? throw new ArgumentNullException(nameof(dte));
-            this.vsUIShell = package.GetService(typeof(SVsUIShell)) as IVsUIShell ?? throw new ArgumentNullException(nameof(vsUIShell));
-            this.errorPresenter = VsDIContainer.Instance.GetService(typeof(ErrorPresenter)) as ErrorPresenter ?? throw new ArgumentNullException(nameof(errorPresenter));
-            this.gitFileDiffController = DIContainer.Instance.GetService(typeof(GitFileDiffController)) as GitFileDiffController ?? throw new ArgumentNullException(nameof(gitFileDiffController));
-
-            var menuCommand = new OleMenuCommand(this.Execute, menuCommandId);
-            OleCommandInstance = menuCommand;
-            commandService.AddCommand(menuCommand);
         }
+
+        protected abstract void OpenDiffWindow(object selectedObject);
 
         /// <summary>
         /// VS Menu command instance on which visibility is switched.
         /// </summary>
         protected OleMenuCommand OleCommandInstance { get; private set; }
 
-        protected abstract void OpenDiffWindow(object selectedObject);
+        protected async Task InitializeAsync(IGitBranchDifferPackage package, DTE dte, IVsUIShell vsUIShell)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            this.package = package ?? throw new ArgumentNullException(nameof(package));
+            this.dte = dte ?? throw new ArgumentNullException(nameof(dte));
+            this.vsUIShell = vsUIShell ?? throw new ArgumentNullException(nameof(vsUIShell));
+
+            // Dependencies that can be moved to constructor and resolved via IoC...
+            this.vsDifferenceService = await package.GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService ?? throw new ArgumentNullException(nameof(vsDifferenceService));
+            this.commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as IMenuCommandService ?? throw new ArgumentNullException(nameof(commandService));
+            this.errorPresenter = VsDIContainer.Instance.GetService(typeof(ErrorPresenter)) as ErrorPresenter ?? throw new ArgumentNullException(nameof(errorPresenter));
+            this.gitFileDiffController = DIContainer.Instance.GetService(typeof(GitFileDiffController)) as GitFileDiffController ?? throw new ArgumentNullException(nameof(gitFileDiffController));
+        }
+
+        protected void Register(CommandID menuCommandId)
+        {
+            var menuCommand = new OleMenuCommand(this.Execute, menuCommandId);
+            OleCommandInstance = menuCommand;
+            commandService.AddCommand(menuCommand);
+        }
 
         protected void ShowFileDiffWindow(SolutionSelectionContainer<ISolutionSelection> solutionSelectionContainer)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             if (!string.IsNullOrEmpty(solutionSelectionContainer.FullName))
             {
-                if (solutionSelectionContainer.HasNoAssociatedDiffWindow(this.vsUIShell))
+                if (solutionSelectionContainer.HasNoAssociatedDiffWindow(vsUIShell))
                 {
                     // Create a new diff window if none already open
                     var absoluteSoltuionPath = this.dte.Solution.FullName;
                     var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSoltuionPath);
                     var fileDiffProvider = new VsFileDiffProvider(this.vsDifferenceService, solutionDirectory, solutionSelectionContainer, this.errorPresenter, this.gitFileDiffController);
-                    fileDiffProvider.ShowFileDiffWithBaseBranch(package.BranchToDiffAgainst);
+                    fileDiffProvider.ShowFileDiffWithBaseBranch(this.package.BranchToDiffAgainst);
                 }
                 else
                 {
                     // Activate already open diff window
-                    solutionSelectionContainer.FocusAssociatedDiffWindow(this.vsUIShell);
+                    solutionSelectionContainer.FocusAssociatedDiffWindow(vsUIShell);
                 }
             }
         }

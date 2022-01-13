@@ -8,6 +8,7 @@ using BranchDiffer.VS.Shared.Utils;
 using BranchDiffer.VS.Shared.FileDiff.Commands;
 using BranchDiffer.VS.Shared.BranchDiff;
 using Microsoft.VisualStudio.Shell.Interop;
+using BranchDiffer.VS.Shared.Configuration;
 
 namespace BranchDiffer.VS.Shared
 {
@@ -24,6 +25,8 @@ namespace BranchDiffer.VS.Shared
     public sealed class GitBranchDifferPackage : AsyncPackage, IGitBranchDifferPackage
     {
         private EnvDTE.DTE dte;
+        private OpenPhysicalFileDiffCommand openPhysicalFileDiffCommand;
+        private OpenProjectFileDiffCommand openProjectFileDiffCommand;
 
         public GitBranchDifferPackage()
         {
@@ -37,11 +40,15 @@ namespace BranchDiffer.VS.Shared
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
             IVsUIShell uiShell = await GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
 
-            // Init file diff commands, default invisilble
-            OpenPhysicalFileDiffCommand.Initialize(this);
-            OpenProjectFileDiffCommand.Initialize(this);
-            OpenPhysicalFileDiffCommand.Instance.IsVisible = false;
-            OpenProjectFileDiffCommand.Instance.IsVisible = false;
+            // Construct file diff commands, initialize dependecies in it and then register them in VS Menu Commands asynchronously
+            this.openPhysicalFileDiffCommand = VsDIContainer.Instance.GetService(typeof(OpenPhysicalFileDiffCommand)) as OpenPhysicalFileDiffCommand;
+            this.openProjectFileDiffCommand = VsDIContainer.Instance.GetService(typeof(OpenProjectFileDiffCommand)) as OpenProjectFileDiffCommand;
+            await this.openPhysicalFileDiffCommand.InitializeAndRegisterAsync(this, this.dte, uiShell);
+            await this.openProjectFileDiffCommand.InitializeAndRegisterAsync(this, this.dte, uiShell);            
+
+            // Commands invisible in UI by default
+            this.openPhysicalFileDiffCommand.IsVisible = false;
+            this.openProjectFileDiffCommand.IsVisible = false;
 
             if (dte != null)
             {
@@ -104,20 +111,20 @@ namespace BranchDiffer.VS.Shared
 
         public void OnFilterApplied()
         {
-            OpenPhysicalFileDiffCommand.Instance.IsVisible = true;
-            OpenProjectFileDiffCommand.Instance.IsVisible = true;
+            this.openPhysicalFileDiffCommand.IsVisible = true;
+            this.openProjectFileDiffCommand.IsVisible = true;
         }
 
         public void OnFilterUnapplied()
         {
             // When plugin isn't constructed, UI state of filter button can still be toggled, and user might un-apply before initialization
-            if (OpenPhysicalFileDiffCommand.Instance != null)
+            if (this.openPhysicalFileDiffCommand != null)
             {
-                OpenPhysicalFileDiffCommand.Instance.IsVisible = false;
+                this.openPhysicalFileDiffCommand.IsVisible = false;
             }
-            if (OpenProjectFileDiffCommand.Instance != null)
+            if (this.openProjectFileDiffCommand != null)
             {
-                OpenProjectFileDiffCommand.Instance.IsVisible = false;
+                this.openProjectFileDiffCommand.IsVisible = false;
             }
         }
     }

@@ -4,17 +4,16 @@ using System.ComponentModel.Design;
 using BranchDiffer.VS.Shared.Utils;
 using BranchDiffer.VS.Shared.BranchDiff;
 using BranchDiffer.VS.Shared.Models;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
     public sealed class OpenPhysicalFileDiffCommand : OpenDiffCommand
     {
-        private OpenPhysicalFileDiffCommand(IGitBranchDifferPackage package)
-            : base(package, new CommandID(GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, GitBranchDifferPackageGuids.CommandIdPhysicalFileDiffMenuCommand))
+        public OpenPhysicalFileDiffCommand()
         {
         }
-
-        public static OpenPhysicalFileDiffCommand Instance { get; private set; }
 
         public bool IsVisible 
         { 
@@ -23,11 +22,12 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         }
 
         /// <summary>
-        /// Initializes the singleton instance of the command.
+        /// Inits the dependecies needed to execute the command, then register command in VS menu
         /// </summary>
-        public static void Initialize(IGitBranchDifferPackage package)
-        {               
-            Instance = new OpenPhysicalFileDiffCommand(package);
+        public async Task InitializeAndRegisterAsync(IGitBranchDifferPackage package, EnvDTE.DTE dte, IVsUIShell vsUIShell)
+        {
+            await this.InitializeAsync(package, dte, vsUIShell);
+            this.Register(new CommandID(GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, GitBranchDifferPackageGuids.CommandIdPhysicalFileDiffMenuCommand));
         }
 
         protected override void OpenDiffWindow(object selectedObject)

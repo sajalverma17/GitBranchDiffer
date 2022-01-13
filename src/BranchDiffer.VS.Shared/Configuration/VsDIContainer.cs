@@ -1,5 +1,6 @@
 ﻿using System;
 using BranchDiffer.VS.Shared.BranchDiff;
+using BranchDiffer.VS.Shared.FileDiff.Commands;
 using BranchDiffer.VS.Shared.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -30,6 +31,8 @@ namespace BranchDiffer.VS.Shared.Configuration
             var services = new ServiceCollection();
             services.AddSingleton<ErrorPresenter>();
             services.AddSingleton<BranchDiffFilterValidator>();
+            services.AddSingleton<OpenPhysicalFileDiffCommand>();
+            services.AddSingleton<OpenProjectFileDiffCommand>();
             return services.BuildServiceProvider();
         }
     }

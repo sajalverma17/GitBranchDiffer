@@ -66,8 +66,6 @@ namespace BranchDiffer.VS.Shared.BranchDiff
             private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;            
             private readonly IGitBranchDifferPackage package;
             private readonly string solutionDirectory;
-
-            // Resolvable dependencies...
             private readonly GitBranchDiffController branchDiffWorker;
             private readonly BranchDiffFilterValidator branchDiffValidator;
             private readonly ErrorPresenter errorPresenter;
@@ -83,6 +81,9 @@ namespace BranchDiffer.VS.Shared.BranchDiff
                 this.solutionDirectory = solutionPath;
                 this.vsHierarchyItemCollectionProvider = vsHierarchyItemCollectionProvider;
                 this.Initialized += BranchDiffFilter_Initialized;
+
+
+                // Dependencies that can be moved to constructor and resolved via IoC...
                 this.branchDiffWorker = DIContainer.Instance.GetService(typeof(GitBranchDiffController)) as GitBranchDiffController;
                 this.branchDiffValidator = VsDIContainer.Instance.GetService(typeof(BranchDiffFilterValidator)) as BranchDiffFilterValidator;
                 this.errorPresenter = VsDIContainer.Instance.GetService(typeof(ErrorPresenter)) as ErrorPresenter;
@@ -102,7 +103,7 @@ namespace BranchDiffer.VS.Shared.BranchDiff
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
             {
                 if (this.branchDiffValidator.ValidateBranch(this.package))
-                {
+                {                    
                     // Create new tag tables everytime the filter is applied 
                     BranchDiffFilterProvider.TagManager.CreateTagTables();
                     IVsHierarchyItem root = HierarchyUtilities.FindCommonAncestor(rootItems);

@@ -3,33 +3,31 @@ using BranchDiffer.VS.Shared.Models;
 using BranchDiffer.VS.Shared.Utils;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System.ComponentModel.Design;
+using System.Threading.Tasks;
 
 namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
     public sealed class OpenProjectFileDiffCommand : OpenDiffCommand
     {
-        private OpenProjectFileDiffCommand(
-            IGitBranchDifferPackage package)
-            : base(package, new CommandID(GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, GitBranchDifferPackageGuids.CommandIdProjectFileDiffMenuCommand))
+        public OpenProjectFileDiffCommand()
         {
         }
-
-
-        public static OpenProjectFileDiffCommand Instance { get; private set; }
 
         public bool IsVisible 
         { 
             get => OleCommandInstance.Visible; 
-            set => OleCommandInstance.Visible = value; 
+            set => OleCommandInstance.Visible = value;
         }
 
         /// <summary>
-        /// Initializes the singleton instance of the command.
+        /// Inits the dependecies needed to execute the command, then register command in VS menu
         /// </summary>
-        public static void Initialize(IGitBranchDifferPackage package)
+        public async Task InitializeAndRegisterAsync(IGitBranchDifferPackage package, EnvDTE.DTE dte, IVsUIShell vsUIShell)
         {
-            Instance = new OpenProjectFileDiffCommand(package);
+            await this.InitializeAsync(package, dte, vsUIShell);
+            this.Register(new CommandID(GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, GitBranchDifferPackageGuids.CommandIdProjectFileDiffMenuCommand));
         }
 
         protected override void OpenDiffWindow(object selectedObject)
