@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.Shell;
+﻿using System;
 using System.Threading;
 
 namespace BranchDiffer.VS.Shared
@@ -6,7 +6,7 @@ namespace BranchDiffer.VS.Shared
     /// <summary>
     /// Provides access to the implementation of VSPackage in startup project.
     /// </summary>
-    public interface IGitBranchDifferPackage : IAsyncServiceProvider
+    public interface IGitBranchDifferPackage : IServiceProvider
     {
         string BranchToDiffAgainst { get; }
 

@@ -27,10 +27,10 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             this.package = package ?? throw new ArgumentNullException(nameof(package));
-            this.dte = package.GetServiceAsync(typeof(DTE)) as DTE ?? throw new ArgumentNullException(nameof(dte));
-            this.commandService = package.GetServiceAsync(typeof(IMenuCommandService)) as IMenuCommandService ?? throw new ArgumentNullException(nameof(commandService));
-            this.vsDifferenceService = package.GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService ?? throw new ArgumentNullException(nameof(vsDifferenceService));
-            this.vsUIShell = package.GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell ?? throw new ArgumentNullException(nameof(vsUIShell));
+            this.vsDifferenceService = package.GetService(typeof(SVsDifferenceService)) as IVsDifferenceService ?? throw new ArgumentNullException(nameof(vsDifferenceService));
+            this.commandService = package.GetService(typeof(IMenuCommandService)) as IMenuCommandService ?? throw new ArgumentNullException(nameof(commandService));
+            this.dte = package.GetService(typeof(DTE)) as DTE ?? throw new ArgumentNullException(nameof(dte));
+            this.vsUIShell = package.GetService(typeof(SVsUIShell)) as IVsUIShell ?? throw new ArgumentNullException(nameof(vsUIShell));
             this.errorPresenter = VsDIContainer.Instance.GetService(typeof(ErrorPresenter)) as ErrorPresenter ?? throw new ArgumentNullException(nameof(errorPresenter));
             this.gitFileDiffController = DIContainer.Instance.GetService(typeof(GitFileDiffController)) as GitFileDiffController ?? throw new ArgumentNullException(nameof(gitFileDiffController));
 

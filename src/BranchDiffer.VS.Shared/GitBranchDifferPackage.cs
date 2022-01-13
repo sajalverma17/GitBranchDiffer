@@ -91,7 +91,6 @@ namespace BranchDiffer.VS.Shared
             ThreadHelper.ThrowIfNotOnUIThread();
             var absoluteSolutionPath = this.dte.Solution.FullName;
             var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);
-            var solutionFile = System.IO.Path.GetFileName(absoluteSolutionPath);
             BranchDiffFilterProvider.SetSolutionInfo(solutionDirectory);
         }
 
