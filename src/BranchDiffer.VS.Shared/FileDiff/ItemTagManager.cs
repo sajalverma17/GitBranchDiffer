@@ -35,6 +35,9 @@ namespace BranchDiffer.VS.Shared.FileDiff
             vsHierarchy.ParseCanonicalName(vsHierarchyItem.CanonicalName, out uint itemId);
             vsHierarchy.GetProperty(itemId, (int)__VSHPROPID.VSHPROPID_ExtObject, out object itemObject);
             var project = itemObject as EnvDTE.Project;
+
+            // No need of passing project.FullName, all we need is to store and retrive the project object later,
+            // but since the ConditionalWeakTable is a dictionary-like object, we pass it as a value.
             this.editedCsProjectTable.Insert(project, project.FullName);
         }
 

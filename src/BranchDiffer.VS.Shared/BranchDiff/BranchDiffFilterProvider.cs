@@ -17,6 +17,11 @@ using System.Threading.Tasks;
 
 namespace BranchDiffer.VS.Shared.BranchDiff
 {
+    /// <summary>
+    /// Filter Provider is constructed by VS once on startup.
+    /// TODO: This class is now officially a mess, a simple todo is to break down the `ShouldIncludeInFilter` into a service with that logic moved there
+    /// TODO: Figure out how this provider can initialize the OpenDiffCommands and provide them info for visibility and TagManager. Presently, these are ugly Static properties defined on this class.
+    /// </summary>
     [SolutionTreeFilterProvider(GitBranchDifferPackageGuids.guidGitBranchDifferPackageCmdSet, (uint)(GitBranchDifferPackageGuids.CommandIdGenerateDiffAndFilter))]    
     public class BranchDiffFilterProvider : HierarchyTreeFilterProvider
     {
@@ -154,7 +159,6 @@ namespace BranchDiffer.VS.Shared.BranchDiff
                     }
                     else if (HierarchyUtilities.IsProject(hierarchyItem.HierarchyIdentity))
                     {
-                        // hierarchyItem.HierarchyIdentity.Hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ExtObject, out var prjObject);
                         var vsHierarchy = hierarchyItem.HierarchyIdentity.Hierarchy;
                         vsHierarchy.ParseCanonicalName(hierarchyItem.CanonicalName, out uint itemId);
                         vsHierarchy.GetProperty(itemId, (int)__VSHPROPID.VSHPROPID_ExtObject, out object itemObject);
@@ -170,7 +174,7 @@ namespace BranchDiffer.VS.Shared.BranchDiff
 
                         if (diffResultItem != null)
                         {
-                            // If the changed physical file shows up under "External Dependencies" folder of a C++ project, always ignore.
+                            // If the physical file in changeSet is under "External Dependencies" folder of a C++ project, always ignore. This file is a link, and already shows up elsewhere.
                             if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity) && IsCPPExternalDependencyFile(hierarchyItem))
                             {
                                 return false;
@@ -182,7 +186,7 @@ namespace BranchDiffer.VS.Shared.BranchDiff
                                 BranchDiffFilterProvider.TagManager.MarkProjAsChanged(hierarchyItem);
                             }
 
-                            // If item renamed in working branch, Tag the old path so we find the Base branch version of file using the Old Path.
+                            // If item renamed in working branch. Tag the old path so we find the Base branch version of file using the Old Path.
                             if (!string.IsNullOrEmpty(diffResultItem.OldAbsoluteFilePath))
                             {
                                     BranchDiffFilterProvider.TagManager.SetOldFilePathOnRenamedItem(hierarchyItem, diffResultItem.OldAbsoluteFilePath);
@@ -204,7 +208,6 @@ namespace BranchDiffer.VS.Shared.BranchDiff
                 {
                     if (containingProject.Kind == "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}")
                     {
-                        // Check if is leaf node AND parent is a named "External Dependencies" AND parent is NOT a VSX filter added to vcsx project
                         if (hierarchyItem.Parent.Text.Equals("External Dependencies"))
                         {
                             return true;

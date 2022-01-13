@@ -33,8 +33,6 @@ namespace BranchDiffer.VS.Shared
             BranchDiffFilterProvider.Initialize(this);
         }
 
-        // TODO: Move all Init code to MEF component (MEF component loading is not async however, and slow down loading),
-        // but lot of code will be simplifed without the ugly static objects set on BranchDiffFilterProvider.
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "VSSDK006:Check services exist", Justification = "Show custom error if DTE service doesn't exist")]
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
