@@ -5,7 +5,7 @@ using BranchDiffer.VS.Shared.Utils;
 using BranchDiffer.VS.Shared.BranchDiff;
 using BranchDiffer.VS.Shared.Models;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.Shell.Interop;
+using System;
 
 namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
@@ -24,18 +24,30 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         /// <summary>
         /// Inits the dependecies needed to execute the command, then register command in VS menu
         /// </summary>
-        public async Task InitializeAndRegisterAsync(IGitBranchDifferPackage package, EnvDTE.DTE dte, IVsUIShell vsUIShell)
+        public async Task InitializeAndRegisterAsync(IGitBranchDifferPackage package)
         {
-            await this.InitializeAsync(package, dte, vsUIShell);
+            await this.InitializeAsync(package);
             this.Register(new CommandID(GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, GitBranchDifferPackageGuids.CommandIdPhysicalFileDiffMenuCommand));
+            OleCommandInstance.BeforeQueryStatus += OleCommandInstance_BeforeQueryStatus;
         }
 
-        protected override void OpenDiffWindow(object selectedObject)
+        private void OleCommandInstance_BeforeQueryStatus(object sender, EventArgs e)
+        {
+            if (BranchDiffFilterProvider.IsFilterApplied)
+            {
+                OleCommandInstance.Visible = true;
+                return;
+            }
+
+            OleCommandInstance.Visible = false;
+        }
+
+        protected override void Execute(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            if (selectedObject is ProjectItem)
-            {
-                var selectedProjectItem = selectedObject as ProjectItem;
+            var selectedProjectItem = this.GetSelectedObjectInSolution<ProjectItem>();
+            if (selectedProjectItem != null)
+            {                
                 var oldPath = BranchDiffFilterProvider.TagManager.GetOldFilePathFromRenamed(selectedProjectItem);
                 var selection = new SolutionSelectionContainer<ISolutionSelection>
                 {

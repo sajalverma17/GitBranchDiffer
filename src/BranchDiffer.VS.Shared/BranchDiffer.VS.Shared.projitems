@@ -15,8 +15,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenDiffCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenPhysicalFileDiffCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenProjectFileDiffCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Tables\EditedCsProjectTable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\ItemTagManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FileDiff\RenamedPathTable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Tables\IItemTable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Tables\RenamedPathTable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\VsFileDiffProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GitBranchDifferPackage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GitBranchDifferPluginOptions.cs">

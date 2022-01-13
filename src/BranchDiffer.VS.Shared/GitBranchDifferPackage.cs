@@ -33,6 +33,8 @@ namespace BranchDiffer.VS.Shared
             BranchDiffFilterProvider.Initialize(this);
         }
 
+        // TODO: Move all Init code to MEF component (MEF component loading is not async however, and slow down loading),
+        // but lot of code will be simplifed without the ugly static objects set on BranchDiffFilterProvider.
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "VSSDK006:Check services exist", Justification = "Show custom error if DTE service doesn't exist")]
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
@@ -43,12 +45,8 @@ namespace BranchDiffer.VS.Shared
             // Construct file diff commands, initialize dependecies in it and then register them in VS Menu Commands asynchronously
             this.openPhysicalFileDiffCommand = VsDIContainer.Instance.GetService(typeof(OpenPhysicalFileDiffCommand)) as OpenPhysicalFileDiffCommand;
             this.openProjectFileDiffCommand = VsDIContainer.Instance.GetService(typeof(OpenProjectFileDiffCommand)) as OpenProjectFileDiffCommand;
-            await this.openPhysicalFileDiffCommand.InitializeAndRegisterAsync(this, this.dte, uiShell);
-            await this.openProjectFileDiffCommand.InitializeAndRegisterAsync(this, this.dte, uiShell);            
-
-            // Commands invisible in UI by default
-            this.openPhysicalFileDiffCommand.IsVisible = false;
-            this.openProjectFileDiffCommand.IsVisible = false;
+            await this.openPhysicalFileDiffCommand.InitializeAndRegisterAsync(this);
+            await this.openProjectFileDiffCommand.InitializeAndRegisterAsync(this);
 
             if (dte != null)
             {
@@ -107,25 +105,6 @@ namespace BranchDiffer.VS.Shared
         private void ResetSolutionInfo()
         {
             BranchDiffFilterProvider.SetSolutionInfo(string.Empty);
-        }
-
-        public void OnFilterApplied()
-        {
-            this.openPhysicalFileDiffCommand.IsVisible = true;
-            this.openProjectFileDiffCommand.IsVisible = true;
-        }
-
-        public void OnFilterUnapplied()
-        {
-            // When plugin isn't constructed, UI state of filter button can still be toggled, and user might un-apply before initialization
-            if (this.openPhysicalFileDiffCommand != null)
-            {
-                this.openPhysicalFileDiffCommand.IsVisible = false;
-            }
-            if (this.openProjectFileDiffCommand != null)
-            {
-                this.openProjectFileDiffCommand.IsVisible = false;
-            }
         }
     }
 }

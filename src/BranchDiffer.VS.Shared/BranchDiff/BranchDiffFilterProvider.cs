@@ -32,9 +32,12 @@ namespace BranchDiffer.VS.Shared.BranchDiff
         {
             this.serviceProvider = serviceProvider;
             this.vsHierarchyItemCollectionProvider = hierarchyCollectionProvider;
+            BranchDiffFilterProvider.TagManager = new ItemTagManager();
         }
+        
+        internal static ItemTagManager TagManager { get; set; }
 
-        internal static ItemTagManager TagManager { get; private set; }
+        internal static bool IsFilterApplied { get; set; }
 
         /// <summary>
         /// One time initialization of the Solution Explorer filter, happens once per-Visual-Studio-startup.
@@ -45,7 +48,6 @@ namespace BranchDiffer.VS.Shared.BranchDiff
         public static void Initialize(IGitBranchDifferPackage package)
         {
             Package = package;
-            BranchDiffFilterProvider.TagManager = new ItemTagManager();
         }
 
         /// <summary>
@@ -82,7 +84,6 @@ namespace BranchDiffer.VS.Shared.BranchDiff
                 this.vsHierarchyItemCollectionProvider = vsHierarchyItemCollectionProvider;
                 this.Initialized += BranchDiffFilter_Initialized;
 
-
                 // Dependencies that can be moved to constructor and resolved via IoC...
                 this.branchDiffWorker = DIContainer.Instance.GetService(typeof(GitBranchDiffController)) as GitBranchDiffController;
                 this.branchDiffValidator = VsDIContainer.Instance.GetService(typeof(BranchDiffFilterValidator)) as BranchDiffFilterValidator;
@@ -92,12 +93,11 @@ namespace BranchDiffer.VS.Shared.BranchDiff
                 Assumes.Present(this.errorPresenter);
             }
 
-
             // We override this method to use it as a life-cycle hook to mark that our filter was un-applied
             protected override void DisposeManagedResources()
             {
                 base.DisposeManagedResources();
-                Package?.OnFilterUnapplied();
+                BranchDiffFilterProvider.IsFilterApplied = false;            
             }
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
@@ -138,6 +138,7 @@ namespace BranchDiffer.VS.Shared.BranchDiff
 
             private bool ShouldIncludeInFilter(IVsHierarchyItem hierarchyItem)
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 if (hierarchyItem == null)
                 {
                     return false;
@@ -146,25 +147,45 @@ namespace BranchDiffer.VS.Shared.BranchDiff
                 if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity)
                     || HierarchyUtilities.IsProject(hierarchyItem.HierarchyIdentity))
                 {
-                    if (!string.IsNullOrEmpty(hierarchyItem.CanonicalName))
+                    var absoluteFilePath = string.Empty;
+                    if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity))
                     {
-                        DiffResultItem diffResultItem = this.branchDiffWorker.GetItemFromChangeSet(this.changeSet, hierarchyItem.CanonicalName);
+                        absoluteFilePath = hierarchyItem.CanonicalName;
+                    }
+                    else if (HierarchyUtilities.IsProject(hierarchyItem.HierarchyIdentity))
+                    {
+                        // hierarchyItem.HierarchyIdentity.Hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ExtObject, out var prjObject);
+                        var vsHierarchy = hierarchyItem.HierarchyIdentity.Hierarchy;
+                        vsHierarchy.ParseCanonicalName(hierarchyItem.CanonicalName, out uint itemId);
+                        vsHierarchy.GetProperty(itemId, (int)__VSHPROPID.VSHPROPID_ExtObject, out object itemObject);
+                        if (itemObject is EnvDTE.Project project)
+                        {
+                            absoluteFilePath = project.FullName;
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(absoluteFilePath))
+                    {
+                        DiffResultItem diffResultItem = this.branchDiffWorker.GetItemFromChangeSet(this.changeSet, absoluteFilePath);
 
                         if (diffResultItem != null)
                         {
-                            // *WIP* - If the changed physical file shows up under "External Dependencies" folder of a C++ project, always ignore
+                            // If the changed physical file shows up under "External Dependencies" folder of a C++ project, always ignore.
                             if (HierarchyUtilities.IsPhysicalFile(hierarchyItem.HierarchyIdentity) && IsCPPExternalDependencyFile(hierarchyItem))
                             {
                                 return false;
                             }
 
-                            // If files renamed in working branch, Tag the old path so we find the Base branch version of file using the Old Path
+                            // Mark all Project nodes found in changeset, so we only enable "Open Diff With Base" button for these project nodes.
+                            if (HierarchyUtilities.IsProject(hierarchyItem.HierarchyIdentity))
+                            {
+                                BranchDiffFilterProvider.TagManager.MarkProjAsChanged(hierarchyItem);
+                            }
+
+                            // If item renamed in working branch, Tag the old path so we find the Base branch version of file using the Old Path.
                             if (!string.IsNullOrEmpty(diffResultItem.OldAbsoluteFilePath))
                             {
-                                    BranchDiffFilterProvider.TagManager.SetOldFilePathOnRenamedItem(
-                                        hierarchyItem.HierarchyIdentity.Hierarchy,
-                                        hierarchyItem.CanonicalName,
-                                        diffResultItem.OldAbsoluteFilePath);
+                                    BranchDiffFilterProvider.TagManager.SetOldFilePathOnRenamedItem(hierarchyItem, diffResultItem.OldAbsoluteFilePath);
                             }
 
                             return true;
@@ -196,7 +217,7 @@ namespace BranchDiffer.VS.Shared.BranchDiff
 
             private void BranchDiffFilter_Initialized(object sender, EventArgs e)
             {
-                Package.OnFilterApplied();
+                BranchDiffFilterProvider.IsFilterApplied = true;
             }
         }
     }

@@ -11,9 +11,5 @@ namespace BranchDiffer.VS.Shared
         string BranchToDiffAgainst { get; }
 
         CancellationToken CancellationToken { get; }
-
-        void OnFilterApplied();
-
-        void OnFilterUnapplied();
     }
 }

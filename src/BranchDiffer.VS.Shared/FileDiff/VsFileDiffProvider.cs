@@ -53,6 +53,7 @@ namespace BranchDiffer.VS.Shared.FileDiff
             }
         }
 
+        // TODO : When file are renamed in working branch, left-file should be labled as with old-file-name@base-branch.
         private void PresentComparisonWindow(DiffBranchPair branchDiffPair, string leftFileMoniker, string rightFileMoniker)
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();            
