@@ -1,15 +1,15 @@
-﻿using BranchDiffer.VS;
-using BranchDiffer.VS.BranchDiff;
-using BranchDiffer.VS.FileDiff.Commands;
-using BranchDiffer.VS.Utils;
-using Microsoft.VisualStudio.Shell;
+﻿using Microsoft.VisualStudio.Shell;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
 using Microsoft.VisualStudio;
+using BranchDiffer.VS.Shared.Utils;
+using BranchDiffer.VS.Shared.FileDiff.Commands;
+using BranchDiffer.VS.Shared.BranchDiff;
+using Microsoft.VisualStudio.Shell.Interop;
 
-namespace BranchDiffer.VS
+namespace BranchDiffer.VS.Shared
 {
     /// <summary>
     /// This is the class that implements the package exposed by this assembly.
@@ -35,10 +35,11 @@ namespace BranchDiffer.VS
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+            IVsUIShell uiShell = await GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
 
             // Init file diff commands, default invisilble
-            await OpenPhysicalFileDiffCommand.InitializeAsync(this);
-            await OpenProjectFileDiffCommand.InitializeAsync(this);
+            OpenPhysicalFileDiffCommand.Initialize(this);
+            OpenProjectFileDiffCommand.Initialize(this);
             OpenPhysicalFileDiffCommand.Instance.IsVisible = false;
             OpenProjectFileDiffCommand.Instance.IsVisible = false;
 
@@ -52,7 +53,19 @@ namespace BranchDiffer.VS
             }
             else
             {
-                ErrorPresenter.ShowError("Unable to load Git Branch Differ plug-in. Failed to get Visual Studio services.");
+                Guid clsid = Guid.Empty;
+                uiShell.ShowMessageBox(
+                    0,
+                    ref clsid,
+                    "FirstPackage",
+                    "Unable to load Git Branch Differ plug -in.Failed to get Visual Studio services",
+                    string.Empty,
+                    0,
+                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
+                    OLEMSGICON.OLEMSGICON_INFO,
+                    0,
+                    out _);
             }
         }
 
@@ -79,7 +92,7 @@ namespace BranchDiffer.VS
             var absoluteSolutionPath = this.dte.Solution.FullName;
             var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);
             var solutionFile = System.IO.Path.GetFileName(absoluteSolutionPath);
-            BranchDiffFilterProvider.SetSolutionInfo(solutionDirectory, solutionFile);
+            BranchDiffFilterProvider.SetSolutionInfo(solutionDirectory);
         }
 
         /// <summary>
@@ -87,7 +100,7 @@ namespace BranchDiffer.VS
         /// </summary>
         private void ResetSolutionInfo()
         {
-            BranchDiffFilterProvider.SetSolutionInfo(string.Empty, string.Empty);
+            BranchDiffFilterProvider.SetSolutionInfo(string.Empty);
         }
 
         public void OnFilterApplied()

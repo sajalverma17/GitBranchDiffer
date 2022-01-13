@@ -6,8 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace BranchDiffer.Git.Configuration
 {
     /// <summary>
-    /// Singleton DI container of the Git project.
-    /// Not thread safe, not sure if async working of plugin could cause problems here.
+    /// Resolves DI dependencies in BranchDiff.Git project
     /// </summary>
     public static class DIContainer
     {

@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BranchDiff\BranchDiffFilterProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BranchDiff\BranchDiffFilterValidator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Configuration\VsDIContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenDiffCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenPhysicalFileDiffCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenProjectFileDiffCommand.cs" />

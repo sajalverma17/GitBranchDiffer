@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace BranchDiffer.VS.FileDiff
+namespace BranchDiffer.VS.Shared.FileDiff
 {
     /// <summary>
     /// TKey can be either ProjectItem or Project

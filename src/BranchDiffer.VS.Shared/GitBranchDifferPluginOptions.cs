@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.Shell;
 using System.ComponentModel;
 
-namespace BranchDiffer.VS
+namespace BranchDiffer.VS.Shared
 {
     public class GitBranchDifferPluginOptions : DialogPage
     {

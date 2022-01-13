@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BranchDiffer.VS.Utils
+namespace BranchDiffer.VS.Shared.Utils
 {
     public static class GitBranchDifferPackageGuids
     {

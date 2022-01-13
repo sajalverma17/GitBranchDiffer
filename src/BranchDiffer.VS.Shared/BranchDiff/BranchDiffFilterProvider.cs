@@ -2,8 +2,9 @@
 using BranchDiffer.Git.Core;
 using BranchDiffer.Git.Exceptions;
 using BranchDiffer.Git.Models;
-using BranchDiffer.VS.FileDiff;
-using BranchDiffer.VS.Utils;
+using BranchDiffer.VS.Shared.Configuration;
+using BranchDiffer.VS.Shared.FileDiff;
+using BranchDiffer.VS.Shared.Utils;
 using Microsoft;
 using Microsoft.Internal.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio;
@@ -14,7 +15,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 
-namespace BranchDiffer.VS.BranchDiff
+namespace BranchDiffer.VS.Shared.BranchDiff
 {
     [SolutionTreeFilterProvider(GitBranchDifferPackageGuids.guidGitBranchDifferPackageCmdSet, (uint)(GitBranchDifferPackageGuids.CommandIdGenerateDiffAndFilter))]    
     public class BranchDiffFilterProvider : HierarchyTreeFilterProvider
@@ -23,7 +24,6 @@ namespace BranchDiffer.VS.BranchDiff
         private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;
         private static IGitBranchDifferPackage Package;
         private static string SolutionDirectory;
-        private static string SolutionFile;
 
         [ImportingConstructor]
         public BranchDiffFilterProvider(
@@ -51,54 +51,63 @@ namespace BranchDiffer.VS.BranchDiff
         /// <summary>
         /// Initalizes the Solution Explorer filter with Solution info once per-solution-load in Visual Studio
         /// </summary>
-        public static void SetSolutionInfo(string solutionDirectory, string solutionFile)
+        public static void SetSolutionInfo(string solutionDirectory)
         {
             SolutionDirectory = solutionDirectory;
-            SolutionFile = solutionFile;
         }
 
         protected override HierarchyTreeFilter CreateFilter()
         {
-            return new BranchDiffFilter(Package, SolutionDirectory, SolutionFile, this.serviceProvider, this.vsHierarchyItemCollectionProvider);
+            return new BranchDiffFilter(Package, SolutionDirectory, this.vsHierarchyItemCollectionProvider);
         }
 
         private sealed class BranchDiffFilter : HierarchyTreeFilter
         {
-            private readonly SVsServiceProvider serviceProvider;
             private readonly IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider;            
             private readonly IGitBranchDifferPackage package;
             private readonly string solutionDirectory;
-            private readonly string solutionFile;
 
+            // Resolvable dependencies...
             private readonly GitBranchDiffController branchDiffWorker;
+            private readonly BranchDiffFilterValidator branchDiffValidator;
+            private readonly ErrorPresenter errorPresenter;
+
             private HashSet<DiffResultItem> changeSet;
 
             public BranchDiffFilter(
                 IGitBranchDifferPackage package,
                 string solutionPath,
-                string solutionName,
-                SVsServiceProvider serviceProvider, 
                 IVsHierarchyItemCollectionProvider vsHierarchyItemCollectionProvider)
             {
                 this.package = package;
                 this.solutionDirectory = solutionPath;
-                this.solutionFile = solutionName;
-                this.serviceProvider = serviceProvider;
                 this.vsHierarchyItemCollectionProvider = vsHierarchyItemCollectionProvider;
                 this.Initialized += BranchDiffFilter_Initialized;
                 this.branchDiffWorker = DIContainer.Instance.GetService(typeof(GitBranchDiffController)) as GitBranchDiffController;
+                this.branchDiffValidator = VsDIContainer.Instance.GetService(typeof(BranchDiffFilterValidator)) as BranchDiffFilterValidator;
+                this.errorPresenter = VsDIContainer.Instance.GetService(typeof(ErrorPresenter)) as ErrorPresenter;
                 Assumes.Present(this.branchDiffWorker);
+                Assumes.Present(this.branchDiffValidator);
+                Assumes.Present(this.errorPresenter);
+            }
+
+
+            // We override this method to use it as a life-cycle hook to mark that our filter was un-applied
+            protected override void DisposeManagedResources()
+            {
+                base.DisposeManagedResources();
+                Package?.OnFilterUnapplied();
             }
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
             {
-                if (BranchDiffFilterValidator.ValidateBranch(this.package))
+                if (this.branchDiffValidator.ValidateBranch(this.package))
                 {
                     // Create new tag tables everytime the filter is applied 
                     BranchDiffFilterProvider.TagManager.CreateTagTables();
                     IVsHierarchyItem root = HierarchyUtilities.FindCommonAncestor(rootItems);
 
-                    if (BranchDiffFilterValidator.ValidateSolution(this.solutionDirectory, this.solutionFile))
+                    if (this.branchDiffValidator.ValidateSolution(this.solutionDirectory))
                     {
                         try
                         {
@@ -106,7 +115,7 @@ namespace BranchDiffer.VS.BranchDiff
                         }
                         catch (GitOperationException e)
                         {
-                            ErrorPresenter.ShowError(e.Message);
+                            this.errorPresenter.ShowError(e.Message);
                             return null;
                         }
 
@@ -165,11 +174,6 @@ namespace BranchDiffer.VS.BranchDiff
                 return false;
             }
 
-            private void BranchDiffFilter_Initialized(object sender, EventArgs e)
-            {
-                Package.OnFilterApplied();
-            }
-
             private bool IsCPPExternalDependencyFile(IVsHierarchyItem hierarchyItem)
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
@@ -186,14 +190,12 @@ namespace BranchDiffer.VS.BranchDiff
                     }
                 }
 
-                return true;
+                return false;
             }
 
-            // We override this method to use it as a life-cycle hook to mark that our filter was un-applied
-            protected override void DisposeManagedResources()
+            private void BranchDiffFilter_Initialized(object sender, EventArgs e)
             {
-                base.DisposeManagedResources();
-                Package?.OnFilterUnapplied();
+                Package.OnFilterApplied();
             }
         }
     }

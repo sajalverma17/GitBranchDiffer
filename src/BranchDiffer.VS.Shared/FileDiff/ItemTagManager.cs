@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.Shell.Interop;
 
-namespace BranchDiffer.VS.FileDiff
+namespace BranchDiffer.VS.Shared.FileDiff
 {
     /// <summary>
     /// Tags an item in the SolutionExplorer hierarchy with the old path (the path it has in the branch against which we diff working branch)

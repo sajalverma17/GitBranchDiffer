@@ -7,13 +7,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace BranchDiffer.VS.Utils
+namespace BranchDiffer.VS.Shared.Utils
 {
-    public static class ErrorPresenter
+    public class ErrorPresenter
     {
-        private static string PackageNameToDisplay = "Git Branch Differ";
+        private const string PackageNameToDisplay = "Git Branch Differ";
 
-        public static void ShowError(string error)
+        public void ShowError(string error)
         {
             MessageBox.Show(
                 error,

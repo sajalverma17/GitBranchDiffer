@@ -1,47 +1,49 @@
 ﻿using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using EnvDTE;
 using System.ComponentModel.Design;
-using Task = System.Threading.Tasks.Task;
-using BranchDiffer.VS.Utils;
+using BranchDiffer.VS.Shared.Utils;
+using BranchDiffer.VS.Shared.BranchDiff;
+using BranchDiffer.VS.Shared.Models;
 
-namespace BranchDiffer.VS.FileDiff.Commands
+namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
     public sealed class OpenPhysicalFileDiffCommand : OpenDiffCommand
     {
-        private OpenPhysicalFileDiffCommand(
-            IGitBranchDifferPackage package,
-            DTE dte,
-            IVsDifferenceService vsDifferenceService,
-            IVsUIShell vsUIShell,
-            OleMenuCommandService commandService)
-            :base(package,
-                 dte,
-                 vsDifferenceService,
-                 vsUIShell,
-                 commandService,
-                 new CommandID(
-                     GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet,
-                     GitBranchDifferPackageGuids.CommandIdPhysicalFileDiffMenuCommand))
+        private OpenPhysicalFileDiffCommand(IGitBranchDifferPackage package)
+            : base(package, new CommandID(GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, GitBranchDifferPackageGuids.CommandIdPhysicalFileDiffMenuCommand))
         {
         }
 
         public static OpenPhysicalFileDiffCommand Instance { get; private set; }
 
-        public bool IsVisible { get => OleCommandInstance.Visible; set => OleCommandInstance.Visible = value; }
+        public bool IsVisible 
+        { 
+            get => OleCommandInstance.Visible; 
+            set => OleCommandInstance.Visible = value; 
+        }
 
         /// <summary>
         /// Initializes the singleton instance of the command.
         /// </summary>
-        public static async Task InitializeAsync(IGitBranchDifferPackage package)
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.CancellationToken);
+        public static void Initialize(IGitBranchDifferPackage package)
+        {               
+            Instance = new OpenPhysicalFileDiffCommand(package);
+        }
 
-            DTE dte = await package.GetServiceAsync(typeof(DTE)) as DTE;
-            OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
-            IVsDifferenceService vsDifferenceService = await package.GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
-            IVsUIShell vsUIShell = await package.GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
-            Instance = new OpenPhysicalFileDiffCommand(package, dte, vsDifferenceService, vsUIShell, commandService);
+        protected override void OpenDiffWindow(object selectedObject)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (selectedObject is ProjectItem)
+            {
+                var selectedProjectItem = selectedObject as ProjectItem;
+                var oldPath = BranchDiffFilterProvider.TagManager.GetOldFilePathFromRenamed(selectedProjectItem);
+                var selection = new SolutionSelectionContainer<ISolutionSelection>
+                {
+                    Item = new SelectedProjectItem { Native = selectedProjectItem, OldFullPath = oldPath }
+                };
+
+                this.ShowFileDiffWindow(selection);
+            }
         }
     }
 }
