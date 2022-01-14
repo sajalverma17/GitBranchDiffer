@@ -1,52 +1,67 @@
-﻿using BranchDiffer.VS.Utils;
+﻿using BranchDiffer.VS.Shared.BranchDiff;
+using BranchDiffer.VS.Shared.Models;
+using BranchDiffer.VS.Shared.Utils;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.ComponentModel.Design;
-using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
 using Task = System.Threading.Tasks.Task;
 
-namespace BranchDiffer.VS.FileDiff.Commands
+namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
     public sealed class OpenProjectFileDiffCommand : OpenDiffCommand
     {
-        private OpenProjectFileDiffCommand(
-            IGitBranchDifferPackage package,
-            DTE dte, 
-            IVsDifferenceService vsDifferenceService,
-            IVsUIShell vsUIShell,
-            OleMenuCommandService commandService)
-            : base(package,
-                 dte,
-                 vsDifferenceService,
-                 vsUIShell,
-                 commandService,
-                 new CommandID(
-                     GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet,
-                     GitBranchDifferPackageGuids.CommandIdProjectFileDiffMenuCommand))
+        public OpenProjectFileDiffCommand()
         {
         }
 
-
-        public static OpenProjectFileDiffCommand Instance { get; private set; }
-
-        public bool IsVisible { get => OleCommandInstance.Visible; set => OleCommandInstance.Visible = value; }
+        public bool IsVisible 
+        { 
+            get => OleCommandInstance.Visible; 
+            set => OleCommandInstance.Visible = value;
+        }
 
         /// <summary>
-        /// Initializes the singleton instance of the command.
+        /// Inits the dependecies needed to execute the command, then register command in VS menu
         /// </summary>
-        public static async Task InitializeAsync(IGitBranchDifferPackage package)
+        public async Task InitializeAndRegisterAsync(IGitBranchDifferPackage package)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.CancellationToken);
+            await this.InitializeAsync(package);
+            this.Register(new CommandID(GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, GitBranchDifferPackageGuids.CommandIdProjectFileDiffMenuCommand));
+            OleCommandInstance.BeforeQueryStatus += OleCommandInstance_BeforeQueryStatus;
+        }
 
-            DTE dte = await package.GetServiceAsync(typeof(DTE)) as DTE;
-            OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
-            IVsDifferenceService vsDifferenceService = await package.GetServiceAsync(typeof(SVsDifferenceService)) as IVsDifferenceService;
-            IVsUIShell vsUIShell = await package.GetServiceAsync(typeof(SVsUIShell)) as IVsUIShell;
-            Instance = new OpenProjectFileDiffCommand(package, dte, vsDifferenceService, vsUIShell, commandService);
+        // Check if filter is applied, and if Project node was actually edited in working branch and tagged as "changed", only then make command visibile.
+        private void OleCommandInstance_BeforeQueryStatus(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (BranchDiffFilterProvider.IsFilterApplied)
+            {
+                var selectedProject = this.GetSelectedObjectInSolution<Project>();
+                if (selectedProject != null)
+                {
+                    OleCommandInstance.Visible = BranchDiffFilterProvider.TagManager.IsCsProjEdited(selectedProject);
+                    return;
+                }
+            }
+
+            OleCommandInstance.Visible = false;
+        }
+
+        protected override void Execute(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var selectedProject = this.GetSelectedObjectInSolution<Project>();
+            if (selectedProject != null)
+            {                
+                var oldPath = BranchDiffFilterProvider.TagManager.GetOldFilePathFromRenamed(selectedProject);
+                var selection = new SolutionSelectionContainer<ISolutionSelection>
+                {
+                    Item = new SelectedProject { Native = selectedProject, OldFullPath = oldPath }
+                };
+
+                this.ShowFileDiffWindow(selection);
+            }
         }
     }
 }

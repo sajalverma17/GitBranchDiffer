@@ -1,4 +1,4 @@
-﻿namespace BranchDiffer.VS.Models
+﻿namespace BranchDiffer.VS.Shared.Models
 {
     public class SolutionSelectionContainer<T>
         where T : ISolutionSelection

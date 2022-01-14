@@ -1,30 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 
-namespace BranchDiffer.VS.FileDiff
+namespace BranchDiffer.VS.Shared.FileDiff.Tables
 {
     /// <summary>
-    /// TKey can be either ProjectItem or Project
+    /// Holds a table of .csproj files that were added/edited.
+    /// We lookup this table and then make "Open Diff With Base" menu command visible for Project node in Solution Explorer.
     /// </summary>
-    public class RenamedPathTable<TKey> : IDisposable
-        where TKey : class
+    internal class EditedCsProjectTable : IItemTable<EnvDTE.Project, string>
     {
-        private ConditionalWeakTable<TKey, string> conditionalWeakTable;
+        private ConditionalWeakTable<EnvDTE.Project, string> conditionalWeakTable;
 
-        public RenamedPathTable()
+        public EditedCsProjectTable()
         {
-            conditionalWeakTable = new ConditionalWeakTable<TKey, string>();
+            conditionalWeakTable = new ConditionalWeakTable<EnvDTE.Project, string>();
         }
 
-        public string GetValue(TKey key)
+        public string Select(EnvDTE.Project key)
         {
             this.conditionalWeakTable.TryGetValue(key, out string value);
             return value;
         }
 
-        public void Set(TKey key, string value)
+        public void Insert(EnvDTE.Project key, string value)
         {
             this.conditionalWeakTable.Add(key, value);
         }

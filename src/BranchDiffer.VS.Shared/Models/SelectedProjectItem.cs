@@ -1,6 +1,6 @@
 ﻿using EnvDTE;
 
-namespace BranchDiffer.VS.Models
+namespace BranchDiffer.VS.Shared.Models
 {
     public class SelectedProjectItem : ISolutionSelection
     {
@@ -19,9 +19,9 @@ namespace BranchDiffer.VS.Models
         {
             get
             {
-                // BUG: Null Ref Exception when opening Diff for Solution Items, Properties is null, implement a different way to get their FullPath
+                // If Properties is null, use FileNames[] array to get physical path of the ProjectItem. No idea why it is 1-based index.
                 Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
-                return Native.Properties.Item("FullPath")?.Value.ToString();
+                return Native.Properties is null ? Native.FileNames[1] : Native.Properties.Item("FullPath")?.Value.ToString();
             }
         }
 

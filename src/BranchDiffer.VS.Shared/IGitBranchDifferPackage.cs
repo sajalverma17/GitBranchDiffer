@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.Shell;
 using System.Threading;
 
-namespace BranchDiffer.VS
+namespace BranchDiffer.VS.Shared
 {
     /// <summary>
     /// Provides access to the implementation of VSPackage in startup project.
@@ -11,9 +11,5 @@ namespace BranchDiffer.VS
         string BranchToDiffAgainst { get; }
 
         CancellationToken CancellationToken { get; }
-
-        void OnFilterApplied();
-
-        void OnFilterUnapplied();
     }
 }

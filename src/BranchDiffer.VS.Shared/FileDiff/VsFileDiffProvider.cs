@@ -1,25 +1,35 @@
-﻿using BranchDiffer.Git.Configuration;
-using BranchDiffer.Git.Core;
+﻿using BranchDiffer.Git.Core;
 using BranchDiffer.Git.Exceptions;
 using BranchDiffer.Git.Models;
-using BranchDiffer.VS.Models;
-using BranchDiffer.VS.Utils;
-using Microsoft;
+using BranchDiffer.VS.Shared.Models;
+using BranchDiffer.VS.Shared.Utils;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace BranchDiffer.VS.FileDiff
+namespace BranchDiffer.VS.Shared.FileDiff
 {
+    // TODO: Make this injectible
     public class VsFileDiffProvider
     {
-        private readonly IVsDifferenceService vsDifferenceService;
         private readonly string DocumentPath;
         private readonly string OldDocumentPath;
         private readonly string solutionPath;
 
-        public VsFileDiffProvider(IVsDifferenceService vsDifferenceService, string solutionPath, SolutionSelectionContainer<ISolutionSelection> selectionContainer)
+        // Resolvable dependencies...
+        private readonly ErrorPresenter errorPresenter;
+        private readonly IVsDifferenceService vsDifferenceService;
+        private readonly GitFileDiffController gitFileDiffController;
+
+        public VsFileDiffProvider(
+            IVsDifferenceService vsDifferenceService, 
+            string solutionPath, 
+            SolutionSelectionContainer<ISolutionSelection> selectionContainer, 
+            ErrorPresenter errorPresenter, 
+            GitFileDiffController gitFileDiffController)
         {
             this.vsDifferenceService = vsDifferenceService;
             this.solutionPath = solutionPath;
+            this.errorPresenter = errorPresenter;
+            this.gitFileDiffController = gitFileDiffController;
             this.DocumentPath = selectionContainer.FullName;
             this.OldDocumentPath = selectionContainer.OldFullName;
         }
@@ -27,25 +37,24 @@ namespace BranchDiffer.VS.FileDiff
         public void ShowFileDiffWithBaseBranch(string baseBranchToDiffAgainst)
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
-            var fileDiffController = DIContainer.Instance.GetService(typeof(GitFileDiffController)) as GitFileDiffController;
-            Assumes.Present(fileDiffController);
 
             // Get branch pairs to diff and Get the revision of file in the branch-to-diff-against
             try
             {
-                var branchPairs = fileDiffController.GetDiffBranchPair(this.solutionPath, baseBranchToDiffAgainst);
+                var branchPairs = this.gitFileDiffController.GetDiffBranchPair(this.solutionPath, baseBranchToDiffAgainst);
                 var baseBranchFilePath = string.IsNullOrEmpty(this.OldDocumentPath) ? this.DocumentPath : this.OldDocumentPath;
-                var leftFileMoniker = fileDiffController.GetBaseBranchRevisionOfFile(this.solutionPath, baseBranchToDiffAgainst, baseBranchFilePath);
+                var leftFileMoniker = this.gitFileDiffController.GetBaseBranchRevisionOfFile(this.solutionPath, baseBranchToDiffAgainst, baseBranchFilePath);
                 var rightFileMoniker = this.DocumentPath;
 
                 this.PresentComparisonWindow(branchPairs, leftFileMoniker, rightFileMoniker);
             }
             catch (GitOperationException e)
             {
-                ErrorPresenter.ShowError(e.Message);
+                this.errorPresenter.ShowError(e.Message);
             }
         }
 
+        // TODO: When file are renamed in working branch, left-file should be labled as with old-file-name@base-branch.
         private void PresentComparisonWindow(DiffBranchPair branchDiffPair, string leftFileMoniker, string rightFileMoniker)
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();            
