@@ -45,7 +45,7 @@ git clone --recurse-submodule https://github.com/sajalverma17/GitBranchDiffer.gi
 cd GitBranchDiffer
 ```
 
-Open the `GitBranchDiffer.sln`, build and then run.
+Open the `GitBranchDiffer.sln` and build the solution.
 
 ### Test
 To test, use the `dotnet test` command on project inside the `\tests` directory. A [test repository](https://github.com/sajalverma17/GitBranchDiffer-TestAsset) is used to run tests on, and is added as a submodule to this repository.
@@ -58,8 +58,16 @@ git pull --recurse-submodule origin master
 
 ### Run
 
-If you want to run and debug the extension in VS2019, set `GitBranchDiffer2019` as the Startup Project. For VS2022, choose the `GitBranchDiffer` project.
-A common issue I face everytime I run the plugin in debug mode (Experimental Instance of VS) after freshly cloning it on my disk is the [TypeInitializationException](https://stackoverflow.com/questions/59926253/libgit2sharp-dllnotfoundexception-unable-to-load-dll-git2-106a5f2) from the `LibGit2Sharp` dependency. If you run into this, try again after deleting the `Extensions` folder found under this directory: `%LocalAppData%\Microsoft\VisualStudio\16.0_XXXXXXXXExp`. If you are debugging Experimental Instance of VS2022, the path would be `%LocalAppData%\Microsoft\VisualStudio\17.0_XXXXXXXXExp`. 
+To debug the extension in VS2019, open `GitBranchDiffer.sln` in VS2019 or VS2022 and set `GitBranchDiffer2019` as the Startup Project.  
+To debug the extension in VS2022, open `GitBranchDiffer.sln` in VS2022 and set `GitBranchDiffer` as the Startup Project.   
+
+
+When opened in VS2022, you must switch which VS version to debug in, after switching the Startup Projects:  
+![image](https://user-images.githubusercontent.com/25904133/149598754-4d51c9f2-793d-476a-b976-cb10fd3a0d47.png)
+
+
+A common issue I face everytime I debug in the Experimental Instance of VS after freshly cloning it on my disk is the [TypeInitializationException](https://stackoverflow.com/questions/59926253/libgit2sharp-dllnotfoundexception-unable-to-load-dll-git2-106a5f2) from the `LibGit2Sharp` dependency. If you run into this, try again after deleting the `Extensions` folder found under this directory: `%LocalAppData%\Microsoft\VisualStudio\16.0_XXXXXXXXExp`. If you are debugging Experimental Instance of VS2022, the path would be `%LocalAppData%\Microsoft\VisualStudio\17.0_XXXXXXXXExp`. 
+ 
 
 ## Credits
 
