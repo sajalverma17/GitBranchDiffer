@@ -5,7 +5,7 @@ using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using System;
 using System.ComponentModel.Design;
-using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
 
 namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {

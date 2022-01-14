@@ -1,15 +1,14 @@
 ﻿using BranchDiffer.Git.Configuration;
 using BranchDiffer.Git.Core;
-using BranchDiffer.VS.Shared.BranchDiff;
-using BranchDiffer.VS.Shared.Configuration;
 using BranchDiffer.VS.Shared.Models;
 using BranchDiffer.VS.Shared.Utils;
+using BranchDiffer.VS.Shared.Configuration;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.ComponentModel.Design;
-using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
 
 namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {

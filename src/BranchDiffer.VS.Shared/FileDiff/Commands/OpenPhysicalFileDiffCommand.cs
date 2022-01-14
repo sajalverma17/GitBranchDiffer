@@ -4,7 +4,7 @@ using System.ComponentModel.Design;
 using BranchDiffer.VS.Shared.Utils;
 using BranchDiffer.VS.Shared.BranchDiff;
 using BranchDiffer.VS.Shared.Models;
-using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
 using System;
 
 namespace BranchDiffer.VS.Shared.FileDiff.Commands
