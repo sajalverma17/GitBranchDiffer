@@ -7,24 +7,31 @@ using System.Threading.Tasks;
 
 namespace BranchDiffer.Git.Models.LibGit2SharpModels
 {
-    public interface IGitBranch
+    // Represents either a Branch or a Commit.
+    public interface IGitObject
     {
         string Name { get; }
 
-        Commit Tip { get; }
+        IGitCommit Tip { get; set; }
     }
 
-    public class GitBranch : IGitBranch
+    public class GitBranch : IGitObject
     {
         private readonly Branch branch;
+
+        public GitBranch(IGitCommit gitCommit) 
+        {
+            this.Tip = gitCommit;
+        }
 
         public GitBranch(Branch branch)
         {
             this.branch = branch ?? throw new ArgumentNullException(nameof(branch));
+            this.Tip = new GitCommit(branch.Tip);
         }
 
-        public string Name => this.branch.FriendlyName;
+        public string Name => this.branch?.FriendlyName ?? this.Tip?.Sha ?? throw new InvalidOperationException("Invalid state of Git Branch Or Commit.");
 
-        public Commit Tip => this.branch.Tip;
+        public IGitCommit Tip { get; set; }
     }
 }

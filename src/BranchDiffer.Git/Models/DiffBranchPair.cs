@@ -12,12 +12,12 @@ namespace BranchDiffer.Git.Models
         /// <summary>
         /// The working branch of Git Repo
         /// </summary>
-        public IGitBranch WorkingBranch { get; set; }
+        public IGitObject WorkingBranch { get; set; }
 
         /// <summary>
         /// The branch against which a diff will be run.
         /// </summary>
-        public IGitBranch BranchToDiffAgainst { get; set; }
+        public IGitObject BranchToDiffAgainst { get; set; }
 
     }
 }
