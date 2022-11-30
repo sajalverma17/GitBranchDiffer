@@ -21,17 +21,17 @@ namespace BranchDiffer.Git.Services
 
             if (!branchesInRepo.Contains(branchOrCommitToDiffAgainst) && repo.GetCommit(branchOrCommitToDiffAgainst) == null)
             {
-                message = "The Branch or Commit To Diff Against set in plugin options is not found in this repo.";
+                message = "The Branch or Commit to diff against set in plugin options is not found in this repo.";
                 return false;
             }
             else if (string.IsNullOrEmpty(activeBranch) || !branchesInRepo.Contains(activeBranch))
             {
-                message = "There is no HEAD set in this repo.";
+                message = "The HEAD is detached. You must checkout a branch.";
                 return false;
             }
             else if (activeBranch.Equals(branchOrCommitToDiffAgainst))
             {
-                message = "The Branch To Diff Against cannot be the same as the working branch of the repo.";
+                message = "The Branch or Commit to diff against cannot be the same as the working branch of the repo.";
                 return false;
             }
 
