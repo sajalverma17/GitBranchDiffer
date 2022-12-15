@@ -12,7 +12,7 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
     {
         string Name { get; }
 
-        IGitCommit Tip { get; set; }
+        IGitCommit Tip { get; }
     }
 
     public class GitBranch : IGitObject
@@ -32,6 +32,6 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
 
         public string Name => this.branch?.FriendlyName ?? this.Tip?.Sha ?? throw new InvalidOperationException("Invalid state of Git Branch Or Commit.");
 
-        public IGitCommit Tip { get; set; }
+        public IGitCommit Tip { get; private set; }
     }
 }
