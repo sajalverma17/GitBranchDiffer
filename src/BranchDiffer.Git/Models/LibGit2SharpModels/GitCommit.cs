@@ -25,6 +25,24 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
 
         public string Sha => this.commit.Sha;
 
-        public Tree Tree => this.commit.Tree;        
+        public Tree Tree => this.commit.Tree;
+
+        /// <summary>
+        /// Compare git commit objects by their 40-char sha1
+        /// </summary>
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is IGitCommit otherCommit))
+            {
+                throw new InvalidOperationException();
+            }
+
+            return this.Sha.Equals(otherCommit.Sha);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

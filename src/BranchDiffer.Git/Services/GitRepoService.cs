@@ -18,8 +18,9 @@ namespace BranchDiffer.Git.Services
         {
             var branchesInRepo = repo.Branches.Select(branch => branch.Name);
             var activeBranch = repo.Head?.Name;
+            var commitToDiffAgainst = repo.GetCommit(branchOrCommitToDiffAgainst);
 
-            if (!branchesInRepo.Contains(branchOrCommitToDiffAgainst) && repo.GetCommit(branchOrCommitToDiffAgainst) == null)
+            if (!branchesInRepo.Contains(branchOrCommitToDiffAgainst) && commitToDiffAgainst == null)
             {
                 message = "The Branch or Commit to diff against set in plugin options is not found in this repo.";
                 return false;
@@ -29,9 +30,9 @@ namespace BranchDiffer.Git.Services
                 message = "The HEAD is detached. You must checkout a branch.";
                 return false;
             }
-            else if (activeBranch.Equals(branchOrCommitToDiffAgainst))
+            else if (activeBranch.Equals(branchOrCommitToDiffAgainst) || repo.Head.Tip.Equals(commitToDiffAgainst))
             {
-                message = "The Branch or Commit to diff against cannot be the same as the working branch of the repo.";
+                message = "The Branch or Commit to diff against cannot be the same as HEAD.";
                 return false;
             }
 
