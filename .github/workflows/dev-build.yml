@@ -9,7 +9,7 @@ jobs:
 
   build:
 
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     env:
       Build_Version: 999.99.9.0       # Dummy version on PR artifact
@@ -29,7 +29,7 @@ jobs:
     - name: Install .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 6.0.x
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
