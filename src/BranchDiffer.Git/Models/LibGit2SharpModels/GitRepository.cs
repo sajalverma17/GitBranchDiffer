@@ -42,12 +42,12 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
         public IGitCommit GetCommit(string commitSha)
         {
             Commit commit = null;
-
             try
             {
                 commit = this.repository.Lookup<Commit>(commitSha);
             }
-            catch (AmbiguousSpecificationException) { } 
+            catch (AmbiguousSpecificationException) { }
+            catch (InvalidSpecificationException) { }
             
             return commit != null ? new GitCommit(commit) : null;
         }
