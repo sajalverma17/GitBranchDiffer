@@ -1,10 +1,10 @@
 name: dev-build
 
-# Run this workflow on push to PRs and all branches except master.  
+# Run this workflow on push to PRs and all branches except master.
 on:
   pull_request:
   workflow_dispatch:
-    
+
 jobs:
 
   build:
@@ -16,25 +16,25 @@ jobs:
       Solution_Name: src\GitBranchDiffer.sln
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
-      VSIX_Path: deploy\*.vsix   
+      VSIX_Path: deploy\*.vsix
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: true
         fetch-depth: 0
 
     # Install the .NET Core workload
     - name: Install .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.1
-      
+
     - name: Update VSIX version in both extension manifests
       shell: powershell
       run: .\build\VersionUpdater.ps1 $env:Build_Version
@@ -46,14 +46,14 @@ jobs:
     # Build the solution
     - name: Build GitBranchDiffer
       run: msbuild $env:Solution_Name /p:Configuration=$env:Build_Configuration /p:Platform=$env:Build_Platform /v:m
-    
+
     # Run tests
     - name: Test GitBranchDiffer
       run: dotnet test tests\BranchDiffer.Git.Tests\BranchDiffer.Git.Tests.csproj
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: GitBranchDiffer-${{ env.Build_Version }}-Test
         path: ${{ env.VSIX_Path }}

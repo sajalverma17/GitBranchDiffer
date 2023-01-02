@@ -1,14 +1,14 @@
 name: buildPublish
 
-# Release steps: 
+# Release steps:
 # On 'master' branch, create git tag with pattern: v{Major}.{Minor}.{Patch}
 # To publish release: git push origin master v{Major}.{Minor}.{Patch}
 
-on: 
-  push:    
+on:
+  push:
     tags:
       - 'v*.*.*'
-  
+
 jobs:
 
   build:
@@ -17,7 +17,7 @@ jobs:
 
     env:
       Build_Version: '0.0.0'                                      # Must be updated by parsing version from tag name
-      Solution_Name: src\GitBranchDiffer.sln                        
+      Solution_Name: src\GitBranchDiffer.sln
       Build_Configuration: Release
       Build_Platform: 'Any CPU'
       VSIX_Path: deploy\*.vsix
@@ -44,7 +44,7 @@ jobs:
     # Determine build version, then write to Github Actions Environment
     - name: Determine version number
       shell: powershell
-      run: 
+      run:
         |
         $version = .\build\VersionParser.ps1
         echo "Build_Version=$version" >> $env:GITHUB_ENV
@@ -54,9 +54,9 @@ jobs:
       uses: actions/github-script@v3
       with:
         script: |
-                core.setFailed('Build_Version env variable not set')    
-                
-    # Create a Github Release from latest Tag in 'master' branch. 
+                core.setFailed('Build_Version env variable not set')
+
+    # Create a Github Release from latest Tag in 'master' branch.
     - name: Create Github Release
       id: create_gh_release
       uses: softprops/action-gh-release@v1
@@ -96,28 +96,28 @@ jobs:
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_gh_release.outputs.upload_url }} 
+        upload_url: ${{ steps.create_gh_release.outputs.upload_url }}
         asset_path: ${{ env.GhRelease_VSIX_Path }}
         asset_name: GitBranchDiffer.zip
         asset_content_type: application/zip
 
     # Upload the deploy folder as artifact. This contains the built VSIX packages, PublishManifest and Marketplace readme needed in publish job
     - name: Upload artifacts to workflow
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: PublishArtifacts
         path: deploy
         if-no-files-found: error
-  
+
   publish-2019:
-    
+
     runs-on: windows-2019
     needs: build
-    
+
     env:
       Publisher_Name: SajalVerma
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
-      VsToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'         
+      VsToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'
       VSIX_Path: .\artifacts\GitBranchDiffer2019.vsix
       PublishManifest_Path: .\artifacts\PublishManifest2019.json
 
@@ -139,7 +139,7 @@ jobs:
         run: |
           $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
           & $vsixPublisherTool login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
-      
+
       - name: Publish to marketplace
         shell: powershell
         run: |
@@ -147,7 +147,7 @@ jobs:
             $payloadVSIX = '${{ env.VSIX_Path }}'
             $publishManifest = '${{ env.PublishManifest_Path }}'
             & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
-          
+
       - name: Logout of marketplace
         shell : powershell
         run: |
@@ -155,10 +155,10 @@ jobs:
           & $vsixPublisherTool logout -publisherName $env:Publisher_Name -ignoreMissingPublisher
 
   publish:
-    
+
     runs-on: windows-2019
     needs: build
-    
+
     env:
       Publisher_Name: SajalVerma
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
@@ -183,8 +183,8 @@ jobs:
         shell : powershell
         run: |
           $vsixPublisherTool = '${{ env.VsToolsPath }}' + 'VsixPublisher.exe'
-          & $vsixPublisherTool login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT      
-      
+          & $vsixPublisherTool login -publisherName $env:Publisher_Name -personalAccessToken $env:PAT
+
       - name: Publish to marketplace
         shell: powershell
         run: |
@@ -192,7 +192,7 @@ jobs:
             $payloadVSIX = '${{ env.VSIX_Path }}'
             $publishManifest = '${{ env.PublishManifest_Path }}'
             & $vsixPublisherTool publish -payload $payloadVSIX -publishManifest $publishManifest
-          
+
       - name: Logout of marketplace
         shell : powershell
         run: |
