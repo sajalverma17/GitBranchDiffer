@@ -48,6 +48,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+	<DeployExtension>False</DeployExtension>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,7 +75,7 @@
     <ProjectReference Include="..\BranchDiffer.VS\BranchDiffer.VS.csproj">
       <Project>{fc515414-836c-4799-bb0f-cfcb892d52b9}</Project>
       <Name>BranchDiffer.VS</Name>
-      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup;BuiltProjectOutputGroupDependencies;GetCopyToOutputDirectoryItems;SatelliteDllsProjectOutputGroup;PkgDefProjectOutputGroup</IncludeOutputGroupsInVSIX>
+		<IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup;BuiltProjectOutputGroupDependencies;GetCopyToOutputDirectoryItems;SatelliteDllsProjectOutputGroup;PkgDefProjectOutputGroup;PkgdefProjectOutputGroup</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
   </ItemGroup>
