@@ -10,8 +10,8 @@ namespace BranchDiffer.VS.Shared
         private string gitBranchName = "master";
 
         [Category("Git Branch Differ")]
-        [DisplayName("Branch To Diff Against")]
-        [Description("The branch against which active HEAD will be diffed")]
+        [DisplayName("Branch or Commit To Diff Against")]
+        [Description("The branch/commit against which HEAD will be diffed")]
         public string BaseBranchName
         {
             get { return gitBranchName; }

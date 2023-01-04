@@ -35,7 +35,8 @@ namespace BranchDiffer.Git.Core
         {
             using (var repository = this.gitRepositoryFactory.Create(solutionPath))
             {
-                return this.gitFileService.GetBaseBranchRevisionOfFile(repository, branchToDiffAgainst, activeVsDocumentPath);
+                var diffBranchPair = this.gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
+                return this.gitFileService.GetBaseBranchRevisionOfFile(repository, diffBranchPair.BranchToDiffAgainst, activeVsDocumentPath);
             }
         }
     }

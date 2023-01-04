@@ -21,41 +21,46 @@ namespace BranchDiffer.Git.Services
                 IncludeUnmodified = false,
             };
 
-            // NB! Hard to make this "Diff" property and following code unit-testable...
             var branchDiffResult = gitRepo.Diff.Compare<TreeChanges>(
                 diffBranchPair.BranchToDiffAgainst.Tip.Tree,
                 diffBranchPair.WorkingBranch.Tip.Tree,
                 compareOptions);
 
-            // Can not include delete items, no way to show it in Solution Explorer
-            // No special handling to Conflicts/Copied change kinds.
+            HashSet<DiffResultItem> changedPathsSet = new HashSet<DiffResultItem>();
+            foreach (var treeEntryChange in GetRelevantChanges(branchDiffResult))
+            {                
+                changedPathsSet.Add(CreateDiffedObject(gitRepo, treeEntryChange));
+            }
+
+            return changedPathsSet;
+        }
+
+        private static IEnumerable<TreeEntryChanges> GetRelevantChanges(TreeChanges branchDiffResult)
+        {
             var modifiedTreeChanges = branchDiffResult.Modified;
             var addedTreeChanges = branchDiffResult.Added;
             var renamedTreeChanges = branchDiffResult.Renamed;
             var allChanges = modifiedTreeChanges
                 .Concat(addedTreeChanges)
                 .Concat(renamedTreeChanges);
+            return allChanges;
+        }
 
-            HashSet<DiffResultItem> changedPathsSet = new HashSet<DiffResultItem>();
-            foreach (var treeEntryChange in allChanges)
+        private static DiffResultItem CreateDiffedObject(IGitRepository gitRepo, TreeEntryChanges treeEntryChange)
+        {
+            var itemPathWithCorrectSeparator = treeEntryChange.Path.Replace("/", Constants.DirectorySeperator);
+            var repoPathWithCorrectSeperator = gitRepo.WorkingDirectory.Replace("/", Constants.DirectorySeperator);
+
+            var diffedObject = new DiffResultItem
             {
-                // Issue with LibGit2Sharp: Paths returned are *-nix format, not windows directory format.
-                var itemPathWithCorrectSeparator = treeEntryChange.Path.Replace("/", Constants.DirectorySeperator);
-                var repoPathWithCorrectSeperator = gitRepo.WorkingDirectory.Replace("/", Constants.DirectorySeperator);
+                AbsoluteFilePath =
+                repoPathWithCorrectSeperator.ToLowerInvariant()
+                + itemPathWithCorrectSeparator.ToLowerInvariant(),
 
-                var diffedObject = new DiffResultItem
-                {
-                    AbsoluteFilePath =
-                    repoPathWithCorrectSeperator.ToLowerInvariant()
-                    + itemPathWithCorrectSeparator.ToLowerInvariant(),
+                OldAbsoluteFilePath = treeEntryChange.Status == ChangeKind.Renamed ? treeEntryChange.OldPath.Replace("/", Constants.DirectorySeperator) : string.Empty,
+            };
 
-                    OldAbsoluteFilePath = treeEntryChange.Status == ChangeKind.Renamed ? treeEntryChange.OldPath.Replace("/", Constants.DirectorySeperator) : string.Empty,
-                };
-
-                changedPathsSet.Add(diffedObject);
-            }
-
-            return changedPathsSet;
+            return diffedObject;
         }
     }
 }

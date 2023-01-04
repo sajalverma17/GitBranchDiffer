@@ -8,17 +8,19 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
     {
         GitBranchCollection Branches { get; }
 
-        IGitBranch Head { get; }
+        IGitObject Head { get; }
 
         string WorkingDirectory { get; }
 
         Diff Diff { get; }
+
+        IGitCommit GetCommit(string commitSha);
     }
 
     internal sealed class GitRepository : IGitRepository
     {
         private readonly IRepository repository;
-        private readonly IGitBranch head;
+        private readonly IGitObject head;
         private readonly GitBranchCollection gitBranches;
 
         public GitRepository(IRepository repository)
@@ -31,11 +33,24 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
 
         public GitBranchCollection Branches => this.gitBranches;
 
-        public IGitBranch Head => this.head;
+        public IGitObject Head => this.head;
 
         public Diff Diff => this.repository.Diff;
 
         public string WorkingDirectory => this.repository.Info.WorkingDirectory;
+
+        public IGitCommit GetCommit(string commitSha)
+        {
+            Commit commit = null;
+            try
+            {
+                commit = this.repository.Lookup<Commit>(commitSha);
+            }
+            catch (AmbiguousSpecificationException) { }
+            catch (InvalidSpecificationException) { }
+            
+            return commit != null ? new GitCommit(commit) : null;
+        }
 
         public void Dispose()
         {

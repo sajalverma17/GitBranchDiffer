@@ -80,7 +80,7 @@ namespace BranchDiffer.VS.Shared
             get
             {
                 GitBranchDifferPluginOptions options = (GitBranchDifferPluginOptions)GetDialogPage(typeof(GitBranchDifferPluginOptions));
-                return options.BaseBranchName;
+                return options.BaseBranchName.Trim();
             }
         }
 
