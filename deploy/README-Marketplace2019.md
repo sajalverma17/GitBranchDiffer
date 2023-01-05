@@ -1,6 +1,6 @@
 # Git Branch Differ
 
-Git Branch Differ is a Solution Explorer Filter which, when applied, only shows those files in your Solution Explorer that were Added/Modified/Renamed in your working branch as compared to a "base" branch of your choice (typically master/main/dev).
+Git Branch Differ is a Solution Explorer Filter which, when applied, only shows those files in your Solution Explorer that were Added/Modified/Renamed in your working branch as compared to a "base" branch of your choice, typically master or main.
 
 After the filter is applied, you can open a diff for any file from Solution Explorer to view what changed.
 
@@ -10,7 +10,7 @@ To download for VS2022, go to https://marketplace.visualstudio.com/items?itemNam
 
 ## Usage
 
-1. Set the "base" branch to compare your working branch with. <br>Go to: Tools -> Options -> Git Branch Differ -> Branch or Commit To Diff Against.
+1. Set the "base" branch or "base" commit's SHA to compare your working branch with. <br>Go to: Tools -> Options -> Git Branch Differ -> Branch or Commit To Diff Against.
 
 ![image](https://user-images.githubusercontent.com/25904133/210828164-b4af9a6c-2bc0-40d6-8a9c-a6837c6f2210.png)
 
@@ -18,7 +18,7 @@ To download for VS2022, go to https://marketplace.visualstudio.com/items?itemNam
 
 ![image](https://user-images.githubusercontent.com/25904133/121787246-4b76ba00-cbc5-11eb-8033-7b06d92079d5.png)
 
-3. Once the filter is applied, right-click on a file in Solution Explorer, then click `Open Diff With Base`. <br>This opens a new tab in Visual Studio, showing you the diff of the file's content in the working branch compared to it's content in the "base" branch.
+3. Once the filter is applied, right-click on a file in Solution Explorer, then click `Open Diff With Base`. <br>This opens a new tab in Visual Studio, showing you the diff of the file's content in the working branch compared to it's content in the "base" branch/commit.
 
 ![image](https://user-images.githubusercontent.com/25904133/121787519-c8566380-cbc6-11eb-9dd2-d378a9f61775.png)
 
