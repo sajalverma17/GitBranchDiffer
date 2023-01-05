@@ -1,8 +1,8 @@
 # Git Branch Differ
 
-Git Branch Differ is a Solution Explorer Filter which, when applied, only shows files in Solution Explorer that were Added/Modified/Renamed in your working branch as compared to a "base" branch of your choice (typically master/main/dev).
+Git Branch Differ is a Solution Explorer Filter which, when applied, only shows those files in your Solution Explorer that were Added/Modified/Renamed in your working branch as compared to a "base" branch of your choice (typically master/main/dev).
 
-After the filter is applied on the Solution Explorer, you can also open a diff for each file in Solution Explorer to view what changed.
+After the filter is applied, you can open a diff for any file from Solution Explorer to view what changed.
 
 ### Installation
 Install the plugin from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=SajalVerma.GitBranchDiffer), or grab it from within Visual Studio's Manage Extensions window by searching "Git Branch Differ".
@@ -27,7 +27,7 @@ Open the latest CI run, download the artifact, unzip and run GitBranchDiffer.vsi
 
 ## Motivation
 
-The extension was created to make reviewing pull requests in .NET projects easier, as jumping/navigating code (classes, methods, properties and their references inside the solution) is possible when the comparison view is "native" to Visual Studio, as opposed to text-based comparison of code.
+The extension was created to make reviewing pull requests in .NET projects easier, as jumping/navigating via code (classes, methods, properties and their references inside the solution) is possible when the comparison view is "native" to Visual Studio, as opposed to only text-based code comparison on platforms like Github.
 
 ![120868239-e3582080-c593-11eb-9c62-d68d1a17b05f](https://user-images.githubusercontent.com/25904133/120868781-118a3000-c595-11eb-85f1-bd93a0116a52.png)
 
