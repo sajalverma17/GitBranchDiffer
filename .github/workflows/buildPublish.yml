@@ -13,7 +13,7 @@ jobs:
 
   build:
 
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     env:
       Build_Version: '0.0.0'                                      # Must be updated by parsing version from tag name
@@ -111,13 +111,13 @@ jobs:
 
   publish-2019:
 
-    runs-on: windows-2019
+    runs-on: windows-2022
     needs: build
 
     env:
       Publisher_Name: SajalVerma
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
-      VsToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'
+      VsToolsPath: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'
       VSIX_Path: .\artifacts\GitBranchDiffer2019.vsix
       PublishManifest_Path: .\artifacts\PublishManifest2019.json
 
@@ -156,13 +156,13 @@ jobs:
 
   publish:
 
-    runs-on: windows-2019
+    runs-on: windows-2022
     needs: build
 
     env:
       Publisher_Name: SajalVerma
       PAT: ${{ secrets.VS_MARKETPLACE_ACCESS_TOKEN }}
-      VsToolsPath: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'
+      VsToolsPath: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\'
       VSIX_Path: .\artifacts\GitBranchDiffer.vsix
       PublishManifest_Path: .\artifacts\PublishManifest.json
 
