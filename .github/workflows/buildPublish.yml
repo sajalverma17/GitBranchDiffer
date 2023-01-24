@@ -1,8 +1,11 @@
 name: buildPublish
 
 # Release steps:
-# On 'master' branch, create git tag with pattern: v{Major}.{Minor}.{Patch}
-# To publish release: git push origin master v{Major}.{Minor}.{Patch}
+# Create git tag with pattern: v{Major}.{Minor}.{Patch}
+# Push git tag: git push origin master v{Major}.{Minor}.{Patch}
+# (Optional) Upload PublishArtifacts to github release
+
+# Note that PAT for VS Marketplace expires 22/01/2024
 
 on:
   push:
@@ -90,17 +93,6 @@ jobs:
       shell: powershell
       run: Compress-Archive -Path $env:VSIX_Path -DestinationPath $env:GhRelease_VSIX_Path
 
-    # Upload VSIXs ZIP to the Github Release
-    - name: Upload artifact as Github Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_gh_release.outputs.upload_url }}
-        asset_path: ${{ env.GhRelease_VSIX_Path }}
-        asset_name: GitBranchDiffer.zip
-        asset_content_type: application/zip
-
     # Upload the deploy folder as artifact. This contains the built VSIX packages, PublishManifest and Marketplace readme needed in publish job
     - name: Upload artifacts to workflow
       uses: actions/upload-artifact@v3
@@ -125,7 +117,7 @@ jobs:
 
         # Download the build artifact to artifacts folder in 'artifacts' directory
       - name: Download the build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
             name: PublishArtifacts
             path: .\artifacts
@@ -170,7 +162,7 @@ jobs:
 
         # Download the build artifact to artifacts folder in 'artifacts' directory
       - name: Download the build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
             name: PublishArtifacts
             path: .\artifacts
