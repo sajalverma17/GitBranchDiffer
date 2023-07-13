@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)BranchDiff\BranchDiffFilterProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BranchDiff\BranchDiffFilterValidator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Configuration\VsDIContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\GitReferenceConfigurationDialog.xaml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenDiffCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenGitReferenceConfigurationCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenPhysicalFileDiffCommand.cs" />
@@ -36,5 +37,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)VSPackageResources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="$(MSBuildThisFileDirectory)FileDiff\Commands\GitReferenceConfigurationDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 </Project>

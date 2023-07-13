@@ -7,6 +7,7 @@ using BranchDiffer.VS.Shared.Utils;
 using BranchDiffer.VS.Shared.BranchDiff;
 using System.Windows.Forms;
 using BranchDiffer.Git.Configuration;
+using Task = System.Threading.Tasks.Task;
 
 namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
