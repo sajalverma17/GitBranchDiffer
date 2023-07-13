@@ -96,7 +96,6 @@
 		  <Button guid="guidFileDiffPackageCmdSet" id="SelectReferenceObjectButtonId" type="Button" priority="0x0050">
 			  <Parent guid="guidFileDiffPackageCmdSet" id="GitBranchDifferToolbarGroupId"/>
 			  <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16"/>
-			  <CommandFlag>DefaultInvisible</CommandFlag>
 			  <CommandFlag>DynamicVisibility</CommandFlag>
 			  <Strings>
 				  <ButtonText>Choose Branch To Diff Against</ButtonText>
