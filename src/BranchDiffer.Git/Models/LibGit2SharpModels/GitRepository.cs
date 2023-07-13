@@ -1,5 +1,6 @@
 ﻿using LibGit2Sharp;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BranchDiffer.Git.Models.LibGit2SharpModels
@@ -13,6 +14,8 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
         string WorkingDirectory { get; }
 
         Diff Diff { get; }
+
+        IEnumerable<IGitCommit> GetRecentCommits(int number = 50);
 
         IGitCommit GetCommit(string commitSha);
     }
@@ -38,6 +41,20 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
         public Diff Diff => this.repository.Diff;
 
         public string WorkingDirectory => this.repository.Info.WorkingDirectory;
+
+        public IEnumerable<IGitCommit> GetRecentCommits(int number = 50)
+        {
+            return this.repository.Commits
+                .QueryBy(new CommitFilter()
+                {
+                    FirstParentOnly = true,
+                    SortBy = CommitSortStrategies.Topological | CommitSortStrategies.Time,
+                    IncludeReachableFrom = repository.Head.Tip
+                })
+                .Take(number)
+                .Select(x => new GitCommit(x))
+                .ToList();
+        }
 
         public IGitCommit GetCommit(string commitSha)
         {

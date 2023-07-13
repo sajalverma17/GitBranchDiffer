@@ -28,6 +28,7 @@ namespace BranchDiffer.VS.Shared
         private OpenPhysicalFileDiffCommand openPhysicalFileDiffCommand;
         private OpenProjectFileDiffCommand openProjectFileDiffCommand;
         private OpenGitReferenceConfigurationCommand openGitReferenceConfigurationCommand;
+        private string solutionDirectory;
 
         public GitBranchDifferPackage()
         {
@@ -90,6 +91,8 @@ namespace BranchDiffer.VS.Shared
             }
         }
 
+        public string SolutionDirectory => this.solutionDirectory;
+
         public CancellationToken CancellationToken => this.DisposalToken;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "VSSDK006:Check services exist", Justification = "Show custom error if DTE service doesn't exist")]
@@ -109,8 +112,8 @@ namespace BranchDiffer.VS.Shared
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var absoluteSolutionPath = this.dte.Solution.FullName;
-            var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);
-            BranchDiffFilterProvider.SetSolutionInfo(solutionDirectory);
+            this.solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);            
+            BranchDiffFilterProvider.SetSolutionInfo(this.solutionDirectory);
         }
 
         private void ClearSolutionPathFromFilter()

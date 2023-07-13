@@ -10,6 +10,8 @@ namespace BranchDiffer.VS.Shared
     {
         string BranchToDiffAgainst { get; }
 
+        string SolutionDirectory { get; }
+
         CancellationToken CancellationToken { get; }
     }
 }

@@ -30,6 +30,7 @@ namespace BranchDiffer.Git.Configuration
             var container = new ServiceCollection();
             container.AddScoped<GitBranchDiffController>();
             container.AddScoped<GitFileDiffController>();
+            container.AddScoped<GitObjectsStore>();
             container.AddScoped<IGitRepositoryFactory, GitRepositoryFactory>();
             container.AddScoped<IGitDiffService, GitDiffService>();
             container.AddScoped<IGitFileService, GitFileService>();

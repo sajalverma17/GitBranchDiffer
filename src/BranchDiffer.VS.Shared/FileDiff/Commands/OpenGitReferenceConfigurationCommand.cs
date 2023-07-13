@@ -1,16 +1,20 @@
 ﻿using Microsoft.VisualStudio.Shell;
-using Microsoft;
 using System;
 using System.Threading.Tasks;
 using System.ComponentModel.Design;
+using BranchDiffer.Git.Core;
 using BranchDiffer.VS.Shared.Utils;
 using BranchDiffer.VS.Shared.BranchDiff;
 using System.Windows.Forms;
+using BranchDiffer.Git.Configuration;
 
 namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
     internal class OpenGitReferenceConfigurationCommand : OpenDiffCommand
     {
+        private GitObjectsStore gitObjectsStore;
+        private IGitBranchDifferPackage gitBranchDifferPackage;
+
         public OpenGitReferenceConfigurationCommand()
         {
         }
@@ -27,6 +31,9 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         public async Task InitializeAndRegisterAsync(IGitBranchDifferPackage package)
         {
             await this.InitializeAsync(package);
+            this.gitObjectsStore = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
+            this.gitBranchDifferPackage = package;
+
             this.Register(new CommandID(GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, GitBranchDifferPackageGuids.CommandIdSelectReferenceObjectCommand));
             OleCommandInstance.BeforeQueryStatus += OleCommandInstance_BeforeQueryStatus;
         }
@@ -45,7 +52,10 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         protected override void Execute(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            MessageBox.Show("TEST");
+            var branches = gitObjectsStore.GetBranches(gitBranchDifferPackage.SolutionDirectory);
+            var recentCommits = gitObjectsStore.GetRecentCommits(gitBranchDifferPackage.SolutionDirectory);
+
+            MessageBox.Show(gitBranchDifferPackage.SolutionDirectory);
         }
     }
 }
