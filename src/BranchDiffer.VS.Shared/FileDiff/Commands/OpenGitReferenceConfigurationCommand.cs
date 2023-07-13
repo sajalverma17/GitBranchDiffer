@@ -1,0 +1,51 @@
+﻿using Microsoft.VisualStudio.Shell;
+using Microsoft;
+using System;
+using System.Threading.Tasks;
+using System.ComponentModel.Design;
+using BranchDiffer.VS.Shared.Utils;
+using BranchDiffer.VS.Shared.BranchDiff;
+using System.Windows.Forms;
+
+namespace BranchDiffer.VS.Shared.FileDiff.Commands
+{
+    internal class OpenGitReferenceConfigurationCommand : OpenDiffCommand
+    {
+        public OpenGitReferenceConfigurationCommand()
+        {
+        }
+
+        public bool IsVisible
+        {
+            get => OleCommandInstance.Visible;
+            set => OleCommandInstance.Visible = value;
+        }
+
+        /// <summary>
+        /// Inits the dependecies needed to execute the command, then register command in VS menu
+        /// </summary>
+        public async Task InitializeAndRegisterAsync(IGitBranchDifferPackage package)
+        {
+            await this.InitializeAsync(package);
+            this.Register(new CommandID(GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, GitBranchDifferPackageGuids.CommandIdSelectReferenceObjectCommand));
+            OleCommandInstance.BeforeQueryStatus += OleCommandInstance_BeforeQueryStatus;
+        }
+
+        private void OleCommandInstance_BeforeQueryStatus(object sender, EventArgs e)
+        {
+            if (BranchDiffFilterProvider.IsFilterApplied)
+            {
+                OleCommandInstance.Visible = true;
+                return;
+            }
+
+            OleCommandInstance.Visible = false;
+        }
+
+        protected override void Execute(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            MessageBox.Show("TEST");
+        }
+    }
+}

@@ -27,6 +27,7 @@ namespace BranchDiffer.VS.Shared
         private EnvDTE.DTE dte;
         private OpenPhysicalFileDiffCommand openPhysicalFileDiffCommand;
         private OpenProjectFileDiffCommand openProjectFileDiffCommand;
+        private OpenGitReferenceConfigurationCommand openGitReferenceConfigurationCommand;
 
         public GitBranchDifferPackage()
         {
@@ -97,8 +98,11 @@ namespace BranchDiffer.VS.Shared
             // Construct file diff commands, initialize dependecies in it and then register them in VS Menu Commands asynchronously
             this.openPhysicalFileDiffCommand = VsDIContainer.Instance.GetService(typeof(OpenPhysicalFileDiffCommand)) as OpenPhysicalFileDiffCommand;
             this.openProjectFileDiffCommand = VsDIContainer.Instance.GetService(typeof(OpenProjectFileDiffCommand)) as OpenProjectFileDiffCommand;
+            this.openGitReferenceConfigurationCommand = VsDIContainer.Instance.GetService(typeof(OpenGitReferenceConfigurationCommand)) as OpenGitReferenceConfigurationCommand;
+
             await this.openPhysicalFileDiffCommand.InitializeAndRegisterAsync(this);
             await this.openProjectFileDiffCommand.InitializeAndRegisterAsync(this);
+            await this.openGitReferenceConfigurationCommand.InitializeAndRegisterAsync(this);
         }
 
         private void SetSolutionPathOnFilter()
