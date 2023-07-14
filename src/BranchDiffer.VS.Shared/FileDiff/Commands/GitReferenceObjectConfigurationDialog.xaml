@@ -81,7 +81,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <WrapPanel Orientation="Horizontal">
-                                    <TextBlock Width="100" Text="{Binding ShortSha}" />
+                                    <TextBlock Width="100" Text="{Binding FriendlyName}" />
                                     <TextBlock TextTrimming="WordEllipsis" Text="{Binding Message}" />
                                 </WrapPanel>
                             </DataTemplate>

@@ -31,11 +31,19 @@ namespace BranchDiffer.Git.Core
             }
         }
 
-        public IGitObject FindReferenceObjectByFriendlyName(string solutionPath, string name)
+        public IGitObject FindGitReferenceByUserDefinedName(string solutionPath, string name)
         {
             using (var repo = this.gitRepositoryFactory.Create(solutionPath))
             {
                 return this.gitRepoService.GetGitObjectFromName(repo, name);
+            }
+        }
+
+        public IGitObject FindGitReferenceBySha(string solutionPath, string sha)
+        {
+            using (var repo = this.gitRepositoryFactory.Create(solutionPath))
+            {
+                return this.gitRepoService.GetGitObjectFromSha(repo, sha);
             }
         }
 

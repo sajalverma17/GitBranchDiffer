@@ -1,5 +1,6 @@
 ﻿using BranchDiffer.Git.Models.LibGit2SharpModels;
 using Microsoft.VisualStudio.PlatformUI;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -94,6 +95,11 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
                TagListData.Any(x => x.FriendlyName == UserDefinedReferenceName))
             {
                 IsReferenceUserDefined = false;
+                SelectedReference =
+                    BranchListData.FirstOrDefault(x => x.FriendlyName == UserDefinedReferenceName) 
+                    ?? CommitListData.FirstOrDefault(x => UserDefinedReferenceName.StartsWith(x.FriendlyName))
+                    ?? TagListData.FirstOrDefault<IGitObject>(x => x.FriendlyName == UserDefinedReferenceName)
+                    ?? throw new InvalidOperationException();
             }
             else
             {

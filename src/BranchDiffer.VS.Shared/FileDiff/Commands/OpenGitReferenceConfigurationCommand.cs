@@ -4,17 +4,19 @@ using System.ComponentModel.Design;
 using BranchDiffer.Git.Core;
 using BranchDiffer.VS.Shared.Utils;
 using BranchDiffer.VS.Shared.BranchDiff;
-using BranchDiffer.Git.Configuration;
 using Task = System.Threading.Tasks.Task;
 using System.Linq;
-using BranchDiffer.Git.Exceptions;
 using BranchDiffer.Git.Models.LibGit2SharpModels;
+using Microsoft.VisualStudio.Shell.Settings;
+using Microsoft.VisualStudio.Settings;
+using LibGit2Sharp;
 
 namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
     internal class OpenGitReferenceConfigurationCommand : OpenDiffCommand
     {
         private GitObjectsStore gitObjectsStore;
+        private ShellSettingsManager shellSettingsManager;
 
         public OpenGitReferenceConfigurationCommand()
         {
@@ -29,11 +31,11 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         /// <summary>
         /// Inits the dependecies needed to execute the command, then register command in VS menu
         /// </summary>
-        public async Task InitializeAndRegisterAsync(IGitBranchDifferPackage package)
+        public async Task InitializeAndRegisterAsync(IGitBranchDifferPackage package, ShellSettingsManager shellSettingsManager, GitObjectsStore gitObjectsStore)
         {
             await this.InitializeAsync(package);
-            this.gitObjectsStore = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
-
+            this.gitObjectsStore = gitObjectsStore;
+            this.shellSettingsManager = shellSettingsManager;
             this.Register(new CommandID(GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, GitBranchDifferPackageGuids.CommandIdSelectReferenceObjectCommand));
             OleCommandInstance.BeforeQueryStatus += OleCommandInstance_BeforeQueryStatus;
         }
@@ -67,24 +69,21 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             }
 
             IGitObject gitObject;
-            if (dialog.IsReferenceUserDefined)
-            {
-                try
-                {
-                    gitObject = this.gitObjectsStore.FindReferenceObjectByFriendlyName(this.package.SolutionDirectory, dialog.UserDefinedReferenceName);
-                }
-                catch (GitOperationException ex)
-                {
-                    this.errorPresenter.ShowError(ex.Message);
-                    return;
-                }
-            }
-            else
+            if (!dialog.IsReferenceUserDefined)
             {
                 gitObject = dialog.SelectedReference;
+                SaveGitReference(gitObject);
+                return;
             }
 
-            this.package.BranchToDiffAgainst = gitObject;
+            gitObject = this.gitObjectsStore.FindGitReferenceByUserDefinedName(this.package.SolutionDirectory, dialog.UserDefinedReferenceName);
+            if (gitObject == null)
+            {
+                this.errorPresenter.ShowError("The branch/tag/commit you typed in was not found in this repository.");
+                return;
+            }
+
+            SaveGitReference(gitObject);
         }
 
         private void LoadTags(GitReferenceObjectConfigurationDialog dialog)
@@ -119,7 +118,18 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             }
 
             ActivityLog.LogInformation(nameof(OpenGitReferenceConfigurationCommand), $"Loaded {branches.Count()} branches for repo at {this.package.SolutionDirectory}");
+        }
 
+        private void SaveGitReference(IGitObject gitObject)
+        {
+            var writeSettingsStore = this.shellSettingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+            if (!writeSettingsStore.CollectionExists(StorageKeys.StorageCollectionName))
+            {
+                writeSettingsStore.CreateCollection(StorageKeys.StorageCollectionName);
+            }
+
+            writeSettingsStore.SetString(StorageKeys.StorageCollectionName, StorageKeys.StoredPropertyName, gitObject.TipSha);
+            this.package.BranchToDiffAgainst = gitObject;
         }
     }
 }

@@ -12,6 +12,8 @@ using BranchDiffer.VS.Shared.Configuration;
 using BranchDiffer.Git.Configuration;
 using BranchDiffer.Git.Core;
 using BranchDiffer.Git.Models.LibGit2SharpModels;
+using Microsoft.VisualStudio.Shell.Settings;
+using Microsoft.VisualStudio.Settings;
 
 namespace BranchDiffer.VS.Shared
 {
@@ -30,6 +32,7 @@ namespace BranchDiffer.VS.Shared
         private OpenProjectFileDiffCommand openProjectFileDiffCommand;
         private OpenGitReferenceConfigurationCommand openGitReferenceConfigurationCommand;
         private GitObjectsStore gitObjectsStore;
+        private ShellSettingsManager shellSettingsManager;
         private string solutionDirectory;
 
         public GitBranchDifferPackage()
@@ -42,7 +45,7 @@ namespace BranchDiffer.VS.Shared
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
-
+            this.shellSettingsManager = new ShellSettingsManager(this);
             this.gitObjectsStore = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
 
 
@@ -98,7 +101,7 @@ namespace BranchDiffer.VS.Shared
 
             await this.openPhysicalFileDiffCommand.InitializeAndRegisterAsync(this);
             await this.openProjectFileDiffCommand.InitializeAndRegisterAsync(this);
-            await this.openGitReferenceConfigurationCommand.InitializeAndRegisterAsync(this);
+            await this.openGitReferenceConfigurationCommand.InitializeAndRegisterAsync(this, this.shellSettingsManager, this.gitObjectsStore);
         }
 
         private void SetSolutionPathOnFilter()
@@ -107,7 +110,37 @@ namespace BranchDiffer.VS.Shared
             var absoluteSolutionPath = this.dte.Solution.FullName;
             this.solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);            
             BranchDiffFilterProvider.SetSolutionInfo(this.solutionDirectory);
-            this.BranchToDiffAgainst = this.gitObjectsStore.GetDefaultGitReferenceObject(this.solutionDirectory);
+
+
+            this.BranchToDiffAgainst = GetLastUsedGitReference() ?? this.gitObjectsStore.GetDefaultGitReferenceObject(this.solutionDirectory);
+        }
+
+        private IGitObject GetLastUsedGitReference()
+        {
+            var readSettingsStore = this.shellSettingsManager.GetReadOnlySettingsStore(SettingsScope.UserSettings);
+            if (!readSettingsStore.CollectionExists(StorageKeys.StorageCollectionName))
+            {
+                return null;
+            }
+
+            if (!readSettingsStore.PropertyExists(StorageKeys.StorageCollectionName, StorageKeys.StoredPropertyName))
+            {
+                return null;
+            }
+
+            var lastUsedReferenceSha = readSettingsStore.GetString(StorageKeys.StorageCollectionName, StorageKeys.StoredPropertyName);
+            if (string.IsNullOrEmpty(lastUsedReferenceSha))
+            {
+                return null;
+            }
+
+            var gitReference = this.gitObjectsStore.FindGitReferenceBySha(this.solutionDirectory, lastUsedReferenceSha);
+            if (gitReference == null)
+            {
+                return null;
+            }
+
+            return gitReference;
         }
 
         private void ClearSolutionPathFromFilter()

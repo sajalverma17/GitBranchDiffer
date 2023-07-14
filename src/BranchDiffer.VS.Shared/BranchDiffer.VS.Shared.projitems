@@ -29,6 +29,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\SelectedProjectItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SolutionSelectionContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SolutionSelectionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StorageKeys.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ErrorPresenter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\GitBranchDifferPackageGuids.cs" />
   </ItemGroup>

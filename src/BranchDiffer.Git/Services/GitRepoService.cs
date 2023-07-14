@@ -10,12 +10,58 @@ namespace BranchDiffer.Git.Services
 {
     public interface IGitRepoService
     {
-        IGitObject GetGitObjectFromName(IGitRepository repository, string objectName);
+        IGitObject GetGitObjectFromName(IGitRepository repository, string friendlyName);
+
+        IGitObject GetGitObjectFromSha(IGitRepository repository, string sha);
     }
 
     public class GitRepoService : IGitRepoService
     {
-        // TODO Refractor and use in the method below
+        public IGitObject GetGitObjectFromName(IGitRepository repository, string friendlyName)
+        {
+            IGitObject gitObject;
+            if (repository.Branches.Contains(friendlyName))
+            {
+                gitObject = repository.Branches[friendlyName];
+            }
+            else
+            {
+                gitObject = repository.GetCommit(friendlyName);
+                if (gitObject == null)
+                {
+                    gitObject = repository.GetTag(friendlyName);
+                    if (gitObject == null)
+                    {
+                        return null;
+                    }
+                }
+            }
+
+            return gitObject;
+        }
+
+        // Searches branch's tip and commits, no need to search tags by SHA as you'll get the same commit either way
+        public IGitObject GetGitObjectFromSha(IGitRepository repository, string sha)
+        {
+            IGitObject gitObject;
+            if (repository.Branches.Any(x => x.TipSha == sha))
+            {
+                gitObject = repository.Branches.FirstOrDefault(x => x.TipSha == sha);
+            }
+            else
+            {
+                gitObject = repository.GetCommit(sha);
+                if (gitObject == null)
+                {
+                    return null;
+                }
+            }
+
+            return gitObject;
+        }
+
+        /*
+        // TODO Refractor and use in the method below to validate?
         private bool IsRepoStateValid(IGitRepository repo, string branchOrCommitToDiffAgainst, out string message)
         {
             var branchesInRepo = repo.Branches.Select(branch => branch.FriendlyName);
@@ -41,28 +87,6 @@ namespace BranchDiffer.Git.Services
             message = null;
             return true;
         }
-
-        public IGitObject GetGitObjectFromName(IGitRepository repository, string objectName)
-        {
-            IGitObject gitObject;
-            if (repository.Branches.Contains(objectName))
-            {
-                gitObject = repository.Branches[objectName];
-            }
-            else
-            {
-                gitObject = repository.GetCommit(objectName);
-                if (gitObject == null)
-                {
-                    gitObject = repository.GetTag(objectName);
-                    if (gitObject == null)
-                    {
-                        throw new GitOperationException("Given branch name/commit sha/tag name not found in repo");
-                    }
-                }
-            }
-
-            return gitObject;
-        }
+        */
     }
 }
