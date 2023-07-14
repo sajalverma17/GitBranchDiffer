@@ -60,8 +60,8 @@ namespace BranchDiffer.VS.Shared.FileDiff
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();            
             var filename = System.IO.Path.GetFileName(this.DocumentPath);
-            string leftLabel = $"{filename}@{branchDiffPair.BranchToDiffAgainst.Name}";
-            string rightLabel = $"{filename}@{branchDiffPair.WorkingBranch.Name}";
+            string leftLabel = $"{filename}@{branchDiffPair.BranchToDiffAgainst.FriendlyName}";
+            string rightLabel = $"{filename}@{branchDiffPair.WorkingBranch.FriendlyName}";
             string caption = $"{System.IO.Path.GetFileName(leftFileMoniker)} Vs. {System.IO.Path.GetFileName(rightFileMoniker)}";
             string tooltip = string.Empty;
             string inlineLabel = string.Empty;

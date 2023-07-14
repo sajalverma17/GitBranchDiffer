@@ -9,16 +9,16 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
 {
     public class GitTag : IGitObject
     {
-        public string Name { get; private set; }
+        public string FriendlyName { get; private set; }
 
-        public IGitReference Tip { get; private set; }
+        public string TipSha { get; private set; }
 
-        public string ShortSha => Tip.Sha.Substring(0 , 7);
+        public string ShortSha => TipSha.Substring(0 , 7);
 
-        public GitTag(string name, IGitReference gitReference)
+        public GitTag(string name, string tipSha)
         {
-            Name = name;
-            this.Tip = gitReference;
+            FriendlyName = name;
+            TipSha = tipSha;
         }
     }
 }

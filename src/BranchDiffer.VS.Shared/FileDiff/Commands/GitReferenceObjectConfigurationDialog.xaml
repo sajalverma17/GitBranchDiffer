@@ -62,7 +62,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <WrapPanel Orientation="Horizontal">
-                                    <TextBlock TextTrimming="WordEllipsis" Text="{Binding Name}" />
+                                    <TextBlock TextTrimming="WordEllipsis" Text="{Binding FriendlyName}" />
                                 </WrapPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -82,7 +82,7 @@
                             <DataTemplate>
                                 <WrapPanel Orientation="Horizontal">
                                     <TextBlock Width="100" Text="{Binding ShortSha}" />
-                                    <TextBlock TextTrimming="WordEllipsis" Text="{Binding Name}" />
+                                    <TextBlock TextTrimming="WordEllipsis" Text="{Binding Message}" />
                                 </WrapPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -102,7 +102,7 @@
                             <DataTemplate>
                                 <WrapPanel Orientation="Horizontal">
                                     <TextBlock Width="100" Text="{Binding ShortSha}" />
-                                    <TextBlock TextTrimming="WordEllipsis" Text="{Binding Name}" />
+                                    <TextBlock TextTrimming="WordEllipsis" Text="{Binding FriendlyName}" />
                                 </WrapPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

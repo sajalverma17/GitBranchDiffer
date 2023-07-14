@@ -59,14 +59,19 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             LoadTags(dialog);
             dialog.SetDefaultReference(this.package.BranchToDiffAgainst);
 
-            _ = dialog.ShowModal();
+            var result = dialog.ShowModal();
+
+            if (result != null && result == false)
+            {
+                return;
+            }
 
             IGitObject gitObject;
             if (dialog.IsReferenceUserDefined)
             {
                 try
                 {
-                    gitObject = this.gitObjectsStore.FindReferenceObjectByName(this.package.SolutionDirectory, dialog.UserDefinedReferenceName);
+                    gitObject = this.gitObjectsStore.FindReferenceObjectByFriendlyName(this.package.SolutionDirectory, dialog.UserDefinedReferenceName);
                 }
                 catch (GitOperationException ex)
                 {

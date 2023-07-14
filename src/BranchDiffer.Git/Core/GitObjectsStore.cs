@@ -26,12 +26,12 @@ namespace BranchDiffer.Git.Core
         {
             using (var repo = this.gitRepositoryFactory.Create(solutionPath))
             {
-                var gitObject = repo.Branches.Cast<IGitObject>().FirstOrDefault(x => x.Name == "master" || x.Name == "main") ?? repo.GetRecentCommits().FirstOrDefault();
+                var gitObject = repo.Branches.Cast<IGitObject>().FirstOrDefault(x => x.FriendlyName == "master" || x.FriendlyName == "main") ?? repo.GetRecentCommits().FirstOrDefault();
                 return gitObject;
             }
         }
 
-        public IGitObject FindReferenceObjectByName(string solutionPath, string name)
+        public IGitObject FindReferenceObjectByFriendlyName(string solutionPath, string name)
         {
             using (var repo = this.gitRepositoryFactory.Create(solutionPath))
             {

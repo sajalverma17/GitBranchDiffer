@@ -1,11 +1,7 @@
 ﻿using BranchDiffer.Git.Models.LibGit2SharpModels;
 using Microsoft.VisualStudio.PlatformUI;
-using Microsoft.VisualStudio.Text.Tagging;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Windows;
 
@@ -67,7 +63,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             }
 
             SelectedReference = reference;
-            UserDefinedReferenceName = reference.Name;
+            UserDefinedReferenceName = reference.FriendlyName;
 
             // this is not showing up selection correctly
             switch (reference)
@@ -93,9 +89,9 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         {
             DialogResult = true;
 
-            if (BranchListData.Any(x => x.Name == UserDefinedReferenceName) ||
-               CommitListData.Any(x => UserDefinedReferenceName.StartsWith(x.ShortSha)) ||
-               TagListData.Any(x => x.Name == UserDefinedReferenceName))
+            if (BranchListData.Any(x => x.FriendlyName == UserDefinedReferenceName) ||
+               CommitListData.Any(x => UserDefinedReferenceName.StartsWith(x.FriendlyName)) ||
+               TagListData.Any(x => x.FriendlyName == UserDefinedReferenceName))
             {
                 IsReferenceUserDefined = false;
             }
@@ -118,7 +114,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             if (BranchList.SelectedItem != null)
             {
                 SelectedReference = BranchList.SelectedItem as IGitObject;
-                UserDefinedReferenceName = SelectedReference.Name;
+                UserDefinedReferenceName = SelectedReference.FriendlyName;
             }
         }
 
@@ -127,7 +123,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             if (CommitList.SelectedItem != null)
             {
                 SelectedReference = CommitList.SelectedItem as IGitObject;
-                UserDefinedReferenceName = (SelectedReference as GitCommit).ShortSha;
+                UserDefinedReferenceName = SelectedReference.FriendlyName;
             }
         }
 
@@ -136,7 +132,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             if (TagList.SelectedItem != null)
             {
                 SelectedReference = TagList.SelectedItem as IGitObject;
-                UserDefinedReferenceName = SelectedReference.Name;
+                UserDefinedReferenceName = SelectedReference.FriendlyName;
             }
         }
     }

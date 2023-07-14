@@ -18,8 +18,8 @@ namespace BranchDiffer.Git.Services
         // TODO Refractor and use in the method below
         private bool IsRepoStateValid(IGitRepository repo, string branchOrCommitToDiffAgainst, out string message)
         {
-            var branchesInRepo = repo.Branches.Select(branch => branch.Name);
-            var activeBranch = repo.Head?.Name;
+            var branchesInRepo = repo.Branches.Select(branch => branch.FriendlyName);
+            var activeBranch = repo.Head?.FriendlyName;
             var commitToDiffAgainst = repo.GetCommit(branchOrCommitToDiffAgainst);
 
             if (!branchesInRepo.Contains(branchOrCommitToDiffAgainst) && commitToDiffAgainst == null)
@@ -32,7 +32,7 @@ namespace BranchDiffer.Git.Services
                 message = "The HEAD is detached. You must checkout a branch.";
                 return false;
             }
-            else if (activeBranch.Equals(branchOrCommitToDiffAgainst) || repo.Head.Tip.Equals(commitToDiffAgainst))
+            else if (activeBranch.Equals(branchOrCommitToDiffAgainst) || repo.Head.TipSha.Equals(commitToDiffAgainst.TipSha))
             {
                 message = "The Branch or Commit to diff against cannot be the same as HEAD.";
                 return false;

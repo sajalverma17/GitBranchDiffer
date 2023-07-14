@@ -42,7 +42,9 @@ namespace BranchDiffer.VS.Shared
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+
             this.gitObjectsStore = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
+
 
             await this.RegisterCommandsAsync();
 
@@ -52,10 +54,8 @@ namespace BranchDiffer.VS.Shared
                 this.dte.Events.SolutionEvents.Opened += SetSolutionPathOnFilter;
                 this.dte.Events.SolutionEvents.BeforeClosing += ClearSolutionPathFromFilter;
 
-                // When a document is opened separate from a solution, VS loads a "dummy" Solution1.
-                // This leads to our extension initialized (due to ProvideAutoLoad).
-                // In this case, don't set solution path now,
-                // let it happen when SolutionEvents.Opened triggers it on some "real" solution, if opens one later.
+                // When a document is opened separate from a solution, VS loads a "dummy" Solution1, this leads to our extension initialized due to ProvideAutoLoad.
+                // In this case, don't set solution path now, let it happen when SolutionEvents.Opened triggers it on some "real" solution.
                 if (!string.IsNullOrEmpty(this.dte.Solution.FullName))
                 {
                     this.SetSolutionPathOnFilter();

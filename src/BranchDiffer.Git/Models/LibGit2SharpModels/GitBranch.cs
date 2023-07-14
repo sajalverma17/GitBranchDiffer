@@ -9,14 +9,14 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
 {   
     public class GitBranch : IGitObject
     {
-        public string Name { get; private set; }
+        public string FriendlyName { get; private set; }
 
-        public IGitReference Tip { get; private set; }
+        public string TipSha { get; private set; }
 
-        public GitBranch(string name, IGitReference gitReference) 
+        public GitBranch(string name, string tipSha) 
         {
-            this.Name = name;
-            this.Tip = gitReference;
+            this.FriendlyName = name;
+            this.TipSha = tipSha;
         }
     }
 }

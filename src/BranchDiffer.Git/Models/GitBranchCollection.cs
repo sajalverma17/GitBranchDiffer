@@ -11,7 +11,7 @@ namespace BranchDiffer.Git.Models
         /// <param name="item"></param>
         protected override string GetKeyForItem(IGitObject item)
         {
-            return item.Name;
+            return item.FriendlyName;
         }
     }
 }

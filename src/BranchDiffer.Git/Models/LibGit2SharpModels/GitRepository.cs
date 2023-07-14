@@ -21,7 +21,9 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
 
         GitCommit GetCommit(string commitSha);
 
-        GitTag GetTag(string tabName);
+        GitTag GetTag(string tagName);
+
+        Tree GetCommitTree(string sha);
     }
 
     internal sealed class GitRepository : IGitRepository
@@ -35,8 +37,8 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
             this.repository = repository ?? throw new ArgumentNullException(nameof(repository));
             this.gitBranches = new GitBranchCollection();
 
-            this.head = new GitBranch(this.repository.Head.FriendlyName, new GitReference(this.repository.Head.Tip));
-            repository.Branches.Where(b => !b.IsRemote).ToList().ForEach(x => this.gitBranches.Add(new GitBranch(x.FriendlyName, new GitReference(x.Tip))));
+            this.head = new GitBranch(this.repository.Head.FriendlyName, this.repository.Head.Tip.Sha);
+            repository.Branches.Where(b => !b.IsRemote).ToList().ForEach(x => this.gitBranches.Add(new GitBranch(x.FriendlyName, x.Tip.Sha)));
         }
 
         public GitBranchCollection Branches => this.gitBranches;
@@ -57,20 +59,20 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
                     IncludeReachableFrom = repository.Head.Tip
                 })
                 .Take(number)
-                .Select(x => new GitCommit(x.Message, new GitReference(x)))
+                .Select(x => new GitCommit(x.Message, x.Sha))
                 .ToList();
         }
 
         public IEnumerable<GitTag> GetRecentTags(int number = 50)
         {
-            return repository.Tags                 
+            return repository.Tags         
                  .Take(number)
                  .Select(x =>
                  {
                      try
                      {
                          var commit = repository.Lookup<Commit>(x.Target.Id);
-                         return new GitTag(x.FriendlyName, new GitReference(commit));
+                         return new GitTag(x.FriendlyName, commit.Sha);
                      }
                      catch
                      {
@@ -91,7 +93,20 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
             catch (AmbiguousSpecificationException) { }
             catch (InvalidSpecificationException) { }
             
-            return commit != null ? new GitCommit(commit.Message, new GitReference(commit)) : null;
+            return commit != null ? new GitCommit(commit.Message, commit.Sha) : null;
+        }
+
+        public Tree GetCommitTree(string commitSha)
+        {
+            Commit commit = null;
+            try
+            {
+                commit = this.repository.Lookup<Commit>(commitSha);
+            }
+            catch (AmbiguousSpecificationException) { }
+            catch (InvalidSpecificationException) { }
+
+            return commit == null ? throw new ArgumentException($"{commitSha} not found in repo") : commit.Tree;
         }
 
         public GitTag GetTag(string tagName)
@@ -110,7 +125,7 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
             }
 
             var commit = repository.Lookup<Commit>(tag.Target.Id);
-            return new GitTag(tag.FriendlyName, new GitReference(commit));
+            return new GitTag(tag.FriendlyName, commit.Sha);
         }
 
         public void Dispose()

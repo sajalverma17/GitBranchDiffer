@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace BranchDiffer.Git.Models.LibGit2SharpModels
 {
-    // Represents a Branch/Tag/Commit. Contains a reference to the commit it points to.
+    // Represents a Branch/Tag/Commit. Contains a reference to the commit SHA it points to.
     public interface IGitObject
     {
-        string Name { get; }
+        string FriendlyName { get; }
 
-        IGitReference Tip { get; }
+        string TipSha { get; }
     }
 }
