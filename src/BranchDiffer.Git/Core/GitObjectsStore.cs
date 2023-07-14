@@ -26,11 +26,19 @@ namespace BranchDiffer.Git.Core
             }
         }
 
-        public IEnumerable<IGitCommit> GetRecentCommits(string solutionPath)
+        public IEnumerable<GitCommit> GetRecentCommits(string solutionPath)
         {
             using (var repo = this.gitRepositoryFactory.Create(solutionPath))
             {
                 return repo.GetRecentCommits();
+            }
+        }
+
+        public IEnumerable<GitTag> GetRecentTags(string solutionPath) 
+        {
+            using (var repo = this.gitRepositoryFactory.Create(solutionPath))
+            {
+                return repo.GetRecentTags();
             }
         }
     }

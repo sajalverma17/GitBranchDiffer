@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibGit2Sharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace BranchDiffer.Git.Models.LibGit2SharpModels
 {
-    public class GitCommit : IGitObject
+    public class GitTag : IGitObject
     {
         public string Name { get; private set; }
 
         public IGitReference Tip { get; private set; }
 
-        public GitCommit(string message, IGitReference gitReference) 
+        public GitTag(string name, IGitReference gitReference)
         {
-            Name = message;
-            Tip = gitReference;
+            Name = name;
+            this.Tip = gitReference;
         }
     }
 }

@@ -40,20 +40,19 @@ namespace BranchDiffer.Git.Services
             return true;
         }
 
-        public DiffBranchPair GetBranchesToDiffFromRepo(IGitRepository repository, string branchNameToDiffAgainst)
+        public DiffBranchPair GetBranchesToDiffFromRepo(IGitRepository repository, string branchOrSha)
         {
-            IGitObject gitBranchOrCommit;
-            if (repository.Branches.Contains(branchNameToDiffAgainst))
+            IGitObject gitObject;
+            if (repository.Branches.Contains(branchOrSha))
             {
-                gitBranchOrCommit = repository.Branches[branchNameToDiffAgainst];
+                gitObject = repository.Branches[branchOrSha];
             }
             else
             {
-                var commit = repository.GetCommit(branchNameToDiffAgainst);
-                gitBranchOrCommit = new GitBranch(commit);
+                gitObject = repository.GetCommit(branchOrSha);
             }
 
-            return new DiffBranchPair { WorkingBranch = repository.Head, BranchToDiffAgainst = gitBranchOrCommit };
+            return new DiffBranchPair { WorkingBranch = repository.Head, BranchToDiffAgainst = gitObject };
         }
     }
 }

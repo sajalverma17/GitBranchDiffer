@@ -4,29 +4,29 @@ using Microsoft.VisualStudio.Text.Tagging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
+using System.IO;
 using System.Windows;
+
+// The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
 namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
-	public partial class GitReferenceConfigurationDialog : DialogWindow
+    public sealed partial class GitReferenceObjectConfigurationDialog : DialogWindow
     {
         public ObservableCollection<GitBranch> BranchListData { get; } = new ObservableCollection<GitBranch>();
-        public ObservableCollection<GitCommit> CommitListData { get; } = new ObservableCollection<GitCommit>();
+
+        public ObservableCollection<GitReference> CommitListData { get; } = new ObservableCollection<GitReference>();
+
+        public ObservableCollection<GitTag> TagListData { get; } = new ObservableCollection<GitTag>();
 
         public IGitObject SelectedReference { get; set; }
 
-        public GitReferenceConfigurationDialog()
+        public GitReferenceObjectConfigurationDialog()
         {
-            InitializeComponent();
-
-            DataContext = this;
-            BranchList.ItemsSource = BranchListData;
-            CommitList.ItemsSource = CommitListData;
-            TagList.ItemsSource = TagListData;
+            this.InitializeComponent();
         }
 
-        public void SetDefaultReference(GitReference<GitCommitObject> reference)
+        public void SetDefaultReference(IGitObject reference)
         {
             if (reference == null)
             {
@@ -42,7 +42,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
                     Tabs.SelectedItem = BranchesTab;
                     BranchList.SelectedItem = branch;
                     return;
-                case GitCommit commit:
+                case GitReference commit:
                     Tabs.SelectedItem = CommitsTab;
                     CommitList.SelectedItem = commit;
                     return;
@@ -71,7 +71,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         {
             if (BranchList.SelectedItem != null)
             {
-                SelectedReference = BranchList.SelectedItem as GitReference<GitCommitObject>;
+                SelectedReference = BranchList.SelectedItem as IGitObject;
             }
         }
 
@@ -79,7 +79,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         {
             if (CommitList.SelectedItem != null)
             {
-                SelectedReference = CommitList.SelectedItem as GitReference<GitCommitObject>;
+                SelectedReference = CommitList.SelectedItem as IGitObject;
             }
         }
 
@@ -87,7 +87,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         {
             if (TagList.SelectedItem != null)
             {
-                SelectedReference = TagList.SelectedItem as GitReference<GitCommitObject>;
+                SelectedReference = TagList.SelectedItem as IGitObject;
             }
         }
     }

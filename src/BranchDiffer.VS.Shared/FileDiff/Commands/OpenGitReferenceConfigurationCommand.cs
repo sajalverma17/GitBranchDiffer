@@ -55,6 +55,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             ThreadHelper.ThrowIfNotOnUIThread();
             var branches = gitObjectsStore.GetBranches(gitBranchDifferPackage.SolutionDirectory);
             var recentCommits = gitObjectsStore.GetRecentCommits(gitBranchDifferPackage.SolutionDirectory);
+            var recentTags = gitObjectsStore.GetRecentTags(gitBranchDifferPackage.SolutionDirectory);
 
             MessageBox.Show(gitBranchDifferPackage.SolutionDirectory);
         }

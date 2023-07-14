@@ -4,10 +4,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:platformUI="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
-    mc:Ignorable="av" x:Class="BranchDiffer.VS.Shared.FileDiff.Commands.GitReferenceConfigurationDialog"
+    mc:Ignorable="av" x:Class="BranchDiffer.VS.Shared.FileDiff.Commands.GitReferenceObjectConfigurationDialog"
              Width="500" 
              Height="300"
-             Title="Select GIT object reference"
+             Title="Select Git reference to diff against"
              WindowStartupLocation="CenterScreen" 
              ResizeMode="NoResize"
              ShowInTaskbar="False">

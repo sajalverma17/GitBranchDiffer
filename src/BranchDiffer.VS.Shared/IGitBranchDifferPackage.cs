@@ -8,6 +8,7 @@ namespace BranchDiffer.VS.Shared
     /// </summary>
     public interface IGitBranchDifferPackage : IAsyncServiceProvider
     {
+        // Is Branch/SHA/Tag name
         string BranchToDiffAgainst { get; }
 
         string SolutionDirectory { get; }

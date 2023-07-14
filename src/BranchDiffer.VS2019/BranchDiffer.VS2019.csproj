@@ -47,6 +47,9 @@
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.ComponentModel.Composition" Version="7.0.0" />
+    <Reference Include="Microsoft.VisualStudio.Diagnostics.Assert">
+      <HintPath>..\..\libs\Microsoft.VisualStudio.Diagnostics.Assert.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.Platform.WindowManagement, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\libs\Microsoft.VisualStudio.Platform.WindowManagement.dll</HintPath>
