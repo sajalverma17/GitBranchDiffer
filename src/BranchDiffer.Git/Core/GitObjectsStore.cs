@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace BranchDiffer.Git.Core
 {
@@ -21,11 +22,20 @@ namespace BranchDiffer.Git.Core
             this.gitRepoService = gitRepoService;
         }
 
+        public IGitObject GetDefaultGitReferenceObject(string solutionPath)
+        {
+            using (var repo = this.gitRepositoryFactory.Create(solutionPath))
+            {
+                var gitObject = repo.Branches.Cast<IGitObject>().FirstOrDefault(x => x.Name == "master" || x.Name == "main") ?? repo.GetRecentCommits().FirstOrDefault();
+                return gitObject;
+            }
+        }
+
         public IGitObject FindReferenceObjectByName(string solutionPath, string name)
         {
             using (var repo = this.gitRepositoryFactory.Create(solutionPath))
             {
-                return this.gitRepoService.GetBranchesToDiffFromRepo(repo, name).BranchToDiffAgainst;
+                return this.gitRepoService.GetGitObjectFromName(repo, name);
             }
         }
 

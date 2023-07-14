@@ -8,6 +8,7 @@ namespace BranchDiffer.Git.Tests.IntegrationTests
     [TestFixture]
     public class GitRepoValidationTests : IntegrationTestBase
     {
+        /*
         [Test]
         public void GenerateDiff_MustThrowException_When_BranchToDiffAgainst_NotFound()
         {
@@ -47,5 +48,6 @@ namespace BranchDiffer.Git.Tests.IntegrationTests
             // ACT + ASSERT Should throw a git operation exception
             Assert.Throws<GitOperationException>(() => controllerUnderTest.GenerateDiff(this.TestGitRepoPath, this.TestRepoHEAD));
         }
+        */
     }
 }

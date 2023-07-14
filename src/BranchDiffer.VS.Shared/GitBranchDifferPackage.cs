@@ -9,6 +9,9 @@ using BranchDiffer.VS.Shared.FileDiff.Commands;
 using BranchDiffer.VS.Shared.BranchDiff;
 using Microsoft.VisualStudio.Shell.Interop;
 using BranchDiffer.VS.Shared.Configuration;
+using BranchDiffer.Git.Configuration;
+using BranchDiffer.Git.Core;
+using BranchDiffer.Git.Models.LibGit2SharpModels;
 
 namespace BranchDiffer.VS.Shared
 {
@@ -19,8 +22,6 @@ namespace BranchDiffer.VS.Shared
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(GitBranchDifferPackageGuids.guidBranchDiffWindowPackage)]
-    [ProvideOptionPage(typeof(GitBranchDifferPluginOptions),
-    "Git Branch Differ", "Git Branch Differ Options", 0, 0, true)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class GitBranchDifferPackage : AsyncPackage, IGitBranchDifferPackage
     {
@@ -28,6 +29,7 @@ namespace BranchDiffer.VS.Shared
         private OpenPhysicalFileDiffCommand openPhysicalFileDiffCommand;
         private OpenProjectFileDiffCommand openProjectFileDiffCommand;
         private OpenGitReferenceConfigurationCommand openGitReferenceConfigurationCommand;
+        private GitObjectsStore gitObjectsStore;
         private string solutionDirectory;
 
         public GitBranchDifferPackage()
@@ -40,6 +42,7 @@ namespace BranchDiffer.VS.Shared
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+            this.gitObjectsStore = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
 
             await this.RegisterCommandsAsync();
 
@@ -79,17 +82,7 @@ namespace BranchDiffer.VS.Shared
             }
         }
 
-        /// <summary>
-        /// The branch against which active branch will be diffed.
-        /// </summary>
-        public string BranchToDiffAgainst
-        {
-            get
-            {
-                GitBranchDifferPluginOptions options = (GitBranchDifferPluginOptions)GetDialogPage(typeof(GitBranchDifferPluginOptions));
-                return options.BaseBranchName.Trim();
-            }
-        }
+        public IGitObject BranchToDiffAgainst { get; set; }
 
         public string SolutionDirectory => this.solutionDirectory;
 
@@ -114,6 +107,7 @@ namespace BranchDiffer.VS.Shared
             var absoluteSolutionPath = this.dte.Solution.FullName;
             this.solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);            
             BranchDiffFilterProvider.SetSolutionInfo(this.solutionDirectory);
+            this.BranchToDiffAgainst = this.gitObjectsStore.GetDefaultGitReferenceObject(this.solutionDirectory);
         }
 
         private void ClearSolutionPathFromFilter()

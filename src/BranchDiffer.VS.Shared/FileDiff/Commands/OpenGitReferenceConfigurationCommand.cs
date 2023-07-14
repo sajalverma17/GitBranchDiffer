@@ -4,7 +4,6 @@ using System.ComponentModel.Design;
 using BranchDiffer.Git.Core;
 using BranchDiffer.VS.Shared.Utils;
 using BranchDiffer.VS.Shared.BranchDiff;
-using System.Windows.Forms;
 using BranchDiffer.Git.Configuration;
 using Task = System.Threading.Tasks.Task;
 using System.Linq;
@@ -58,11 +57,11 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             LoadBranches(dialog);
             LoadCommits(dialog);
             LoadTags(dialog);
-            dialog.SetDefaultReference(this.gitObjectsStore.GetRecentCommits(this.package.SolutionDirectory).First()); // TODO Get from package this.gitBranchDifferPackage.BranchToDiffAgainst
+            dialog.SetDefaultReference(this.package.BranchToDiffAgainst);
 
             _ = dialog.ShowModal();
 
-            IGitObject gitObject = null;
+            IGitObject gitObject;
             if (dialog.IsReferenceUserDefined)
             {
                 try
@@ -72,12 +71,15 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
                 catch (GitOperationException ex)
                 {
                     this.errorPresenter.ShowError(ex.Message);
+                    return;
                 }
             }
             else
             {
                 gitObject = dialog.SelectedReference;
             }
+
+            this.package.BranchToDiffAgainst = gitObject;
         }
 
         private void LoadTags(GitReferenceObjectConfigurationDialog dialog)

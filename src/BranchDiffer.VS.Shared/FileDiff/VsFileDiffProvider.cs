@@ -1,6 +1,7 @@
 ﻿using BranchDiffer.Git.Core;
 using BranchDiffer.Git.Exceptions;
 using BranchDiffer.Git.Models;
+using BranchDiffer.Git.Models.LibGit2SharpModels;
 using BranchDiffer.VS.Shared.Models;
 using BranchDiffer.VS.Shared.Utils;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -34,16 +35,16 @@ namespace BranchDiffer.VS.Shared.FileDiff
             this.OldDocumentPath = selectionContainer.OldFullName;
         }
 
-        public void ShowFileDiffWithBaseBranch(string baseBranchToDiffAgainst)
+        public void ShowFileDiffWithBaseBranch(IGitObject gitObjectToDiffAgainst)
         {
             Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
 
             // Get branch pairs to diff and Get the revision of file in the branch-to-diff-against
             try
             {
-                var branchPairs = this.gitFileDiffController.GetDiffBranchPair(this.solutionPath, baseBranchToDiffAgainst);
+                var branchPairs = this.gitFileDiffController.GetDiffBranchPair(this.solutionPath, gitObjectToDiffAgainst);
                 var baseBranchFilePath = string.IsNullOrEmpty(this.OldDocumentPath) ? this.DocumentPath : this.OldDocumentPath;
-                var leftFileMoniker = this.gitFileDiffController.GetBaseBranchRevisionOfFile(this.solutionPath, baseBranchToDiffAgainst, baseBranchFilePath);
+                var leftFileMoniker = this.gitFileDiffController.GetBaseBranchRevisionOfFile(this.solutionPath, gitObjectToDiffAgainst, baseBranchFilePath);
                 var rightFileMoniker = this.DocumentPath;
 
                 this.PresentComparisonWindow(branchPairs, leftFileMoniker, rightFileMoniker);

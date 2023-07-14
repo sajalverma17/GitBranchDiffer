@@ -15,7 +15,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
     public sealed partial class GitReferenceObjectConfigurationDialog : DialogWindow, INotifyPropertyChanged
     {
-        private string _userDefinedReferenceName;
+        private string _userDefinedReferenceName = "";
 
         public event PropertyChangedEventHandler PropertyChanged;
 

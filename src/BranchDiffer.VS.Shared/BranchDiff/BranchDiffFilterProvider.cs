@@ -12,7 +12,9 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BranchDiffer.VS.Shared.BranchDiff
@@ -107,7 +109,7 @@ namespace BranchDiffer.VS.Shared.BranchDiff
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
             {
-                if (this.branchDiffValidator.ValidateBranch(this.package))
+                if (this.branchDiffValidator.ValidatePackage(this.package))
                 {                    
                     // Create new tag tables everytime the filter is applied 
                     BranchDiffFilterProvider.TagManager.CreateTagTables();
@@ -115,30 +117,54 @@ namespace BranchDiffer.VS.Shared.BranchDiff
 
                     if (this.branchDiffValidator.ValidateSolution(this.solutionDirectory))
                     {
-                        try
+                        if (package.BranchToDiffAgainst is null)
                         {
-                            this.changeSet = this.branchDiffWorker.GenerateDiff(this.solutionDirectory, this.package.BranchToDiffAgainst);
+                            this.errorPresenter.ShowError("Git reference to diff against is not set. Open Git Reference Configuration and select a branch/commit/tag to diff against");
+
+                            IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
+                                                root.HierarchyIdentity.NestedHierarchy,
+                                                CancellationToken);
+
+                            IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
+                                sourceItems,
+                                ShouldExcludeAllInFilter,
+                                CancellationToken);
+
+                            return includedItems;
                         }
-                        catch (GitOperationException e)
+                        else
                         {
-                            this.errorPresenter.ShowError(e.Message);
-                            return null;
+
+                            try
+                            {
+                                this.changeSet = this.branchDiffWorker.GenerateDiff(this.solutionDirectory, this.package.BranchToDiffAgainst);
+                            }
+                            catch (GitOperationException e)
+                            {
+                                this.errorPresenter.ShowError(e.Message);
+                                return null;
+                            }
+
+                            IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
+                                                root.HierarchyIdentity.NestedHierarchy,
+                                                CancellationToken);
+
+                            IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
+                                sourceItems,
+                                ShouldIncludeInFilter,
+                                CancellationToken);
+
+                            return includedItems;
                         }
-
-                        IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
-                                            root.HierarchyIdentity.NestedHierarchy,
-                                            CancellationToken);
-
-                        IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
-                            sourceItems,
-                            ShouldIncludeInFilter,
-                            CancellationToken);
-
-                        return includedItems;
                     }
                 }
 
                 return null;
+            }
+
+            private bool ShouldExcludeAllInFilter(IVsHierarchyItem hierarchyItem)
+            {
+                return false;
             }
 
             private bool ShouldIncludeInFilter(IVsHierarchyItem hierarchyItem)

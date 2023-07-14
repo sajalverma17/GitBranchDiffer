@@ -2,6 +2,7 @@
 using BranchDiffer.Git.Services;
 using System.Collections.Generic;
 using BranchDiffer.Git.Exceptions;
+using BranchDiffer.Git.Models.LibGit2SharpModels;
 
 namespace BranchDiffer.Git.Core
 {
@@ -27,11 +28,11 @@ namespace BranchDiffer.Git.Core
             this.gitRepositoryFactory = gitRepositoryFactory;
         }
 
-        public HashSet<DiffResultItem> GenerateDiff(string repoPath, string branchToDiffAgainst)
+        public HashSet<DiffResultItem> GenerateDiff(string repoPath, IGitObject referenceToDiffAgainst)
         {
             using (var repository = this.gitRepositoryFactory.Create(repoPath))
             {
-                var diffBranchPair = gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
+                var diffBranchPair = new DiffBranchPair { WorkingBranch = repository.Head, BranchToDiffAgainst = referenceToDiffAgainst };
                 return this.gitBranchDiffService.GetDiffedChangeSet(repository, diffBranchPair);
             }
         }

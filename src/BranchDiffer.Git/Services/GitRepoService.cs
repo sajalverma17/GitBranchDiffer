@@ -4,18 +4,19 @@ using System.Xml;
 using BranchDiffer.Git.Exceptions;
 using BranchDiffer.Git.Models;
 using BranchDiffer.Git.Models.LibGit2SharpModels;
+using LibGit2Sharp;
 
 namespace BranchDiffer.Git.Services
 {
     public interface IGitRepoService
     {
-        DiffBranchPair GetBranchesToDiffFromRepo(IGitRepository repository, string branchNameToDiffAgainst);
+        IGitObject GetGitObjectFromName(IGitRepository repository, string objectName);
     }
 
     public class GitRepoService : IGitRepoService
     {
         // TODO Refractor and use in the method below
-        public bool IsRepoStateValid(IGitRepository repo, string branchOrCommitToDiffAgainst, out string message)
+        private bool IsRepoStateValid(IGitRepository repo, string branchOrCommitToDiffAgainst, out string message)
         {
             var branchesInRepo = repo.Branches.Select(branch => branch.Name);
             var activeBranch = repo.Head?.Name;
@@ -41,19 +42,19 @@ namespace BranchDiffer.Git.Services
             return true;
         }
 
-        public DiffBranchPair GetBranchesToDiffFromRepo(IGitRepository repository, string branchOrSha)
+        public IGitObject GetGitObjectFromName(IGitRepository repository, string objectName)
         {
             IGitObject gitObject;
-            if (repository.Branches.Contains(branchOrSha))
+            if (repository.Branches.Contains(objectName))
             {
-                gitObject = repository.Branches[branchOrSha];
+                gitObject = repository.Branches[objectName];
             }
             else
             {
-                gitObject = repository.GetCommit(branchOrSha);
+                gitObject = repository.GetCommit(objectName);
                 if (gitObject == null)
                 {
-                    gitObject = repository.GetTag(branchOrSha);
+                    gitObject = repository.GetTag(objectName);
                     if (gitObject == null)
                     {
                         throw new GitOperationException("Given branch name/commit sha/tag name not found in repo");
@@ -61,7 +62,7 @@ namespace BranchDiffer.Git.Services
                 }
             }
 
-            return new DiffBranchPair { WorkingBranch = repository.Head, BranchToDiffAgainst = gitObject };
+            return gitObject;
         }
     }
 }
