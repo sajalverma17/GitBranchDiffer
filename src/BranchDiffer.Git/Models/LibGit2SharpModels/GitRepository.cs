@@ -34,7 +34,7 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
             this.gitBranches = new GitBranchCollection();
 
             this.head = new GitBranch(this.repository.Head.FriendlyName, new GitReference(this.repository.Head.Tip));
-            repository.Branches.ToList().ForEach(x => this.gitBranches.Add(new GitBranch(x.FriendlyName, new GitReference(x.Tip))));
+            repository.Branches.Where(b => !b.IsRemote).ToList().ForEach(x => this.gitBranches.Add(new GitBranch(x.FriendlyName, new GitReference(x.Tip))));
         }
 
         public GitBranchCollection Branches => this.gitBranches;

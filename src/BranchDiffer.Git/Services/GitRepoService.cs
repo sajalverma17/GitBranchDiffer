@@ -30,7 +30,7 @@ namespace BranchDiffer.Git.Services
                 message = "The HEAD is detached. You must checkout a branch.";
                 return false;
             }
-            else if (activeBranch.Equals(branchOrCommitToDiffAgainst) || repo.Head.Tip.Equals(commitToDiffAgainst))
+            else if (activeBranch.Equals(branchOrCommitToDiffAgainst) || repo.Head.Tip.Equals(commitToDiffAgainst.Tip))
             {
                 message = "The Branch or Commit to diff against cannot be the same as HEAD.";
                 return false;

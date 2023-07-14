@@ -99,7 +99,7 @@
 			  <CommandFlag>DefaultInvisible</CommandFlag>
 			  <CommandFlag>DynamicVisibility</CommandFlag>			  
 			  <Strings>
-				  <ButtonText>Choose Branch To Diff Against</ButtonText>
+				  <ButtonText>Choose Git Reference To Diff Against</ButtonText>
 			  </Strings>
 		  </Button>
 

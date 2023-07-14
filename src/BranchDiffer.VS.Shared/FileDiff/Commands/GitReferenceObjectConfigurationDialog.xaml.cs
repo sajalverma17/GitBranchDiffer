@@ -15,7 +15,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
     {
         public ObservableCollection<GitBranch> BranchListData { get; } = new ObservableCollection<GitBranch>();
 
-        public ObservableCollection<GitReference> CommitListData { get; } = new ObservableCollection<GitReference>();
+        public ObservableCollection<GitCommit> CommitListData { get; } = new ObservableCollection<GitCommit>();
 
         public ObservableCollection<GitTag> TagListData { get; } = new ObservableCollection<GitTag>();
 
@@ -24,6 +24,11 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         public GitReferenceObjectConfigurationDialog()
         {
             this.InitializeComponent();
+
+            DataContext = this;
+            BranchList.ItemsSource = BranchListData;
+            CommitList.ItemsSource = CommitListData;
+            TagList.ItemsSource = TagListData;
         }
 
         public void SetDefaultReference(IGitObject reference)

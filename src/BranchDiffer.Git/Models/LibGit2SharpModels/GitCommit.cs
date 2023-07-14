@@ -12,6 +12,8 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
 
         public IGitReference Tip { get; private set; }
 
+        public string ShortSha => Tip.Sha.Substring(0, 7);
+
         public GitCommit(string message, IGitReference gitReference) 
         {
             Name = message;
