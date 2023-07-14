@@ -20,6 +20,8 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
         IEnumerable<GitTag> GetRecentTags(int number = 50);
 
         GitCommit GetCommit(string commitSha);
+
+        GitTag GetTag(string tabName);
     }
 
     internal sealed class GitRepository : IGitRepository
@@ -90,6 +92,25 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
             catch (InvalidSpecificationException) { }
             
             return commit != null ? new GitCommit(commit.Message, new GitReference(commit)) : null;
+        }
+
+        public GitTag GetTag(string tagName)
+        {
+            Tag tag = null;
+            try
+            {
+                tag = this.repository.Tags.Where(x => x.FriendlyName == tagName).FirstOrDefault();
+            }
+            catch (AmbiguousSpecificationException) { }
+            catch (InvalidSpecificationException) { }
+
+            if (tag == null)
+            {
+                return null;
+            }
+
+            var commit = repository.Lookup<Commit>(tag.Target.Id);
+            return new GitTag(tag.FriendlyName, new GitReference(commit));
         }
 
         public void Dispose()

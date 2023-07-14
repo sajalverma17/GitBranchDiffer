@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Xml;
+using BranchDiffer.Git.Exceptions;
 using BranchDiffer.Git.Models;
 using BranchDiffer.Git.Models.LibGit2SharpModels;
 
@@ -7,13 +9,12 @@ namespace BranchDiffer.Git.Services
 {
     public interface IGitRepoService
     {
-        bool IsRepoStateValid(IGitRepository repo, string branchToDiffAgainst, out string message);
-
         DiffBranchPair GetBranchesToDiffFromRepo(IGitRepository repository, string branchNameToDiffAgainst);
     }
 
     public class GitRepoService : IGitRepoService
     {
+        // TODO Refractor and use in the method below
         public bool IsRepoStateValid(IGitRepository repo, string branchOrCommitToDiffAgainst, out string message)
         {
             var branchesInRepo = repo.Branches.Select(branch => branch.Name);
@@ -30,7 +31,7 @@ namespace BranchDiffer.Git.Services
                 message = "The HEAD is detached. You must checkout a branch.";
                 return false;
             }
-            else if (activeBranch.Equals(branchOrCommitToDiffAgainst) || repo.Head.Tip.Equals(commitToDiffAgainst.Tip))
+            else if (activeBranch.Equals(branchOrCommitToDiffAgainst) || repo.Head.Tip.Equals(commitToDiffAgainst))
             {
                 message = "The Branch or Commit to diff against cannot be the same as HEAD.";
                 return false;
@@ -50,6 +51,14 @@ namespace BranchDiffer.Git.Services
             else
             {
                 gitObject = repository.GetCommit(branchOrSha);
+                if (gitObject == null)
+                {
+                    gitObject = repository.GetTag(branchOrSha);
+                    if (gitObject == null)
+                    {
+                        throw new GitOperationException("Given branch name/commit sha/tag name not found in repo");
+                    }
+                }
             }
 
             return new DiffBranchPair { WorkingBranch = repository.Head, BranchToDiffAgainst = gitObject };

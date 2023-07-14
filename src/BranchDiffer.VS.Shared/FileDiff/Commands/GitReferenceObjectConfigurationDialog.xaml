@@ -9,7 +9,7 @@
              Height="300"
              Title="Select Git reference to diff against"
              WindowStartupLocation="CenterScreen" 
-             ResizeMode="NoResize"
+             ResizeMode="CanResize"
              ShowInTaskbar="False">
 
     <Grid>
@@ -28,6 +28,27 @@
                 Content="OK" 
                 Margin="0,0,90,10" 
                 Click="OKBtn_Click"/>
+        <TextBlock x:Name="Label"
+                 VerticalAlignment="Bottom"
+                 HorizontalAlignment="Left"
+                 Width="110"
+                 Height="25"
+                 Margin="10,0,0,7"
+                 TextAlignment="Center"
+                 Text="Current Reference:">
+        </TextBlock>
+        <TextBox x:Name="ReferenceAsTextInput"
+                 VerticalAlignment="Bottom"
+                 HorizontalAlignment="Left"
+                 Width="180"
+                 Height="22"
+                 Margin="120,0,0,10"
+                 TextWrapping="NoWrap"
+                 AcceptsReturn="False"
+                 AcceptsTab="False"
+                 ToolTip="You can type branch name/commit SHA/tag name here"
+                 Text="{Binding Path=UserDefinedReferenceName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+        </TextBox>
         <TabControl Name="Tabs" Margin="15,15,15,46">
             <TabItem Name="BranchesTab" >
                 <TabItem.Header>

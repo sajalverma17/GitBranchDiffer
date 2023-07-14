@@ -1,4 +1,5 @@
-﻿using BranchDiffer.Git.Models.LibGit2SharpModels;
+﻿using BranchDiffer.Git.Exceptions;
+using BranchDiffer.Git.Models.LibGit2SharpModels;
 using BranchDiffer.Git.Services;
 using LibGit2Sharp;
 using System;
@@ -12,10 +13,20 @@ namespace BranchDiffer.Git.Core
     public class GitObjectsStore
     {
         private readonly IGitRepositoryFactory gitRepositoryFactory;
+        private readonly IGitRepoService gitRepoService;
 
-        public GitObjectsStore(IGitRepositoryFactory gitRepositoryFactory) 
+        public GitObjectsStore(IGitRepositoryFactory gitRepositoryFactory, IGitRepoService gitRepoService) 
         {
             this.gitRepositoryFactory = gitRepositoryFactory;
+            this.gitRepoService = gitRepoService;
+        }
+
+        public IGitObject FindReferenceObjectByName(string solutionPath, string name)
+        {
+            using (var repo = this.gitRepositoryFactory.Create(solutionPath))
+            {
+                return this.gitRepoService.GetBranchesToDiffFromRepo(repo, name).BranchToDiffAgainst;
+            }
         }
 
         public IEnumerable<GitBranch> GetBranches(string solutionPath)

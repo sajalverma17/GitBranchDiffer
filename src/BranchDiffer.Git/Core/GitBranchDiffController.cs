@@ -31,11 +31,6 @@ namespace BranchDiffer.Git.Core
         {
             using (var repository = this.gitRepositoryFactory.Create(repoPath))
             {
-                if (!gitRepoService.IsRepoStateValid(repository, branchToDiffAgainst, out string userError))
-                {
-                    throw new GitOperationException(userError);
-                }
-
                 var diffBranchPair = gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
                 return this.gitBranchDiffService.GetDiffedChangeSet(repository, diffBranchPair);
             }

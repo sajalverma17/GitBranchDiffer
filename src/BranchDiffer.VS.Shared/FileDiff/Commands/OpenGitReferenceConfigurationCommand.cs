@@ -8,13 +8,14 @@ using System.Windows.Forms;
 using BranchDiffer.Git.Configuration;
 using Task = System.Threading.Tasks.Task;
 using System.Linq;
+using BranchDiffer.Git.Exceptions;
+using BranchDiffer.Git.Models.LibGit2SharpModels;
 
 namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
     internal class OpenGitReferenceConfigurationCommand : OpenDiffCommand
     {
         private GitObjectsStore gitObjectsStore;
-        private IGitBranchDifferPackage gitBranchDifferPackage;
 
         public OpenGitReferenceConfigurationCommand()
         {
@@ -33,7 +34,6 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         {
             await this.InitializeAsync(package);
             this.gitObjectsStore = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
-            this.gitBranchDifferPackage = package;
 
             this.Register(new CommandID(GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, GitBranchDifferPackageGuids.CommandIdSelectReferenceObjectCommand));
             OleCommandInstance.BeforeQueryStatus += OleCommandInstance_BeforeQueryStatus;
@@ -58,44 +58,60 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             LoadBranches(dialog);
             LoadCommits(dialog);
             LoadTags(dialog);
+            dialog.SetDefaultReference(this.gitObjectsStore.GetRecentCommits(this.package.SolutionDirectory).First()); // TODO Get from package this.gitBranchDifferPackage.BranchToDiffAgainst
 
             _ = dialog.ShowModal();
 
-            MessageBox.Show(dialog.SelectedReference.Name);
+            IGitObject gitObject = null;
+            if (dialog.IsReferenceUserDefined)
+            {
+                try
+                {
+                    gitObject = this.gitObjectsStore.FindReferenceObjectByName(this.package.SolutionDirectory, dialog.UserDefinedReferenceName);
+                }
+                catch (GitOperationException ex)
+                {
+                    this.errorPresenter.ShowError(ex.Message);
+                }
+            }
+            else
+            {
+                gitObject = dialog.SelectedReference;
+            }
         }
 
         private void LoadTags(GitReferenceObjectConfigurationDialog dialog)
         {
-            var tags = gitObjectsStore.GetRecentTags(gitBranchDifferPackage.SolutionDirectory);
+            var tags = this.gitObjectsStore.GetRecentTags(this.package.SolutionDirectory);
             foreach (var tag in tags)
             {
                 dialog.TagListData.Add(tag);
             }
 
-            ActivityLog.LogInformation(nameof(OpenGitReferenceConfigurationCommand), $"Loaded {tags.Count()} tags for repo at {gitBranchDifferPackage.SolutionDirectory}.");
+            ActivityLog.LogInformation(nameof(OpenGitReferenceConfigurationCommand), $"Loaded {tags.Count()} tags for repo at {this.package.SolutionDirectory}.");
         }
 
         private void LoadCommits(GitReferenceObjectConfigurationDialog dialog)
         {
-            var commits = gitObjectsStore.GetRecentCommits(gitBranchDifferPackage.SolutionDirectory);
+            var commits = this.gitObjectsStore.GetRecentCommits(this.package.SolutionDirectory);
             foreach (var commit in commits)
             {
                 dialog.CommitListData.Add(commit);
             }
 
-            ActivityLog.LogInformation(nameof(OpenGitReferenceConfigurationCommand), $"Loaded {commits.Count()} commits for repo at {gitBranchDifferPackage.SolutionDirectory}");
+            ActivityLog.LogInformation(nameof(OpenGitReferenceConfigurationCommand), $"Loaded {commits.Count()} commits for repo at {this.package.SolutionDirectory}");
         }
 
         private void LoadBranches(GitReferenceObjectConfigurationDialog dialog)
         {
-            var branches = gitObjectsStore.GetBranches(gitBranchDifferPackage.SolutionDirectory);
+            var branches = this.gitObjectsStore.GetBranches(this.package.SolutionDirectory);
 
             foreach (var branch in branches)
             {
                 dialog.BranchListData.Add(branch);
             }
 
-            ActivityLog.LogInformation(nameof(OpenGitReferenceConfigurationCommand), $"Loaded {branches.Count()} branches for repo at {gitBranchDifferPackage.SolutionDirectory}");
+            ActivityLog.LogInformation(nameof(OpenGitReferenceConfigurationCommand), $"Loaded {branches.Count()} branches for repo at {this.package.SolutionDirectory}");
 
         }
     }

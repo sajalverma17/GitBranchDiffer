@@ -14,13 +14,14 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
 {
     public abstract class OpenDiffCommand
     {
-        private IGitBranchDifferPackage package;
         private DTE dte;
         private IVsDifferenceService vsDifferenceService;
         private IVsUIShell vsUIShell;
-        private ErrorPresenter errorPresenter;
         private IMenuCommandService commandService;
         private GitFileDiffController gitFileDiffController;
+
+        protected IGitBranchDifferPackage package;
+        protected ErrorPresenter errorPresenter;
 
         protected OpenDiffCommand()
         {
