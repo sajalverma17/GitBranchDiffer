@@ -38,7 +38,7 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
             this.gitBranches = new GitBranchCollection();
 
             this.head = new GitBranch(this.repository.Head.FriendlyName, this.repository.Head.Tip.Sha);
-            repository.Branches.Where(b => !b.IsRemote).ToList().ForEach(x => this.gitBranches.Add(new GitBranch(x.FriendlyName, x.Tip.Sha)));
+            repository.Branches.Where(b => !b.IsRemote).OrderByDescending(b => b.Tip.Author.When).ToList().ForEach(x => this.gitBranches.Add(new GitBranch(x.FriendlyName, x.Tip.Sha)));
         }
 
         public GitBranchCollection Branches => this.gitBranches;
@@ -72,7 +72,7 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
                      try
                      {
                          var commit = repository.Lookup<Commit>(x.Target.Id);
-                         return new GitTag(x.FriendlyName, commit.Sha);
+                         return new { FriendlyName = x.FriendlyName, Commit = commit };
                      }
                      catch
                      {
@@ -80,6 +80,8 @@ namespace BranchDiffer.Git.Models.LibGit2SharpModels
                      }
                  })
                  .Where(x => x != null)
+                 .OrderByDescending(x => x.Commit.Author.When)
+                 .Select(x => new GitTag(x.FriendlyName, x.Commit.Sha))
                  .ToList();
         }
 
