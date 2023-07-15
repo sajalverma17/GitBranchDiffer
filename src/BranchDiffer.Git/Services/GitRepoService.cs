@@ -1,10 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Xml;
-using BranchDiffer.Git.Exceptions;
-using BranchDiffer.Git.Models;
+﻿using System.Linq;
 using BranchDiffer.Git.Models.LibGit2SharpModels;
-using LibGit2Sharp;
 
 namespace BranchDiffer.Git.Services
 {

@@ -22,7 +22,7 @@ namespace BranchDiffer.VS.Shared.BranchDiff
     /// <summary>
     /// Filter Provider is constructed by VS once on startup.
     /// TODO: This class is now officially a mess, a simple todo is to break down the `ShouldIncludeInFilter` into a service with that logic moved there
-    /// TODO: Figure out how this provider can initialize the OpenDiffCommands and provide them info for visibility and TagManager. Presently, these are ugly Static properties defined on this class.
+    /// Figure out how this provider can initialize the OpenDiffCommands and provide them info for visibility and TagManager. Presently, these are ugly Static properties defined on this class.
     /// </summary>
     [SolutionTreeFilterProvider(GitBranchDifferPackageGuids.guidGitBranchDifferPackageCmdSet, (uint)(GitBranchDifferPackageGuids.CommandIdGenerateDiffAndFilter))]    
     public class BranchDiffFilterProvider : HierarchyTreeFilterProvider
