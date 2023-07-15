@@ -46,14 +46,14 @@
                  TextWrapping="NoWrap"
                  AcceptsReturn="False"
                  AcceptsTab="False"
-                 ToolTip="You can type branch name/commit SHA/tag name here"
+                 ToolTip="You can type the branch name, tag name or commit SHA to diff against here"
                  Text="{Binding Path=UserDefinedReferenceName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
         </TextBox>
         <TabControl Name="Tabs" Margin="15,15,15,46">
             <TabItem Name="BranchesTab" >
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/GitTreeFilter;component/Resources/branch.png" SnapsToDevicePixels="True" Width="16" Margin="0,0,2,0" />
+                        <!--<Image Source="/<SharedProject>/Resources/branch.png" SnapsToDevicePixels="True" Width="16" Margin="0,0,2,0" />-->
                         <TextBlock Text="Branch" Foreground="Blue" />
                     </StackPanel>
                 </TabItem.Header>
@@ -72,7 +72,7 @@
             <TabItem Name="CommitsTab">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/GitTreeFilter;component/Resources/commit.png" SnapsToDevicePixels="True" Width="16" Margin="0,0,2,0" />
+                        <!-- <Image Source="/<SharedProject>;component/Resources/commit.png" SnapsToDevicePixels="True" Width="16" Margin="0,0,2,0" />-->
                         <TextBlock Text="Commit" Foreground="Blue" />
                     </StackPanel>
                 </TabItem.Header>
@@ -92,7 +92,7 @@
             <TabItem Name="TagsTab">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/GitTreeFilter;component/Resources/tag.png" SnapsToDevicePixels="True" Margin="0,0,2,0" Width="16" />
+                        <!--<Image Source="/GitTreeFilter;component/Resources/tag.png" SnapsToDevicePixels="True" Margin="0,0,2,0" Width="16" />-->
                         <TextBlock Text="Tag" Foreground="Blue" />
                     </StackPanel>
                 </TabItem.Header>

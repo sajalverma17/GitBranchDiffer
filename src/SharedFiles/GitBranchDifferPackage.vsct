@@ -95,7 +95,7 @@
 		  <!-- Solution explorer button which brings up comparision settings of git filters -->
 		  <Button guid="guidFileDiffPackageCmdSet" id="SelectReferenceObjectButtonId" type="Button" priority="0x0050">
 			  <Parent guid="guidFileDiffPackageCmdSet" id="GitBranchDifferToolbarGroupId"/>
-			  <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16"/>
+			  <Icon guid="guidDiffConfigurationImage" id="GitBranchDifferConfigurationIcon16"/>
 			  <CommandFlag>DefaultInvisible</CommandFlag>
 			  <CommandFlag>DynamicVisibility</CommandFlag>			  
 			  <Strings>
@@ -108,6 +108,7 @@
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
     <Bitmaps>
       <Bitmap guid="guidDiffFilterImage" href="Resources\GitBranchDifferIconList_16_20.png" usedList="GitBranchDifferDiffIcon16" />
+	  <Bitmap guid="guidDiffConfigurationImage" href="Resources\GitBranchDiffer_CompareIcon_16.png" usedList="GitBranchDifferConfigurationIcon16"  />
     </Bitmaps>
   </Commands>
 
@@ -134,6 +135,10 @@
 
     <GuidSymbol name="guidDiffFilterImage" value="{C4223526-2F74-4AEA-9218-6C29A9793BE8}">
       <IDSymbol name="GitBranchDifferDiffIcon16" value="1"/>
-    </GuidSymbol>  
+    </GuidSymbol>
+
+	  <GuidSymbol name="guidDiffConfigurationImage" value="{80C4FC01-06E2-4330-93E3-5E2C99AAD3B0}">
+		  <IDSymbol name="GitBranchDifferConfigurationIcon16" value="1"/>
+	  </GuidSymbol>
   </Symbols>
 </CommandTable>
