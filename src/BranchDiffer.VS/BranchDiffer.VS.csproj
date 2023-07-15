@@ -85,6 +85,7 @@
       <!--The generated VSIX references this icon in it's manifest, and needs this to be present in the same directory-->
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="GitBranchDiffer_CompareIcon_16.png" />
   </ItemGroup>
   <Import Project="..\BranchDiffer.VS.Shared\BranchDiffer.VS.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
