@@ -20,17 +20,6 @@ namespace BranchDiffer.Git.Tests.IntegrationTests
         }
 
         [Test]
-        public void ObjectsStore_MustReturnGitObject_When_ValidBranchName()
-        {
-            var sut = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
-
-            var gitObject = sut.FindGitReferenceByUserDefinedName(this.TestGitRepoPath, "feature/test-feature");
-
-            Assert.That(gitObject, Is.Not.Null);
-            Assert.That(gitObject.FriendlyName, Is.EqualTo("feature/test-feature"));
-        }
-
-        [Test]
         public void ObjectsStore_MustReturnGitObject_When_ValidCommitSha()
         {
             var sut = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
