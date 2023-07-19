@@ -10,13 +10,11 @@ namespace BranchDiffer.Git.Tests.IntegrationTests
     public class GitObjectsStoreTests : IntegrationTestBase
     {
         [Test]
-        public void ObjectsStore_MustThrowException_When_BranchToDiffAgainst_NotFound()
+        public void ObjectsStore_MustReturnNull_When_InvalidBranchName()
         {
-            // ARRANGE
             var sut = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
 
-            // ACT + ASSERT Should throw a git operation exception when 
-            var gitObject = sut.FindGitReferenceBySha(this.TestGitRepoPath, "develop");
+            var gitObject = sut.FindGitReferenceByUserDefinedName(this.TestGitRepoPath, "develop");
 
             Assert.That(gitObject, Is.Null);
         }
@@ -24,10 +22,8 @@ namespace BranchDiffer.Git.Tests.IntegrationTests
         [Test]
         public void ObjectsStore_MustReturnGitObject_When_ValidBranchName()
         {
-            // ARRANGE
             var sut = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
 
-            // ACT + ASSERT Should throw a git operation exception when 
             var gitObject = sut.FindGitReferenceBySha(this.TestGitRepoPath, "feature/test-feature");
 
             Assert.That(gitObject, Is.Not.Null);
@@ -36,10 +32,8 @@ namespace BranchDiffer.Git.Tests.IntegrationTests
         [Test]
         public void ObjectsStore_MustThrowException_When_InvalidSpecification()
         {
-            // ARRANGE
             var sut = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
 
-            // ACT + ASSERT Should throw a git operation exception when 
             var gitObject = sut.FindGitReferenceBySha(this.TestGitRepoPath, "00ecaa4");
 
             Assert.That(gitObject, Is.Not.Null);
