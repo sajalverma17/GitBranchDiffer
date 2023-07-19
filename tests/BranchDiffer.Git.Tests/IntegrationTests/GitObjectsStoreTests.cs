@@ -24,13 +24,14 @@ namespace BranchDiffer.Git.Tests.IntegrationTests
         {
             var sut = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
 
-            var gitObject = sut.FindGitReferenceBySha(this.TestGitRepoPath, "feature/test-feature");
+            var gitObject = sut.FindGitReferenceByUserDefinedName(this.TestGitRepoPath, "feature/test-feature");
 
             Assert.That(gitObject, Is.Not.Null);
+            Assert.That(gitObject.FriendlyName, Is.EqualTo("feature/test-feature"));
         }
 
         [Test]
-        public void ObjectsStore_MustThrowException_When_InvalidSpecification()
+        public void ObjectsStore_MustReturnGitObject_When_ValidCommitSha()
         {
             var sut = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
 
