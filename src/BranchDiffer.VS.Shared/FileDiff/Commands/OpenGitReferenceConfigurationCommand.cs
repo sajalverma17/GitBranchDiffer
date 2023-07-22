@@ -79,7 +79,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             gitObject = this.gitObjectsStore.FindGitReferenceByUserDefinedName(this.package.SolutionDirectory, dialog.UserDefinedReferenceName);
             if (gitObject == null)
             {
-                this.errorPresenter.ShowError("The branch name/tag name/commit SHA you typed in was not found in this repository.");
+                this.errorPresenter.ShowError("The branch name/tag name/commit SHA you typed in was not found in this repository. Git reference was not changed.");
                 return;
             }
 

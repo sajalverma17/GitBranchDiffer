@@ -35,7 +35,7 @@
                  Height="25"
                  Margin="10,0,0,7"
                  TextAlignment="Center"
-                 Text="Current Reference:">
+                 Text="Current reference:">
         </TextBlock>
         <TextBox x:Name="ReferenceAsTextInput"
                  VerticalAlignment="Bottom"

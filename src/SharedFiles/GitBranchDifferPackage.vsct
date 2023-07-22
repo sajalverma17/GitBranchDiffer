@@ -77,7 +77,7 @@
 			  <CommandFlag>DefaultInvisible</CommandFlag>
 			  <CommandFlag>DynamicVisibility</CommandFlag>
 			  <Strings>
-				  <ButtonText>Open Diff With Base</ButtonText>
+				  <ButtonText>Open diff with Git Reference</ButtonText>
 			  </Strings>
 		  </Button>
 
@@ -88,7 +88,7 @@
 			  <CommandFlag>DefaultInvisible</CommandFlag>
 			  <CommandFlag>DynamicVisibility</CommandFlag>
 			  <Strings>
-				  <ButtonText>Open Diff With Base</ButtonText>
+				  <ButtonText>Open diff with Git Reference</ButtonText>
 			  </Strings>
 		  </Button>
 
