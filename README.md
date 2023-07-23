@@ -5,7 +5,7 @@ Git Branch Differ is a Solution Explorer Filter which, when applied, only shows 
 After the filter is applied, you can open a diff for any file from Solution Explorer to view what changed.
 
 ### Installation
-Install the plugin from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=SajalVerma.GitBranchDiffer), or grab it from within Visual Studio's Manage Extensions window by searching "Git Branch Differ".
+Install the plugin from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=SajalVerma.GitBranchDifferDev17), or grab it from within Visual Studio's Manage Extensions window by searching "Git Branch Differ".
 You can also try the latest [CI build](https://github.com/sajalverma17/GitBranchDiffer/actions/workflows/ci-build.yml).
 Open the latest CI run, download the artifact, unzip and run GitBranchDiffer.vsix.
 
