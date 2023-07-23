@@ -1,6 +1,6 @@
 # Git Branch Differ
 
-Git Branch Differ is a Solution Explorer Filter which, when applied, only shows those files in your Solution Explorer that were Added/Modified/Renamed in your working branch as compared to a "base" branch of your choice, typically master or main.
+Git Branch Differ is a Solution Explorer Filter which, when applied, only shows those files in your Solution Explorer that were Added/Modified/Renamed in your working branch as compared to a "reference" branch/commit/tag of your choice, typically a master/main branch.
 
 After the filter is applied, you can open a diff for any file from Solution Explorer to view what changed.
 
@@ -13,17 +13,21 @@ Open the latest CI run, download the artifact, unzip and run GitBranchDiffer.vsi
 
 ## Usage
 
-1. Set the "base" branch or "base" commit's SHA to compare your working branch with. <br>Go to: Tools -> Options -> Git Branch Differ -> Branch or Commit To Diff Against.
-
-![image](https://user-images.githubusercontent.com/25904133/210828164-b4af9a6c-2bc0-40d6-8a9c-a6837c6f2210.png)
-
-2. Click the `Branch Diff Filter` in the dropdown of Solution Explorer Filters. <br>This filters the Solution Explorer such that only files that were Added/Modified/Renamed in the working branch are shown in your Solution Explorer hierarchy.
+1. Click the `Branch Diff Filter` in the Solution Explorer Filters dropdown to only see files that were changed in the working branch. <br>By default, the extension will use master/main or the first branch found in repo as the Git reference to compare with.
 
 ![image](https://user-images.githubusercontent.com/25904133/121787246-4b76ba00-cbc5-11eb-8033-7b06d92079d5.png)
 
-3. Once the filter is applied, right-click on a file in Solution Explorer, then click `Open Diff With Base`. <br>This opens a new tab in Visual Studio, showing you the diff of the file's content in the working branch compared to it's content in the "base" branch/commit.
+2. Once the filter is applied, right-click on a file in Solution Explorer, then click `Open diff with Git reference`. <br>This opens a new tab, displaying the diff of the file's content in working branch compared to the file's content in reference branch/commit/tag.
 
-![image](https://user-images.githubusercontent.com/25904133/121787519-c8566380-cbc6-11eb-9dd2-d378a9f61775.png)
+![image](https://github.com/sajalverma17/GitBranchDiffer/assets/25904133/2b45fd37-503f-4870-a6c4-055617edd0fd)
+
+3. You can set your own Git reference from the Git reference configuration window. <br>Click the button shown in the screenshot below. The button only appears in Solution Explorer toolbar _after_ the filter has been applied.
+
+![image](https://github.com/sajalverma17/GitBranchDiffer/assets/25904133/05e7cb62-971e-4c74-885f-4f75fe5f707f)
+
+4. Type in the branch name/commit-SHA/tag name in the text box at the bottom, or select a reference from the list of branches/recent commits/tags, then press OK. Re-apply the `Branch Diff Filter` filter in Solution Explorer.
+
+![image](https://github.com/sajalverma17/GitBranchDiffer/assets/25904133/9a98b4b3-4c12-4114-9e6c-26f1b92e05f0)
 
 ## Motivation
 
