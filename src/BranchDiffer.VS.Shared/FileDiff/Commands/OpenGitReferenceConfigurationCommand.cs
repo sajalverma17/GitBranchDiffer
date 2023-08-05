@@ -55,6 +55,12 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
+            if(package.BranchToDiffAgainst == null)
+            {
+                this.errorPresenter.ShowError($"Error: Unable to find a default Git reference to diff against. It may be because solution's directory or it's parent directories are not a Git repo.");
+                return;
+            }
+
             var dialog = new GitReferenceObjectConfigurationDialog();
             LoadBranches(dialog);
             LoadCommits(dialog);

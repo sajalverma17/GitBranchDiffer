@@ -14,6 +14,8 @@ using BranchDiffer.Git.Core;
 using BranchDiffer.Git.Models.LibGit2SharpModels;
 using Microsoft.VisualStudio.Shell.Settings;
 using Microsoft.VisualStudio.Settings;
+using LibGit2Sharp;
+using BranchDiffer.Git.Exceptions;
 
 namespace BranchDiffer.VS.Shared
 {
@@ -111,8 +113,14 @@ namespace BranchDiffer.VS.Shared
             this.solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);            
             BranchDiffFilterProvider.SetSolutionInfo(this.solutionDirectory);
 
-
-            this.BranchToDiffAgainst = GetLastUsedGitReference() ?? this.gitObjectsStore.GetDefaultGitReferenceObject(this.solutionDirectory);
+            try
+            {
+                this.BranchToDiffAgainst = GetLastUsedGitReference() ?? this.gitObjectsStore.GetDefaultGitReferenceObject(this.solutionDirectory);
+            }
+            catch (GitRepoNotFoundException e) 
+            {
+                ActivityLog.LogInformation(nameof(GitBranchDifferPackage), e.Message);
+            }
         }
 
         private IGitObject GetLastUsedGitReference()

@@ -119,7 +119,7 @@ namespace BranchDiffer.VS.Shared.BranchDiff
                     {
                         if (package.BranchToDiffAgainst is null)
                         {
-                            this.errorPresenter.ShowError("Git reference to diff against is not set. Open Git Reference Configuration and select a branch/commit/tag to diff against");
+                            this.errorPresenter.ShowError($"Error: Unable to find a default Git reference to diff against. It may be because solution's directory ({this.solutionDirectory}) or it's parent directories are not a Git repo.");
 
                             IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
                                                 root.HierarchyIdentity.NestedHierarchy,
