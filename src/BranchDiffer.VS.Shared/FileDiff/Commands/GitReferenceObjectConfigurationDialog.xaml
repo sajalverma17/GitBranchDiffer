@@ -58,7 +58,16 @@
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5">
-                    <ListBox Name="BranchList" SelectionChanged="BranchList_SelectionChanged">
+                    <Grid.RowDefinitions>
+                        <RowDefinition x:Name="SearchBoxRow"/>
+                        <RowDefinition x:Name="ListBoxRow"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Row="0" Grid.Column="0" BorderThickness="2" TextChanged="SearchBox_TextChanged"/>
+                    <ListBox Name="BranchList" Grid.Row="1" Grid.Column="0"
+                             SelectionChanged="BranchList_SelectionChanged">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <WrapPanel Orientation="Horizontal">
@@ -77,7 +86,7 @@
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5">
-                    <ListBox Name="CommitList" SelectionChanged="CommitList_SelectionChanged">
+                    <ListBox Name="CommitList" SelectionChanged="CommitList_SelectionChanged">                        
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <WrapPanel Orientation="Horizontal">

@@ -5,6 +5,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Navigation;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -42,6 +45,7 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             this.InitializeComponent();
 
             DataContext = this;
+            SearchBoxRow.Height = new GridLength(22, GridUnitType.Pixel);
             BranchList.ItemsSource = BranchListData;
             CommitList.ItemsSource = CommitListData;
             TagList.ItemsSource = TagListData;
@@ -139,6 +143,20 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             {
                 SelectedReference = TagList.SelectedItem as IGitObject;
                 UserDefinedReferenceName = SelectedReference.FriendlyName;
+            }
+        }
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ICollectionView view = CollectionViewSource.GetDefaultView(BranchListData);
+            if (e.Changes.Any())
+            {
+                var textToSearch = ((TextBox)sender).Text;
+                view.Filter = (branch) => { return ((GitBranch)branch).FriendlyName.Contains(textToSearch); };
+            }
+            else
+            {
+                view.Filter = null;
             }
         }
     }
