@@ -92,12 +92,10 @@
 			  </Strings>
 		  </Button>
 
-		  <!-- Solution explorer button which brings up comparision settings of git filters -->
+		  <!-- Solution explorer button to open git reference configuration window -->
 		  <Button guid="guidFileDiffPackageCmdSet" id="SelectReferenceObjectButtonId" type="Button" priority="0x0050">
 			  <Parent guid="guidFileDiffPackageCmdSet" id="GitBranchDifferToolbarGroupId"/>
-			  <Icon guid="guidDiffConfigurationImage" id="GitBranchDifferConfigurationIcon16"/>
-			  <CommandFlag>DefaultInvisible</CommandFlag>
-			  <CommandFlag>DynamicVisibility</CommandFlag>			  
+			  <Icon guid="guidDiffConfigurationImage" id="GitBranchDifferConfigurationIcon16"/>	  
 			  <Strings>
 				  <ButtonText>Select Git reference to diff against</ButtonText>
 			  </Strings>

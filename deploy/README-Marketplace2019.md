@@ -14,11 +14,11 @@ To download for VS2022, go to https://marketplace.visualstudio.com/items?itemNam
 
 ![image](https://user-images.githubusercontent.com/25904133/121787246-4b76ba00-cbc5-11eb-8033-7b06d92079d5.png)
 
-2. Once the filter is applied, right-click on a file in Solution Explorer, then click `Open diff with Git reference`. <br>This opens a new tab, displaying the diff of the file's content in working branch compared to the file's content in reference branch/commit/tag.
+2. Once the filter is applied, right-click on a file in Solution Explorer, then click `Open diff with Git reference`. <br>This opens a new tab, displaying the diff of the file's content in working branch vs. file's content in reference branch/commit/tag.
 
 ![image](https://github.com/sajalverma17/GitBranchDiffer/assets/25904133/2b45fd37-503f-4870-a6c4-055617edd0fd)
 
-3. You can set your own Git reference from the Git reference configuration window. <br>Click the button shown in the screenshot below. The button only appears in Solution Explorer toolbar _after_ the filter has been applied.
+3. You can set your own Git reference from the Git reference configuration window. <br>Click the button as shown in the screenshot below.
 
 ![image](https://github.com/sajalverma17/GitBranchDiffer/assets/25904133/05e7cb62-971e-4c74-885f-4f75fe5f707f)
 

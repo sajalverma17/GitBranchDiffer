@@ -37,18 +37,6 @@ namespace BranchDiffer.VS.Shared.FileDiff.Commands
             this.gitObjectsStore = gitObjectsStore;
             this.shellSettingsManager = shellSettingsManager;
             this.Register(new CommandID(GitBranchDifferPackageGuids.guidFileDiffPackageCmdSet, GitBranchDifferPackageGuids.CommandIdSelectReferenceObjectCommand));
-            OleCommandInstance.BeforeQueryStatus += OleCommandInstance_BeforeQueryStatus;
-        }
-
-        private void OleCommandInstance_BeforeQueryStatus(object sender, EventArgs e)
-        {
-            if (BranchDiffFilterProvider.IsFilterApplied)
-            {
-                OleCommandInstance.Visible = true;
-                return;
-            }
-
-            OleCommandInstance.Visible = false;
         }
 
         protected override void Execute(object sender, EventArgs e)
