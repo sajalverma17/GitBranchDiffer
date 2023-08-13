@@ -22,8 +22,8 @@ namespace BranchDiffer.Git.Services
             };
 
             var branchDiffResult = gitRepo.Diff.Compare<TreeChanges>(
-                diffBranchPair.BranchToDiffAgainst.Tip.Tree,
-                diffBranchPair.WorkingBranch.Tip.Tree,
+                gitRepo.GetCommitTree(diffBranchPair.BranchToDiffAgainst.TipSha),
+                gitRepo.GetCommitTree(diffBranchPair.WorkingBranch.TipSha),
                 compareOptions);
 
             HashSet<DiffResultItem> changedPathsSet = new HashSet<DiffResultItem>();

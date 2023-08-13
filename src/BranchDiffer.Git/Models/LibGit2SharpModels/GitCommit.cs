@@ -1,5 +1,4 @@
-﻿using LibGit2Sharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,42 +6,19 @@ using System.Threading.Tasks;
 
 namespace BranchDiffer.Git.Models.LibGit2SharpModels
 {
-    public interface IGitCommit
+    public class GitCommit : IGitObject
     {
-        string Sha { get; }
+        public string FriendlyName { get; private set; }
 
-        Tree Tree { get; }
-    }
+        public string TipSha { get; private set; }
 
-    public class GitCommit : IGitCommit
-    {
-        private readonly Commit commit;
+        public string Message { get; private set; }
 
-        public GitCommit(Commit commit)
+        public GitCommit(string message, string commitSha) 
         {
-            this.commit = commit;
-        }
-
-        public string Sha => this.commit.Sha;
-
-        public Tree Tree => this.commit.Tree;
-
-        /// <summary>
-        /// Compare git commit objects by their 40-char sha1
-        /// </summary>
-        public override bool Equals(object obj)
-        {
-            if (obj == null || !(obj is IGitCommit otherCommit))
-            {
-                throw new InvalidOperationException();
-            }
-
-            return this.Sha.Equals(otherCommit.Sha);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
+            Message = message;
+            FriendlyName = commitSha.Substring(0, 7);
+            TipSha = commitSha;
         }
     }
 }

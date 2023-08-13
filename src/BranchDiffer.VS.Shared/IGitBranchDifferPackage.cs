@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Shell;
+﻿using BranchDiffer.Git.Models.LibGit2SharpModels;
+using Microsoft.VisualStudio.Shell;
 using System.Threading;
 
 namespace BranchDiffer.VS.Shared
@@ -8,7 +9,9 @@ namespace BranchDiffer.VS.Shared
     /// </summary>
     public interface IGitBranchDifferPackage : IAsyncServiceProvider
     {
-        string BranchToDiffAgainst { get; }
+        IGitObject BranchToDiffAgainst { get; set; }
+
+        string SolutionDirectory { get; }
 
         CancellationToken CancellationToken { get; }
     }

@@ -47,13 +47,21 @@
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.ComponentModel.Composition" Version="7.0.0" />
+    <Reference Include="Microsoft.VisualStudio.Diagnostics.Assert">
+      <HintPath>..\..\libs\Microsoft.VisualStudio.Diagnostics.Assert.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.Platform.WindowManagement, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\libs\Microsoft.VisualStudio.Platform.WindowManagement.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BranchDiffer.Git\BranchDiffer.Git.csproj">
@@ -72,7 +80,11 @@
       <Link>GitBranchDifferIconList_16_20.png</Link>
       <CopyToOutputDirectory>false</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\SharedFiles\Resources\GitBranchDifferPackage.ico">
+	<Content Include="..\SharedFiles\Resources\GitBranchDiffer_CompareIcon_16.png">
+	    <Link>GitBranchDiffer_CompareIcon_16.png</Link>
+		<CopyToOutputDirectory>false</CopyToOutputDirectory>
+	</Content>
+	<Content Include="..\SharedFiles\Resources\GitBranchDifferPackage.ico">
       <Link>GitBranchDifferPackage.ico</Link>
       <!--The generated VSIX references this icon in it's manifest, and needs this to be present in the same directory-->
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

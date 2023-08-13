@@ -11,18 +11,12 @@ namespace BranchDiffer.VS.Shared.BranchDiff
             this.errorPresenter = errorPresenter;
         }
 
-        public bool ValidateBranch(IGitBranchDifferPackage package)
+        public bool ValidatePackage(IGitBranchDifferPackage package)
         {
             if (package is null)
             {
                 this.errorPresenter.ShowError("Unable to load Git Branch Differ plug-in. It is possible Visual Studio is still initializing, please wait and try again.");
 
-                return false;
-            }
-
-            if (package.BranchToDiffAgainst is null || package.BranchToDiffAgainst == string.Empty)
-            {
-                this.errorPresenter.ShowError("Branch to diff against is not set. Go to Options -> Git Branch Differ -> Set \"Branch To Diff Against\"");
                 return false;
             }
 

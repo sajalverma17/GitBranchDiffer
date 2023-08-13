@@ -18,9 +18,12 @@ namespace BranchDiffer.VS.Shared.Utils
         // GUID for UI context of filter applied/un-applied
         public static Guid UIContext_BranchDiffFilter = new Guid("9707060D-0A76-4063-96E0-7868E1CA2616");
 
+        public const uint SelectReferenceObjectButtonId = 0x1022;
+
         // GUID for open file diff command
         public static Guid guidFileDiffPackageCmdSet = new Guid("2C760378-A2F7-4140-8478-9BD354E38430");
         public const int CommandIdPhysicalFileDiffMenuCommand = 0x0100;
         public const int CommandIdProjectFileDiffMenuCommand = 0x0200;
+        public const int CommandIdSelectReferenceObjectCommand = 0x1022;
     }
 }

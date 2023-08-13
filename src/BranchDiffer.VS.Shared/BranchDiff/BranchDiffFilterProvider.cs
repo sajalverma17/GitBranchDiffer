@@ -12,7 +12,9 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BranchDiffer.VS.Shared.BranchDiff
@@ -20,7 +22,7 @@ namespace BranchDiffer.VS.Shared.BranchDiff
     /// <summary>
     /// Filter Provider is constructed by VS once on startup.
     /// TODO: This class is now officially a mess, a simple todo is to break down the `ShouldIncludeInFilter` into a service with that logic moved there
-    /// TODO: Figure out how this provider can initialize the OpenDiffCommands and provide them info for visibility and TagManager. Presently, these are ugly Static properties defined on this class.
+    /// Figure out how this provider can initialize the OpenDiffCommands and provide them info for visibility and TagManager. Presently, these are ugly Static properties defined on this class.
     /// </summary>
     [SolutionTreeFilterProvider(GitBranchDifferPackageGuids.guidGitBranchDifferPackageCmdSet, (uint)(GitBranchDifferPackageGuids.CommandIdGenerateDiffAndFilter))]    
     public class BranchDiffFilterProvider : HierarchyTreeFilterProvider
@@ -107,7 +109,7 @@ namespace BranchDiffer.VS.Shared.BranchDiff
 
             protected override async Task<IReadOnlyObservableSet> GetIncludedItemsAsync(IEnumerable<IVsHierarchyItem> rootItems)
             {
-                if (this.branchDiffValidator.ValidateBranch(this.package))
+                if (this.branchDiffValidator.ValidatePackage(this.package))
                 {                    
                     // Create new tag tables everytime the filter is applied 
                     BranchDiffFilterProvider.TagManager.CreateTagTables();
@@ -115,30 +117,54 @@ namespace BranchDiffer.VS.Shared.BranchDiff
 
                     if (this.branchDiffValidator.ValidateSolution(this.solutionDirectory))
                     {
-                        try
+                        if (package.BranchToDiffAgainst is null)
                         {
-                            this.changeSet = this.branchDiffWorker.GenerateDiff(this.solutionDirectory, this.package.BranchToDiffAgainst);
+                            this.errorPresenter.ShowError($"Error: Unable to find a default Git reference to diff against. It may be because solution's directory ({this.solutionDirectory}) or it's parent directories are not a Git repo.");
+
+                            IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
+                                                root.HierarchyIdentity.NestedHierarchy,
+                                                CancellationToken);
+
+                            IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
+                                sourceItems,
+                                ShouldExcludeAllInFilter,
+                                CancellationToken);
+
+                            return includedItems;
                         }
-                        catch (GitOperationException e)
+                        else
                         {
-                            this.errorPresenter.ShowError(e.Message);
-                            return null;
+
+                            try
+                            {
+                                this.changeSet = this.branchDiffWorker.GenerateDiff(this.solutionDirectory, this.package.BranchToDiffAgainst);
+                            }
+                            catch (GitOperationException e)
+                            {
+                                this.errorPresenter.ShowError(e.Message);
+                                return null;
+                            }
+
+                            IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
+                                                root.HierarchyIdentity.NestedHierarchy,
+                                                CancellationToken);
+
+                            IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
+                                sourceItems,
+                                ShouldIncludeInFilter,
+                                CancellationToken);
+
+                            return includedItems;
                         }
-
-                        IReadOnlyObservableSet<IVsHierarchyItem> sourceItems = await this.vsHierarchyItemCollectionProvider.GetDescendantsAsync(
-                                            root.HierarchyIdentity.NestedHierarchy,
-                                            CancellationToken);
-
-                        IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
-                            sourceItems,
-                            ShouldIncludeInFilter,
-                            CancellationToken);
-
-                        return includedItems;
                     }
                 }
 
                 return null;
+            }
+
+            private bool ShouldExcludeAllInFilter(IVsHierarchyItem hierarchyItem)
+            {
+                return false;
             }
 
             private bool ShouldIncludeInFilter(IVsHierarchyItem hierarchyItem)

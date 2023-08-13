@@ -33,6 +33,7 @@ namespace BranchDiffer.VS.Shared.Configuration
             services.AddSingleton<BranchDiffFilterValidator>();
             services.AddSingleton<OpenPhysicalFileDiffCommand>();
             services.AddSingleton<OpenProjectFileDiffCommand>();
+            services.AddSingleton<OpenGitReferenceConfigurationCommand>();
             return services.BuildServiceProvider();
         }
     }

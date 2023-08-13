@@ -1,4 +1,5 @@
 ﻿using BranchDiffer.Git.Models;
+using BranchDiffer.Git.Models.LibGit2SharpModels;
 using BranchDiffer.Git.Services;
 
 namespace BranchDiffer.Git.Core
@@ -22,21 +23,20 @@ namespace BranchDiffer.Git.Core
             this.gitRepositoryFactory = gitRepositoryFactory;
         }
 
-        public DiffBranchPair GetDiffBranchPair(string solutionPath, string branchToDiffAgainst)
+        public DiffBranchPair GetDiffBranchPair(string solutionPath, IGitObject gitObjectToDiffAgainst)
         {
             using (var repository = this.gitRepositoryFactory.Create(solutionPath))
             {
-                return this.gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
+                return new DiffBranchPair { WorkingBranch = repository.Head, BranchToDiffAgainst = gitObjectToDiffAgainst };
             }
         }
 
         // Creates and returns a temp file on disk. Contents of this temp file are the contents of the VS active document file under Base Branch tree.
-        public string GetBaseBranchRevisionOfFile(string solutionPath, string branchToDiffAgainst, string activeVsDocumentPath)
+        public string GetBaseBranchRevisionOfFile(string solutionPath, IGitObject gitObjectToDiffAgainst, string activeVsDocumentPath)
         {
             using (var repository = this.gitRepositoryFactory.Create(solutionPath))
             {
-                var diffBranchPair = this.gitRepoService.GetBranchesToDiffFromRepo(repository, branchToDiffAgainst);
-                return this.gitFileService.GetBaseBranchRevisionOfFile(repository, diffBranchPair.BranchToDiffAgainst, activeVsDocumentPath);
+                return this.gitFileService.GetBaseBranchRevisionOfFile(repository, gitObjectToDiffAgainst, activeVsDocumentPath);
             }
         }
     }

@@ -27,12 +27,12 @@ namespace BranchDiffer.Git.Services
         /// <param name="repository"></param>
         /// <param name="filePath"></param>
         /// <returns>Path to a temp file, which is the Base-branch version of this file</returns>
-        string GetBaseBranchRevisionOfFile(IGitRepository repository, IGitObject baseBranchName, string filePath);
+        string GetBaseBranchRevisionOfFile(IGitRepository repository, IGitObject referenceBranch, string filePath);
     }
 
     public class GitFileService : IGitFileService
     {
-        public string GetBaseBranchRevisionOfFile(IGitRepository repository, IGitObject baseBranch, string filePath)
+        public string GetBaseBranchRevisionOfFile(IGitRepository repository, IGitObject referenceBranch, string filePath)
         {
             string workingDirectory = repository.WorkingDirectory;
             string relativePathInRepo = filePath;
@@ -41,8 +41,8 @@ namespace BranchDiffer.Git.Services
             {
                 relativePathInRepo = relativePathInRepo.Substring(workingDirectory.Length);
             }
-            
-            var treeEntryAtTipOfBase = baseBranch.Tip.Tree[relativePathInRepo.Replace(Constants.DirectorySeperator, "/")];
+
+            var treeEntryAtTipOfBase = repository.GetCommitTree(referenceBranch.TipSha)[relativePathInRepo.Replace(Constants.DirectorySeperator, "/")];
             if (treeEntryAtTipOfBase != null)
             {
                 return GetBaseBranchPathOfFile(treeEntryAtTipOfBase, relativePathInRepo, filePath);

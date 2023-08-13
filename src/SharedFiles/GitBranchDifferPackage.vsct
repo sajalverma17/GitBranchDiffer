@@ -48,48 +48,65 @@
         <Parent guid="guidBranchDiffWindowPackageCmdSet" id="BranchDiffToolbarId" />
       </Group>
     </Groups> -->
+	  
+	  <Groups>
+		  <Group guid="guidFileDiffPackageCmdSet" id="GitBranchDifferToolbarGroupId" priority="0x0025">
+			  <Parent guid="guidSHLMainMenu" id="IDM_VS_TOOL_PROJWIN"/>
+		  </Group>
+	  </Groups>
     
     <!--Buttons section. -->
-    <Buttons>
+	  <Buttons>
 
-      <!-- Diff and filter solution button in Solution Explorer -->
-      <Button guid="guidBranchDiffPackageCmdSet" id="cmdidBranchDiffAndFilter" priority="0x0400" type="Button">
-        <Parent guid="guidSHLMainMenu" id="IDG_VS_TOOLBAR_PROJWIN_FILTERS" />
-        <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16" />
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <Strings>
-          <ButtonText>Branch Diff Filter</ButtonText>
-          <CommandName>cmdidBrandDiffAndFilter</CommandName>
-        </Strings>
-      </Button>
+		  <!-- Diff and filter solution button in Solution Explorer -->
+		  <Button guid="guidBranchDiffPackageCmdSet" id="cmdidBranchDiffAndFilter" priority="0x0400" type="Button">
+			  <Parent guid="guidSHLMainMenu" id="IDG_VS_TOOLBAR_PROJWIN_FILTERS" />
+			  <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16" />
+			  <CommandFlag>DefaultInvisible</CommandFlag>
+			  <CommandFlag>DynamicVisibility</CommandFlag>
+			  <Strings>
+				  <ButtonText>Branch Diff Filter</ButtonText>
+				  <CommandName>cmdidBrandDiffAndFilter</CommandName>
+			  </Strings>
+		  </Button>
 
-      <!-- Button to open diff window for physical file node in Solution Explorer tree-->
-      <Button guid="guidFileDiffPackageCmdSet" id="cmdidPhysicalFileDiffMenuCommand" type="Button" priority="0x0000">
-        <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_OPEN" />
-        <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16" />
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <Strings>
-          <ButtonText>Open Diff With Base</ButtonText>
-        </Strings>
-      </Button>
+		  <!-- Button to open diff window for physical file node in Solution Explorer tree-->
+		  <Button guid="guidFileDiffPackageCmdSet" id="cmdidPhysicalFileDiffMenuCommand" type="Button" priority="0x0000">
+			  <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_OPEN" />
+			  <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16" />
+			  <CommandFlag>DefaultInvisible</CommandFlag>
+			  <CommandFlag>DynamicVisibility</CommandFlag>
+			  <Strings>
+				  <ButtonText>Open diff with Git Reference</ButtonText>
+			  </Strings>
+		  </Button>
 
-      <!--Button to open diff window for a project node in Solution Explorer tree-->
-      <Button guid="guidFileDiffPackageCmdSet" id="cmdidProjectFileDiffMenuCommand" type="Button" priority="0x0000">
-        <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_BUILD"/>
-        <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16" />
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <Strings>
-          <ButtonText>Open Diff With Base</ButtonText>
-        </Strings>
-      </Button>
-    </Buttons>
+		  <!--Button to open diff window for a project node in Solution Explorer tree-->
+		  <Button guid="guidFileDiffPackageCmdSet" id="cmdidProjectFileDiffMenuCommand" type="Button" priority="0x0000">
+			  <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_BUILD"/>
+			  <Icon guid="guidDiffFilterImage" id="GitBranchDifferDiffIcon16" />
+			  <CommandFlag>DefaultInvisible</CommandFlag>
+			  <CommandFlag>DynamicVisibility</CommandFlag>
+			  <Strings>
+				  <ButtonText>Open diff with Git Reference</ButtonText>
+			  </Strings>
+		  </Button>
+
+		  <!-- Solution explorer button to open git reference configuration window -->
+		  <Button guid="guidFileDiffPackageCmdSet" id="SelectReferenceObjectButtonId" type="Button" priority="0x0050">
+			  <Parent guid="guidFileDiffPackageCmdSet" id="GitBranchDifferToolbarGroupId"/>
+			  <Icon guid="guidDiffConfigurationImage" id="GitBranchDifferConfigurationIcon16"/>	  
+			  <Strings>
+				  <ButtonText>Select Git reference to diff against</ButtonText>
+			  </Strings>
+		  </Button>
+
+	  </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
     <Bitmaps>
       <Bitmap guid="guidDiffFilterImage" href="Resources\GitBranchDifferIconList_16_20.png" usedList="GitBranchDifferDiffIcon16" />
+	  <Bitmap guid="guidDiffConfigurationImage" href="Resources\GitBranchDiffer_CompareIcon_16.png" usedList="GitBranchDifferConfigurationIcon16"  />
     </Bitmaps>
   </Commands>
 
@@ -108,12 +125,18 @@
     
     <!--This is the guid containing commands for file diff -->
     <GuidSymbol name="guidFileDiffPackageCmdSet" value="{2C760378-A2F7-4140-8478-9BD354E38430}">
+	  <IDSymbol name="GitBranchDifferToolbarGroupId" value="0x0190" />
+	  <IDSymbol name="SelectReferenceObjectButtonId" value="0x1022" />
       <IDSymbol name="cmdidPhysicalFileDiffMenuCommand" value="0x0100" />
       <IDSymbol name="cmdidProjectFileDiffMenuCommand" value="0x0200"/>
     </GuidSymbol>
 
     <GuidSymbol name="guidDiffFilterImage" value="{C4223526-2F74-4AEA-9218-6C29A9793BE8}">
       <IDSymbol name="GitBranchDifferDiffIcon16" value="1"/>
-    </GuidSymbol>  
+    </GuidSymbol>
+
+	  <GuidSymbol name="guidDiffConfigurationImage" value="{80C4FC01-06E2-4330-93E3-5E2C99AAD3B0}">
+		  <IDSymbol name="GitBranchDifferConfigurationIcon16" value="1"/>
+	  </GuidSymbol>
   </Symbols>
 </CommandTable>

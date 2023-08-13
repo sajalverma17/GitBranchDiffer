@@ -12,7 +12,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)BranchDiff\BranchDiffFilterProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BranchDiff\BranchDiffFilterValidator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Configuration\VsDIContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\GitReferenceObjectConfigurationDialog.xaml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenDiffCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenGitReferenceConfigurationCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenPhysicalFileDiffCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Commands\OpenProjectFileDiffCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Tables\EditedCsProjectTable.cs" />
@@ -21,19 +23,23 @@
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\Tables\RenamedPathTable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileDiff\VsFileDiffProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GitBranchDifferPackage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GitBranchDifferPluginOptions.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)IGitBranchDifferPackage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ISolutionSelection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SelectedProject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SelectedProjectItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SolutionSelectionContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SolutionSelectionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StorageKeys.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ErrorPresenter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\GitBranchDifferPackageGuids.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)VSPackageResources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="$(MSBuildThisFileDirectory)FileDiff\Commands\GitReferenceObjectConfigurationDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 </Project>

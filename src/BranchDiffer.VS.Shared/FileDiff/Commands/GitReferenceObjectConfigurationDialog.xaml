@@ -1,0 +1,123 @@
+﻿<platformUI:DialogWindow
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:av="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:platformUI="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+    mc:Ignorable="av" x:Class="BranchDiffer.VS.Shared.FileDiff.Commands.GitReferenceObjectConfigurationDialog"
+             Width="500" 
+             Height="300"
+             Title="Select Git reference to diff against"
+             WindowStartupLocation="CenterScreen" 
+             ResizeMode="CanResize"
+             ShowInTaskbar="False">
+
+    <Grid>
+        <Button x:Name="CancelBtn" 
+                HorizontalAlignment="Right" 
+                VerticalAlignment="Bottom" 
+                Width="75" 
+                Content="Cancel" 
+                Margin="0,0,10,10" 
+                Click="CancelBtn_Click"/>
+
+        <Button x:Name="OKBtn" 
+                HorizontalAlignment="Right" 
+                VerticalAlignment="Bottom" 
+                Width="75" 
+                Content="OK" 
+                Margin="0,0,90,10" 
+                Click="OKBtn_Click"/>
+        <TextBlock x:Name="Label"
+                 VerticalAlignment="Bottom"
+                 HorizontalAlignment="Left"
+                 Width="110"
+                 Height="25"
+                 Margin="10,0,0,7"
+                 TextAlignment="Center"
+                 Text="Current reference:">
+        </TextBlock>
+        <TextBox x:Name="ReferenceAsTextInput"
+                 VerticalAlignment="Bottom"
+                 HorizontalAlignment="Left"
+                 Width="180"
+                 Height="22"
+                 Margin="120,0,0,10"
+                 TextWrapping="NoWrap"
+                 AcceptsReturn="False"
+                 AcceptsTab="False"
+                 ToolTip="You can type the branch name, tag name or commit SHA to diff against here"
+                 Text="{Binding Path=UserDefinedReferenceName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+        </TextBox>
+        <TabControl Name="Tabs" Margin="15,15,15,46">
+            <TabItem Name="BranchesTab" >
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <!--<Image Source="/<SharedProject>/Resources/branch.png" SnapsToDevicePixels="True" Width="16" Margin="0,0,2,0" />-->
+                        <TextBlock Text="Branch" Foreground="Blue" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition x:Name="SearchBoxRow"/>
+                        <RowDefinition x:Name="ListBoxRow"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Row="0" Grid.Column="0" BorderThickness="2" TextChanged="SearchBox_TextChanged"/>
+                    <ListBox Name="BranchList" Grid.Row="1" Grid.Column="0"
+                             SelectionChanged="BranchList_SelectionChanged">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock TextTrimming="WordEllipsis" Text="{Binding FriendlyName}" />
+                                </WrapPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </TabItem>
+            <TabItem Name="CommitsTab">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <!-- <Image Source="/<SharedProject>;component/Resources/commit.png" SnapsToDevicePixels="True" Width="16" Margin="0,0,2,0" />-->
+                        <TextBlock Text="Commit" Foreground="Blue" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="#FFE5E5E5">
+                    <ListBox Name="CommitList" SelectionChanged="CommitList_SelectionChanged">                        
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Width="100" Text="{Binding FriendlyName}" />
+                                    <TextBlock TextTrimming="WordEllipsis" Text="{Binding Message}" />
+                                </WrapPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </TabItem>
+            <TabItem Name="TagsTab">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <!--<Image Source="/GitTreeFilter;component/Resources/tag.png" SnapsToDevicePixels="True" Margin="0,0,2,0" Width="16" />-->
+                        <TextBlock Text="Tag" Foreground="Blue" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="#FFE5E5E5">
+                    <ListBox Name="TagList" SelectionChanged="TagList_SelectionChanged">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Width="100" Text="{Binding ShortSha}" />
+                                    <TextBlock TextTrimming="WordEllipsis" Text="{Binding FriendlyName}" />
+                                </WrapPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</platformUI:DialogWindow>

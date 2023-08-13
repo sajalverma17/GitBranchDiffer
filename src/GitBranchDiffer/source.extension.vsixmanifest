@@ -3,7 +3,7 @@
     <Metadata>
         <Identity Id="GitBranchDiffer.2a735790-c0b9-4ccc-bd58-3a7a55bb9aad" Version="99.0.0.0" Language="en-US" Publisher="Sajal Verma" />
         <DisplayName>Git Branch Differ</DisplayName>
-        <Description xml:space="preserve">Git Branch Differ is a Solution Explorer Filter which compares the working branch of your Git repo with the branch you choose to compare it with, and displays files that were Added/Modified/Renamed.</Description>
+        <Description xml:space="preserve">Git Branch Differ is a Solution Explorer Filter which compares the working branch of your Git repo with the branch, commit or tag of your choice, and only shows those files in Solution Explorer which were added/modified/renamed.</Description>
         <MoreInfo>https://github.com/sajalverma17/GitBranchDiffer</MoreInfo>
         <License>LICENSE.txt</License>
         <ReleaseNotes>https://github.com/sajalverma17/GitBranchDiffer/releases/tag/v0.1.6</ReleaseNotes>

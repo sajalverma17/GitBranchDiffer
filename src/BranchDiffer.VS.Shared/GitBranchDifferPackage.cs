@@ -9,6 +9,13 @@ using BranchDiffer.VS.Shared.FileDiff.Commands;
 using BranchDiffer.VS.Shared.BranchDiff;
 using Microsoft.VisualStudio.Shell.Interop;
 using BranchDiffer.VS.Shared.Configuration;
+using BranchDiffer.Git.Configuration;
+using BranchDiffer.Git.Core;
+using BranchDiffer.Git.Models.LibGit2SharpModels;
+using Microsoft.VisualStudio.Shell.Settings;
+using Microsoft.VisualStudio.Settings;
+using LibGit2Sharp;
+using BranchDiffer.Git.Exceptions;
 
 namespace BranchDiffer.VS.Shared
 {
@@ -19,14 +26,16 @@ namespace BranchDiffer.VS.Shared
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(GitBranchDifferPackageGuids.guidBranchDiffWindowPackage)]
-    [ProvideOptionPage(typeof(GitBranchDifferPluginOptions),
-    "Git Branch Differ", "Git Branch Differ Options", 0, 0, true)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class GitBranchDifferPackage : AsyncPackage, IGitBranchDifferPackage
     {
         private EnvDTE.DTE dte;
         private OpenPhysicalFileDiffCommand openPhysicalFileDiffCommand;
         private OpenProjectFileDiffCommand openProjectFileDiffCommand;
+        private OpenGitReferenceConfigurationCommand openGitReferenceConfigurationCommand;
+        private GitObjectsStore gitObjectsStore;
+        private ShellSettingsManager shellSettingsManager;
+        private string solutionDirectory;
 
         public GitBranchDifferPackage()
         {
@@ -38,6 +47,9 @@ namespace BranchDiffer.VS.Shared
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             this.dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+            this.shellSettingsManager = new ShellSettingsManager(this);
+            this.gitObjectsStore = DIContainer.Instance.GetService(typeof(GitObjectsStore)) as GitObjectsStore;
+
 
             await this.RegisterCommandsAsync();
 
@@ -47,10 +59,8 @@ namespace BranchDiffer.VS.Shared
                 this.dte.Events.SolutionEvents.Opened += SetSolutionPathOnFilter;
                 this.dte.Events.SolutionEvents.BeforeClosing += ClearSolutionPathFromFilter;
 
-                // When a document is opened separate from a solution, VS loads a "dummy" Solution1.
-                // This leads to our extension initialized (due to ProvideAutoLoad).
-                // In this case, don't set solution path now,
-                // let it happen when SolutionEvents.Opened triggers it on some "real" solution, if opens one later.
+                // When a document is opened separate from a solution, VS loads a "dummy" Solution1, this leads to our extension initialized due to ProvideAutoLoad.
+                // In this case, don't set solution path now, let it happen when SolutionEvents.Opened triggers it on some "real" solution.
                 if (!string.IsNullOrEmpty(this.dte.Solution.FullName))
                 {
                     this.SetSolutionPathOnFilter();
@@ -77,17 +87,9 @@ namespace BranchDiffer.VS.Shared
             }
         }
 
-        /// <summary>
-        /// The branch against which active branch will be diffed.
-        /// </summary>
-        public string BranchToDiffAgainst
-        {
-            get
-            {
-                GitBranchDifferPluginOptions options = (GitBranchDifferPluginOptions)GetDialogPage(typeof(GitBranchDifferPluginOptions));
-                return options.BaseBranchName.Trim();
-            }
-        }
+        public IGitObject BranchToDiffAgainst { get; set; }
+
+        public string SolutionDirectory => this.solutionDirectory;
 
         public CancellationToken CancellationToken => this.DisposalToken;
 
@@ -97,16 +99,56 @@ namespace BranchDiffer.VS.Shared
             // Construct file diff commands, initialize dependecies in it and then register them in VS Menu Commands asynchronously
             this.openPhysicalFileDiffCommand = VsDIContainer.Instance.GetService(typeof(OpenPhysicalFileDiffCommand)) as OpenPhysicalFileDiffCommand;
             this.openProjectFileDiffCommand = VsDIContainer.Instance.GetService(typeof(OpenProjectFileDiffCommand)) as OpenProjectFileDiffCommand;
+            this.openGitReferenceConfigurationCommand = VsDIContainer.Instance.GetService(typeof(OpenGitReferenceConfigurationCommand)) as OpenGitReferenceConfigurationCommand;
+
             await this.openPhysicalFileDiffCommand.InitializeAndRegisterAsync(this);
             await this.openProjectFileDiffCommand.InitializeAndRegisterAsync(this);
+            await this.openGitReferenceConfigurationCommand.InitializeAndRegisterAsync(this, this.shellSettingsManager, this.gitObjectsStore);
         }
 
         private void SetSolutionPathOnFilter()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var absoluteSolutionPath = this.dte.Solution.FullName;
-            var solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);
-            BranchDiffFilterProvider.SetSolutionInfo(solutionDirectory);
+            this.solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);            
+            BranchDiffFilterProvider.SetSolutionInfo(this.solutionDirectory);
+
+            try
+            {
+                this.BranchToDiffAgainst = GetLastUsedGitReference() ?? this.gitObjectsStore.GetDefaultGitReferenceObject(this.solutionDirectory);
+            }
+            catch (GitRepoNotFoundException e) 
+            {
+                ActivityLog.LogInformation(nameof(GitBranchDifferPackage), e.Message);
+            }
+        }
+
+        private IGitObject GetLastUsedGitReference()
+        {
+            var readSettingsStore = this.shellSettingsManager.GetReadOnlySettingsStore(SettingsScope.UserSettings);
+            if (!readSettingsStore.CollectionExists(StorageKeys.StorageCollectionName))
+            {
+                return null;
+            }
+
+            if (!readSettingsStore.PropertyExists(StorageKeys.StorageCollectionName, StorageKeys.StoredPropertyName))
+            {
+                return null;
+            }
+
+            var lastUsedReferenceSha = readSettingsStore.GetString(StorageKeys.StorageCollectionName, StorageKeys.StoredPropertyName);
+            if (string.IsNullOrEmpty(lastUsedReferenceSha))
+            {
+                return null;
+            }
+
+            var gitReference = this.gitObjectsStore.FindGitReferenceBySha(this.solutionDirectory, lastUsedReferenceSha);
+            if (gitReference == null)
+            {
+                return null;
+            }
+
+            return gitReference;
         }
 
         private void ClearSolutionPathFromFilter()
