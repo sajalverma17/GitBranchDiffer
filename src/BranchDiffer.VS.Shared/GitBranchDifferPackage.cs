@@ -104,18 +104,20 @@ namespace BranchDiffer.VS.Shared
             await this.openPhysicalFileDiffCommand.InitializeAndRegisterAsync(this);
             await this.openProjectFileDiffCommand.InitializeAndRegisterAsync(this);
             await this.openGitReferenceConfigurationCommand.InitializeAndRegisterAsync(this, this.shellSettingsManager, this.gitObjectsStore);
+            this.openGitReferenceConfigurationCommand.IsVisible = false;
         }
 
         private void SetSolutionPathOnFilter()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var absoluteSolutionPath = this.dte.Solution.FullName;
-            this.solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);            
+            this.solutionDirectory = System.IO.Path.GetDirectoryName(absoluteSolutionPath);
             BranchDiffFilterProvider.SetSolutionInfo(this.solutionDirectory);
 
             try
             {
                 this.BranchToDiffAgainst = GetLastUsedGitReference() ?? this.gitObjectsStore.GetDefaultGitReferenceObject(this.solutionDirectory);
+                this.openGitReferenceConfigurationCommand.IsVisible = true;
             }
             catch (GitRepoNotFoundException e) 
             {
@@ -154,6 +156,7 @@ namespace BranchDiffer.VS.Shared
         private void ClearSolutionPathFromFilter()
         {
             BranchDiffFilterProvider.SetSolutionInfo(string.Empty);
+            this.openGitReferenceConfigurationCommand.IsVisible = false;
         }
     }
 }
