@@ -125,12 +125,10 @@ namespace BranchDiffer.VS.Shared.BranchDiff
                                                 root.HierarchyIdentity.NestedHierarchy,
                                                 CancellationToken);
 
-                            IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
+                            return await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
                                 sourceItems,
                                 ShouldExcludeAllInFilter,
                                 CancellationToken);
-
-                            return includedItems;
                         }
                         else
                         {
@@ -149,12 +147,19 @@ namespace BranchDiffer.VS.Shared.BranchDiff
                                                 root.HierarchyIdentity.NestedHierarchy,
                                                 CancellationToken);
 
-                            IFilteredHierarchyItemSet includedItems = await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
+                            if (this.changeSet.Count == 0)
+                            {
+
+                                return await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
+                                    sourceItems,
+                                    ShouldExcludeAllInFilter,
+                                    CancellationToken);
+                            }
+
+                            return await this.vsHierarchyItemCollectionProvider.GetFilteredHierarchyItemsAsync(
                                 sourceItems,
                                 ShouldIncludeInFilter,
                                 CancellationToken);
-
-                            return includedItems;
                         }
                     }
                 }
