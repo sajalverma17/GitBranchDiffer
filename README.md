@@ -53,9 +53,9 @@ Open the `GitBranchDiffer.sln` and build the solution.
 ### Run
 
 To debug the extension in VS2019, open `GitBranchDiffer.sln` in VS2019 or VS2022 and set `GitBranchDiffer2019` as the Startup Project.
-To debug the extension in VS2022, open `GitBranchDiffer.sln` in VS2022 and set `GitBranchDiffer` as the Startup Project.
+To debug the extension in VS2022 or VS2026, open `GitBranchDiffer.sln` in VS2022 or VS2026 and set `GitBranchDiffer` as the Startup Project.
 
->After freshly cloning, if you run into this [TypeInitializationException](https://stackoverflow.com/questions/59926253/libgit2sharp-dllnotfoundexception-unable-to-load-dll-git2-106a5f2) while debugging, try deleting the Extensions folder found under this directory: `%LocalAppData%\Microsoft\VisualStudio\16.0_XXXXXXXXExp`. For VS2022 debugging, the path would be `%LocalAppData%\Microsoft\VisualStudio\17.0_XXXXXXXXExp`.
+>After freshly cloning, if you run into this [TypeInitializationException](https://stackoverflow.com/questions/59926253/libgit2sharp-dllnotfoundexception-unable-to-load-dll-git2-106a5f2) while debugging, try deleting the Extensions folder found under this directory: `%LocalAppData%\Microsoft\VisualStudio\16.0_XXXXXXXXExp`. For VS2022 debugging, the path would be `%LocalAppData%\Microsoft\VisualStudio\17.0_XXXXXXXXExp`. For VS2026 debugging, the path would be `%LocalAppData%\Microsoft\VisualStudio\18.0_XXXXXXXXExp`.
 
 
 ## Credits

@@ -4,7 +4,7 @@ Git Branch Differ is a Solution Explorer Filter which, when applied, only shows 
 
 After the filter is applied, you can open a diff for any file from Solution Explorer to view what changed.
 
-Supports VS2019 and VS2022
+Supports VS2019, VS2022, and VS2026
 
 To download for VS2019, go to https://marketplace.visualstudio.com/items?itemName=SajalVerma.GitBranchDiffer
 
