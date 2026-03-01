@@ -29,20 +29,20 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: true
         fetch-depth: 0
 
     # Install the .NET Core workload, probably not needed
     - name: Install .NET Core
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
 
     # Add  MSBuild to the PATH
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v2
 
     # Determine build version, then write to Github Actions Environment
     - name: Determine version number
@@ -54,7 +54,7 @@ jobs:
 
     - name: Verify Build_Version
       if: ${{ env.Build_Version == '0.0.0' }}
-      uses: actions/github-script@v3
+      uses: actions/github-script@v7
       with:
         script: |
                 core.setFailed('Build_Version env variable not set')
@@ -62,7 +62,7 @@ jobs:
     # Create a Github Release from latest Tag in 'master' branch.
     - name: Create Github Release
       id: create_gh_release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -95,7 +95,7 @@ jobs:
 
     # Upload the deploy folder as artifact. This contains the built VSIX packages, PublishManifest and Marketplace readme needed in publish job
     - name: Upload artifacts to workflow
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: PublishArtifacts
         path: deploy
@@ -117,7 +117,7 @@ jobs:
 
         # Download the build artifact to artifacts folder in 'artifacts' directory
       - name: Download the build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
             name: PublishArtifacts
             path: .\artifacts
@@ -162,7 +162,7 @@ jobs:
 
         # Download the build artifact to artifacts folder in 'artifacts' directory
       - name: Download the build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
             name: PublishArtifacts
             path: .\artifacts
